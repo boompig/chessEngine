@@ -19,6 +19,9 @@ def is_valid_square(row, col):
 	return 0 <= row and row < 8 and 0 <= col and col < 8
 
 
+def opposite_color(col):
+	return ("W" if col == "B" else "B")
+
 class Board(object):
 	EMPTY = ""
 
@@ -37,13 +40,21 @@ class Board(object):
 		self._piece_map = {}
 		for i, row in enumerate(self._board):
 			for j, piece in enumerate(row):
+				if piece == Board.EMPTY:
+					continue
 				# could be 
 				if not piece in self._piece_map:
 					self._piece_map[piece] = []
 				self._piece_map[piece].append( (i, j) )
 
+		print self._piece_map
+
 	def is_empty(self, row, col):
 		return self._board[row][col] == Board.EMPTY
+
+	def is_in_check(self, color):
+
+		return False
 
 	def show(self):
 		print ("*" * 24)

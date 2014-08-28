@@ -11,6 +11,8 @@ from piece_movement_rules import get_king_valid_squares
 from piece_movement_rules import get_pawn_valid_squares
 from piece_movement_rules import get_knight_valid_squares
 from piece_movement_rules import get_piece_valid_squares
+from piece_movement_rules import is_legal_move
+from piece_movement_rules import is_in_check
 
 
 class PieceMovementTest(T.TestCase):
@@ -51,6 +53,21 @@ class PieceMovementTest(T.TestCase):
 		assert get_piece_valid_squares(board, "a1") == []
 		assert get_piece_valid_squares(board, "a8") == []
 		assert sorted(get_piece_valid_squares(board, "e2")) == ["e3", "e4"]
+
+	def test_is_legal_pawn_move(self):
+		board = Board()
+		assert is_legal_move(board, "e2", "e3")
+		assert is_legal_move(board, "e2", "e4")
+		assert not is_legal_move(board, "e2", "e5")
+		assert not is_legal_move(board, "e2", "f3")
+		assert is_legal_move(board, "e7", "e6")
+		assert is_legal_move(board, "e7", "e5")
+		assert not is_legal_move(board, "e7", "e4")
+
+	def test_is_in_check(self):
+		board = Board()
+		assert not is_in_check(board, "W")
+		assert not is_in_check(board, "B")
 
 if __name__ == "__main__":
 	T.main()

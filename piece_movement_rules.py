@@ -1,6 +1,8 @@
 from utils import is_valid_square
 from utils import index_to_sq
 from utils import sq_to_index
+from utils import opposite_color
+from board import Board
 
 def valid_and_empty(row, col, board):
 	return is_valid_square(row, col) and board.is_empty(row, col)
@@ -117,5 +119,37 @@ def get_piece_valid_squares(board, sq):
 		"R": get_rook_valid_squares,
 		"Q": get_queen_valid_squares,
 		"K": get_king_valid_squares,
-		"P": get_pawn_valid_squares
+		"P": get_pawn_valid_squares,
+		"B": get_bishop_valid_squares
 	}[piece[1]](board, row, col, piece)
+
+def is_legal_move(board, src, dest):
+	"""src and dest are squares, not indices.
+	No turn checking."""
+	piece = board.get_piece(src)
+	if piece == Board.EMPTY:
+		raise ValueError("There is no piece at square %s" % src)
+	color = piece[0]
+
+	if dest not in get_piece_valid_squares(board, src):
+		return False
+
+	# apply the move
+	board.move_piece(src, dest)
+	has_check = is_in_check(board, color)
+	# undo the move
+	board.move_piece(dest, src)
+	return not has_check
+
+def is_in_check(board, color):
+	attacked_squares = set([])
+	opp_color = opposite_color(color)
+	# get everything for that color
+	for piece, coord_list in board._piece_map[opp_color].items():
+
+		for (row, col) in coord_list:
+			attacked_squares.update(
+				get_piece_valid_squares(board, index_to_sq(row, col))
+			)
+
+	return board._piece_map[color][color + "K"][0] in attacked_squares

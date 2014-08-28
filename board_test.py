@@ -1,7 +1,7 @@
 import unittest as T
 
-from board import sq_to_index
-from board import index_to_sq
+from utils import sq_to_index
+from utils import index_to_sq
 from board import Board
 
 class BoardTest(T.TestCase):
@@ -28,6 +28,22 @@ class BoardTest(T.TestCase):
 		board = Board()
 		assert board.is_in_check("W") == False
 		assert board.is_in_check("B") == False
+
+	def test_move_pawn(self):
+		board = Board()
+		board.move_piece("e2", "e4")
+		assert board.is_empty(*sq_to_index("e2"))
+		assert board.get_piece("e4") == "WP"
+
+		board.move_piece("e7", "e5")
+		assert board.is_empty(*sq_to_index("e7"))
+		assert board.get_piece("e5") == "BP"
+
+	def test_move_knight(self):
+		board = Board()
+		board.move_piece("b1", "c3")
+		assert board.is_empty(*sq_to_index("b1"))
+		assert board.get_piece("c3") == "WN"
 
 if __name__ == "__main__":
 	T.main()

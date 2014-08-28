@@ -1,7 +1,7 @@
 import unittest as T
 
-from board import sq_to_index
-from board import index_to_sq
+from utils import sq_to_index
+from utils import index_to_sq
 from board import Board
 
 from piece_movement_rules import get_rook_valid_squares

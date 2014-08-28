@@ -1,6 +1,6 @@
-from board import is_valid_square
-from board import index_to_sq
-from board import sq_to_index
+from utils import is_valid_square
+from utils import index_to_sq
+from utils import sq_to_index
 
 def valid_and_empty(row, col, board):
 	return is_valid_square(row, col) and board.is_empty(row, col)

@@ -1,3 +1,5 @@
+from utils import opposite_color
+
 from board import get_piece_list
 from board import starter_board
 from board import sq_to_index
@@ -5,6 +7,7 @@ from board import index_to_sq
 from board import move_piece
 
 from piece_movement_rules import _get_piece_valid_squares
+from piece_movement_rules import is_in_checkmate
 
 
 piece_scores = {
@@ -16,6 +19,22 @@ piece_scores = {
     "K": 1000
 }
 CHECKMATE = 10000
+
+
+def find_mate(board, color):
+    """Return the winning move for the given color, in the given position."""
+
+    opp_color = opposite_color(color)
+
+    for pos, piece, in get_piece_list(board, color):
+        for dest in _get_piece_valid_squares(board, pos):
+            b_new = board[:]
+            dest_idx = sq_to_index(dest)
+            move_piece(b_new, pos, dest_idx)
+            if is_in_checkmate(b_new, opp_color):
+                return (piece, pos, dest_idx)
+
+    return (None, None, None)
 
 
 def gen_all_moves(board, color):

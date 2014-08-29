@@ -6,11 +6,11 @@ A basic command-line chess simulator and engine.
 The goal of this project is to simply encapsulate the rules of chess, and to write a basic engine for it.
 The quality of the engine, and representations of the data, are constantly evolving to accomodate new efficiency requirements.
 
-## What Does That Mean
+## What Does That Mean?
 
 This is super unstable and actively being worked on.
 
-## How Good Is The Engine
+## How Good Is The Engine?
 
 I have no idea. Let's benchmark it against a human!
 

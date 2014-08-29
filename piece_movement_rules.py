@@ -43,8 +43,8 @@ def slide_and_check(board, index, piece, d_row, d_col, squares):
         if is_empty_square(board, index):
             squares.append(index)
         else:
-            logging.debug("square occupied by %s" % board[index])
-            logging.debug("attacking piece is %s" % piece)
+            #logging.debug("square occupied by %s" % board[index])
+            #logging.debug("attacking piece is %s" % piece)
             if piece[0] != get_color(board, index):
                 squares.append(index)
             return
@@ -194,8 +194,8 @@ def is_in_check(board, color):
         raise ValueError("King for color %s not present on board" % color)
 
     king_pos = index_to_sq(king_index[0])
-    logging.debug("King is at %s" % king_pos)
-    logging.debug("Squares under attack are %s" % str(attacked_squares))
+    #logging.debug("King is at %s" % king_pos)
+    #logging.debug("Squares under attack are %s" % str(attacked_squares))
     return king_pos in attacked_squares
 
 
@@ -208,8 +208,8 @@ def _has_no_legal_moves(board, color):
             # simulate that move
             move_piece(b_new, pos, dest_idx)
             if not is_in_check(b_new, color):
-                logging.debug("Piece %s can move from %s to %s" %
-                            (piece, index_to_sq(pos), dest))
+                #logging.debug("Piece %s can move from %s to %s" %
+                #            (piece, index_to_sq(pos), dest))
                 return False
 
     return True

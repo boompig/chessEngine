@@ -1,3 +1,5 @@
+import logging
+
 from utils import opposite_color
 
 from board import get_piece_list
@@ -19,22 +21,67 @@ piece_scores = {
     "K": 1000
 }
 CHECKMATE = 10000
+MAX = 0
+MIN = 1
 
 
 def find_mate(board, color):
     """Return the winning move for the given color, in the given position."""
 
-    opp_color = opposite_color(color)
+    return dls_minimax(board, 1, MAX, opposite_color(color))
 
-    for pos, piece, in get_piece_list(board, color):
-        for dest in _get_piece_valid_squares(board, pos):
+def find_mate_in_two(board, color):
+    """Return the winning sequence of moves by adopting a mini-max approach.
+    Depth-limit to 2."""
+
+    pass
+
+
+def dls_minimax(board, limit, turn, target_player, last_move=None, depth=0):
+    """Return whether or not there exists a winning combination of moves.
+    Return this combination.
+    target_player is the player being mated, not the one doing the mating"""
+
+    color = (target_player if turn == MIN else opposite_color(target_player))
+    logging.debug("Finding best move for player %s" % color)
+
+    if is_in_checkmate(board, target_player):
+        logging.debug("Reached terminal condition: found checkmate")
+        return (CHECKMATE, [last_move])
+    elif depth == limit:
+        # once we reach the max depth, just return 0 for the score
+        return (0, [last_move])
+    elif turn == MAX:
+        best_move = (-1 * CHECKMATE - 1, None)
+
+        # score each potential move
+        for (piece, src, dest) in gen_all_moves(board, color):
+            logging.debug("Looking at move %s%s-%s" %
+                    (piece[1], index_to_sq(src), index_to_sq(dest)))
             b_new = board[:]
-            dest_idx = sq_to_index(dest)
-            move_piece(b_new, pos, dest_idx)
-            if is_in_checkmate(b_new, opp_color):
-                return (piece, pos, dest_idx)
+            move_piece(b_new, src, dest)
+            move = dls_minimax(b_new, limit, MIN, target_player, (piece, src, dest), depth + 1)
+            if move[0] > best_move[0]:
+                best_move = move
 
-    return (None, None, None)
+        if last_move is not None:
+            best_move[1].insert(0, last_move)
+
+        return best_move
+    elif turn == MIN:
+        best_move = (CHECKMATE + 1, None)
+        # score each potential move
+        for (piece, src, dest) in gen_all_moves(board, color):
+            b_new = board[:]
+            move_piece(b_new, src, dest)
+            move = dls_minimax(b_new, limit, MAX, target_player, (piece, src, dest), depth + 1)
+            if move[0] < best_move[0]:
+                best_move = move
+
+        if last_move is not None:
+            best_move[1].insert(0, last_move)
+
+        return best_move
 
 
 def gen_all_moves(board, color):
@@ -44,7 +91,7 @@ def gen_all_moves(board, color):
     for location, piece in get_piece_list(board, color):
         for dest in _get_piece_valid_squares(board, location):
             # the destination here is chess notation, rather than index
-            moves.append( (location, sq_to_index(dest), piece) )
+            moves.append( (piece, location, sq_to_index(dest)) )
 
     return moves
 

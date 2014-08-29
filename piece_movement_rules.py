@@ -11,8 +11,11 @@ from board import index_to_sq
 from board import index_to_row_col
 from board import get_piece_list
 from board import move_piece
+from board import print_board
+from board import get_piece_color
+from board import get_raw_piece
 
-logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.DEBUG)
 
 
 def valid_and_empty(board, index):
@@ -25,7 +28,7 @@ def empty_or_capture(board, index, piece):
 
 
 def is_capture(board, index, piece):
-    return get_color(board, index) is not None and get_color(board, index) != piece[0]
+    return get_color(board, index) is not None and get_color(board, index) != get_piece_color(piece)
 
 
 def valid_capture(board, index, piece):
@@ -45,7 +48,7 @@ def slide_and_check(board, index, piece, d_row, d_col, squares):
         else:
             #logging.debug("square occupied by %s" % board[index])
             #logging.debug("attacking piece is %s" % piece)
-            if piece[0] != get_color(board, index):
+            if get_piece_color(piece) != get_color(board, index):
                 squares.append(index)
             return
 
@@ -102,11 +105,11 @@ def get_king_valid_squares(board, index):
 
 def get_pawn_valid_squares(board, index):
     piece = board[index]
-    d_row = (-1 if piece[0] == "W" else 1)
+    d_row = (-1 if get_piece_color(piece) == "W" else 1)
     row, col = index_to_row_col(index)
 
     l1 = [slide_index(index, 0, d_row)]
-    if (row == 1 and piece[0] == "B") or (row == 6 and piece[0] == "W"):
+    if (row == 1 and get_piece_color(piece) == "B") or (row == 6 and get_piece_color(piece) == "W"):
         l1.append(slide_index(index, 0, 2 * d_row))
 
     # should be empty
@@ -146,7 +149,7 @@ def _get_piece_valid_squares(board, index):
         "K": get_king_valid_squares,
         "P": get_pawn_valid_squares,
         "B": get_bishop_valid_squares
-    }[piece[1]](board, index)
+    }[get_raw_piece(piece)](board, index)
 
 
 def get_piece_valid_squares(board, sq):
@@ -188,9 +191,10 @@ def is_in_check(board, color):
     # find the king
     king_index = [
         index for index, piece in get_piece_list(board, color)
-        if piece[1] == "K"
+        if get_raw_piece(piece) == "K"
     ]
     if king_index == []:
+        print_board(board)
         raise ValueError("King for color %s not present on board" % color)
 
     king_pos = index_to_sq(king_index[0])

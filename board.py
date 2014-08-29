@@ -3,7 +3,7 @@ import logging
 from utils import opposite_color
 from utils import full_color_name
 
-logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.DEBUG)
 
 E = "E"
 G = "G"
@@ -28,7 +28,7 @@ def get_piece_list(board, color):
     """Return the mapping."""
 
     return [(index, piece) for index, piece in enumerate(board)
-            if piece[0] == color]
+            if get_piece_color(piece) == color]
 
 
 def index_to_sq(index):
@@ -84,6 +84,39 @@ def load_board_from_file(board, fname="game.txt"):
     raise ValueError("Not implemented")
 
 
+def get_piece_color(piece):
+    return piece[0]
+
+
+def get_raw_piece(piece):
+    return piece[1]
+
+
+def fen_to_board(fen):
+    """Convert FEN to a row-array"""
+    flat_arr = [G]
+
+    for c in fen:
+        if c.isdigit():
+            for i in range(int(c)):
+                flat_arr.append(E)
+        elif c.islower():
+            print "B" + c.upper()
+            flat_arr.append("B" + c.upper())
+        elif c.isupper():
+            flat_arr.append("W" + c)
+        elif c == " ":
+            # ignore the other info
+            break
+        elif c == "/":
+            flat_arr.extend([G, G])
+
+    flat_arr.append(G)
+
+    assert len(flat_arr) == 80
+    return ([G] * 20) + flat_arr + ([G] * 20)
+
+
 def load_board(arr):
     # this is an array of arrays
     # each sub-array is a row
@@ -93,7 +126,7 @@ def load_board(arr):
 
     board = [G] * 20
     for row in arr:
-        board.extend([G] + [(E if sq == "" else sq) for sq in row] + [G])
+        board.extend([G] + [(E if sq.rstrip() == "" else sq) for sq in row] + [G])
 
     board.extend( [G] * 20 )
     return board

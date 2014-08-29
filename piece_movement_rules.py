@@ -193,4 +193,7 @@ def is_in_check(board, color):
     if king_index == []:
         raise ValueError("King for color %s not present on board" % color)
 
-    return index_to_sq(king_index[0]) in attacked_squares
+    king_pos = index_to_sq(king_index[0])
+    logging.debug("King is at %s" % king_pos)
+    logging.debug("Squares under attack are %s" % str(attacked_squares))
+    return king_pos in attacked_squares

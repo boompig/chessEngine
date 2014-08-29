@@ -66,6 +66,20 @@ class PieceMovementTest(T.TestCase):
         rook_squares = ["a8", "c8"]
         assert sorted(get_rook_valid_squares(board, sq_to_index("b8"))) == rook_squares
 
+    def test_rook_valid_squares_capture_blocks_own_piece(self):
+        board = load_board([
+            ["WR", "", "", "", "", "BK", "WK", ""],
+            ["BN", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+        ])
+        rook_squares = ["a7", "b8", "c8", "d8", "e8", "f8"]
+        assert sorted(get_rook_valid_squares(board, sq_to_index("a8"))) == rook_squares
+
     def test_bishop_valid_squares(self):
         board = starter_board[:]
         index = sq_to_index("c1")
@@ -115,7 +129,7 @@ class PieceMovementTest(T.TestCase):
 
     def test_is_in_check_basic_rook(self):
         board = load_board([
-            ["WR", "", "", "", "", "BK", "WK", ""],
+            ["WR", "", "", "", "BK", "", "WK", ""],
             ["", "", "", "", "", "", "", ""],
             ["", "", "", "", "", "", "", ""],
             ["", "", "", "", "", "", "", ""],
@@ -134,8 +148,8 @@ class PieceMovementTest(T.TestCase):
             ["", "", "", "", "", "", "", ""],
             ["", "", "", "", "", "", "", ""],
             ["", "", "", "", "BK", "", "", ""],
-            ["", "", "", "", "", "WK", "", ""],
             ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "WK", ""],
             ["", "", "", "", "", "", "", ""],
         ])
         assert is_in_check(board, "B")

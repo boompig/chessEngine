@@ -198,28 +198,31 @@ def is_in_check(board, color):
     logging.debug("Squares under attack are %s" % str(attacked_squares))
     return king_pos in attacked_squares
 
+
+def _has_no_legal_moves(board, color):
+    # get all possible moves
+    for pos, piece in get_piece_list(board, color):
+        for dest in _get_piece_valid_squares(board, pos):
+            dest_idx = sq_to_index(dest)
+            b_new = board[:]
+            # simulate that move
+            move_piece(b_new, pos, dest_idx)
+            if not is_in_check(b_new, color):
+                logging.debug("Piece %s can move from %s to %s" %
+                            (piece, index_to_sq(pos), dest))
+                return False
+
+    return True
+
 def is_in_checkmate(board, color):
     """Criteria for checkmate:
     1. is in check
     2. no move will bring the player out of check
     """
 
-    if not is_in_check(board, color):
-        return False
+    return is_in_check(board, color) and _has_no_legal_moves(board, color)
 
-    # get all possible moves
-    for pos, piece in get_piece_list(board, color):
-        for dest in _get_piece_valid_squares(board, pos):
-            dest_idx = sq_to_index(dest)
-            # simulate that move
-            logging.debug("Piece %s can move from %d to %s" % (piece, pos, dest))
-            move_piece(board, pos, dest_idx)
-            if not is_in_check(board, color):
-                # also undo move on exit
-                move_piece(board, dest_idx, pos)
-                return False
-            else:
-                # undo move
-                move_piece(board, dest_idx, pos)
 
-    return True
+def is_in_stalemate(board, color):
+
+    return not is_in_check(board, color) and _has_no_legal_moves(board, color)

@@ -15,6 +15,7 @@ from piece_movement_rules import get_piece_valid_squares
 from piece_movement_rules import is_legal_move
 from piece_movement_rules import is_in_check
 from piece_movement_rules import is_in_checkmate
+from piece_movement_rules import is_in_stalemate
 
 
 class PieceMovementTest(T.TestCase):
@@ -26,8 +27,8 @@ class PieceMovementTest(T.TestCase):
 
     def test_rook_empty_board_valid_squares(self):
         board = load_board([
-            ["WR", "", "", "", "", "", "", ""],
             ["", "", "", "", "", "", "", ""],
+            ["", "WR", "", "", "", "", "", ""],
             ["", "", "", "", "", "", "", ""],
             ["", "", "", "", "", "", "", ""],
             ["", "", "", "", "", "", "", ""],
@@ -35,13 +36,13 @@ class PieceMovementTest(T.TestCase):
             ["", "", "", "", "", "", "", ""],
             ["", "", "", "", "", "", "", ""],
         ])
-        rook_squares = ["a1", "a2", "a3", "a4", "a5", "a6", "a7",
-                        "b8", "c8", "d8", "e8", "f8", "g8", "h8"]
-        assert sorted(get_rook_valid_squares(board, sq_to_index("a8"))) == rook_squares
+        rook_squares = ["a7", "b1", "b2", "b3", "b4", "b5", "b6", "b8",
+                        "c7", "d7", "e7", "f7", "g7", "h7"]
+        assert sorted(get_rook_valid_squares(board, sq_to_index("b7"))) == rook_squares
 
     def test_rook_blocked_capture_valid_squares(self):
         board = load_board([
-            ["", "WR", "", "BQ", "", "", "", ""],
+            ["BN", "WR", "", "BQ", "", "", "", ""],
             ["", "BR", "", "", "", "", "", ""],
             ["", "", "", "", "", "", "", ""],
             ["", "", "", "", "", "", "", ""],
@@ -183,6 +184,20 @@ class PieceMovementTest(T.TestCase):
         ])
         assert not is_in_checkmate(board, "B")
         assert not is_in_checkmate(board, "W")
+
+    def test_is_in_stalemate_with_rook(self):
+        board = load_board([
+            ["BK", "", "", "", "", "", "", ""],
+            ["", "WR", "", "", "", "", "", ""],
+            ["", "", "WK", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+        ])
+        assert is_in_stalemate(board, "B")
+        assert not is_in_checkmate(board, "B")
 
 if __name__ == "__main__":
     T.main()

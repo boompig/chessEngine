@@ -14,6 +14,7 @@ from piece_movement_rules import get_knight_valid_squares
 from piece_movement_rules import get_piece_valid_squares
 from piece_movement_rules import is_legal_move
 from piece_movement_rules import is_in_check
+from piece_movement_rules import is_in_checkmate
 
 
 class PieceMovementTest(T.TestCase):
@@ -155,6 +156,33 @@ class PieceMovementTest(T.TestCase):
         assert is_in_check(board, "B")
         assert not is_in_check(board, "W")
 
+    def test_is_in_checkmate_simple_rook_mate(self):
+        board = load_board([
+            ["", "WR", "", "BK", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "WK", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+        ])
+        assert is_in_checkmate(board, "B")
+        assert not is_in_checkmate(board, "W")
+
+    def test_is_in_checkmate_simple_rook_check(self):
+        board = load_board([
+            ["", "WR", "", "", "BK", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "WK", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+        ])
+        assert not is_in_checkmate(board, "B")
+        assert not is_in_checkmate(board, "W")
 
 if __name__ == "__main__":
     T.main()

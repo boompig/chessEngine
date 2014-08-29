@@ -1,100 +1,110 @@
-from utils import sq_to_index
+import logging
+
 from utils import opposite_color
 from utils import full_color_name
 
-class Board(object):
-	EMPTY = ""
+logging.basicConfig(level=logging.DEBUG)
 
-	def __init__(self):
-		self.turn = "W"
-		self._board = [
-			["BR", "BN", "BB", "BQ", "BK", "BB", "BN", "BR"],
-			["BP", "BP", "BP", "BP", "BP", "BP", "BP", "BP"],
-			["", "", "", "", "", "", "", ""],
-			["", "", "", "", "", "", "", ""],
-			["", "", "", "", "", "", "", ""],
-			["", "", "", "", "", "", "", ""],
-			["WP", "WP", "WP", "WP", "WP", "WP", "WP", "WP"],
-			["WR", "WN", "WB", "WQ", "WK", "WB", "WN", "WR"]
-		]
+E = "E"
+G = "G"
 
-		self._piece_map = {}
-		for i, row in enumerate(self._board):
-			for j, piece in enumerate(row):
-				if piece == Board.EMPTY:
-					continue
+# the default board, with guard regions
+starter_board = [
+	G, G, G, G, G, G, G, G, G, G,
+	G, G, G, G, G, G, G, G, G, G,
+	G, "BR", "BN", "BB", "BQ", "BK", "BB", "BN", "BR", G,
+	G, "BP", "BP", "BP", "BP", "BP", "BP", "BP", "BP", G,
+	G, E, E, E, E, E, E, E, E, G,
+	G, E, E, E, E, E, E, E, E, G,
+	G, E, E, E, E, E, E, E, E, G,
+	G, E, E, E, E, E, E, E, E, G,
+	G, "WP", "WP", "WP", "WP", "WP", "WP", "WP", "WP", G,
+	G, "WR", "WN", "WB", "WQ", "WK", "WB", "WN", "WR", G,
+	G, G, G, G, G, G, G, G, G, G,
+	G, G, G, G, G, G, G, G, G, G,
+]
 
-				color = piece[0]
-				if not color in self._piece_map:
-					self._piece_map[color] = {}
-				# could be 
-				if not piece in self._piece_map[color]:
-					self._piece_map[color][piece] = []
-				self._piece_map[color][piece].append( (i, j) )
+def get_piece_list(board, color):
+	"""Return the mapping."""
 
-	def get_piece_location(self, color, piece):
-		"""Return list of locations for the piece."""
+	return [(index, piece) for index, piece in enumerate(board)
+	        if piece[0] == color]
 
-		return self._piece_map[color][piece]
 
-	def get_piece(self, sq):
-		row, col = sq_to_index(sq)
-		return self._board[row][col]
+def index_to_sq(index):
+	row, col = index_to_row_col(index)
+	return "%s%d" % (chr(col + 97), 8 - row)
 
-	def is_empty(self, row, col):
-		return self._board[row][col] == Board.EMPTY
 
-	def is_in_check(self, color):
+def index_to_row_col(index):
+	row = index / 10 - 2
+	col = index % 10 - 1
+	return (row, col)
 
-		return False
 
-	def show(self):
-		print "%s to move" % full_color_name(self.turn)
-		print ("*" * 26)
-		for i, row in enumerate(self._board):
-			print "%d" % (8 - i),
-			for sq in row:
-				if len(sq) != 2:
-					print "  ",
-				else:
-					print sq,
+def sq_to_row_col(sq):
+	row = 8 - int(sq[1])
+	col = ord(sq[0]) - 97
+	return (row, col)
+
+
+def sq_to_index(sq):
+	row, col = sq_to_row_col(sq)
+	return (row + 2) * 10 + col + 1
+
+
+def is_valid_square(index):
+	return starter_board[index] != G
+
+
+def is_empty_square(board, index):
+	return board[index] == E
+
+
+def get_color(board, index):
+	if board[index] in set([E, G]):
+		return None
+	else:
+		return board[index][0]
+
+
+def slide_index(index, dx, dy):
+	return index + (10 * dy) + dx
+
+
+def move_piece(board, src, dest):
+	"""No check on this."""
+
+	piece = board[src]
+	board[src] = E
+	board[dest] = piece
+
+
+def print_board(board):
+	print ("*" * 25),
+	for i, piece in enumerate(board):
+		if not is_valid_square(i):
+			continue
+		if i % 10 == 1:
 			print ""
-		print "   " + "  ".join([chr(i + 97) for i in range(8)])
-		print ("*" * 26)
+			sq = index_to_sq(i)
+			print sq[1],
+		if piece == E:
+			print "  ",
+		else:
+			print piece,
 
-	def save(self):
-		with open("game.txt", "w") as fp:
-			for row in self._board:
-				fp.write("".join(row) + "\n")
+	print ""
+	print " ",
+	for i in range(8):
+		print "%s " % (chr(i + 97)),
+	print ""
+	print ("*" * 25)
 
-	def get_color(self, row, col):
-		piece = self._board[row][col]
-		return (None if piece == Board.EMPTY else piece[0])
 
-	def can_move_this_turn(self, sq):
-		row, col = sq_to_index(sq)
-		return self.get_color(row, col) == self.turn
-
-	def flip_turn(self):
-		self.turn = opposite_color(self.turn)
-
-	def move_piece(self, src, dest):
-		"""Move a piece. No validity check."""
-
-		src_row, src_col = sq_to_index(src)
-		dest_row, dest_col = sq_to_index(dest)
-
-		# update board
-		piece = self._board[src_row][src_col]
-		self._board[dest_row][dest_col] = piece
-		self._board[src_row][src_col] = Board.EMPTY
-
-		# update piece map
-		self._piece_map[piece[0]][piece].remove((src_row, src_col))
-		self._piece_map[piece[0]][piece].append((dest_row, dest_col))
-
-if __name__ == "__main__":
-	b = Board()
-	b.show()
-	b.move_piece("e2", "e4")
-	b.show()
+def save_board(board, fname="game.txt"):
+	with open(fname, "w") as fp:
+		for i, sq in enumerate(board):
+			if i % 10 == 0:
+				fp.write("\n")
+			fp.write(sq)

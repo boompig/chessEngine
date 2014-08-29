@@ -2,12 +2,34 @@
 
 import logging
 
-from utils import index_to_sq
-from board import Board
+from board import index_to_sq
+from board import save_board
+from board import starter_board
+from board import print_board
+from board import get_color
+from board import sq_to_index
+from board import is_empty_square
+from board import move_piece
+
 from piece_movement_rules import is_legal_move
 from piece_movement_rules import get_piece_valid_squares
 
-moves = []
+from utils import opposite_color
+
+
+class Game(object):
+	turn = "W"
+	moves = []
+
+	@staticmethod
+	def record_move(move):
+		Game.moves.append(move)
+
+
+	@staticmethod
+	def flip_turn():
+		Game.turn = opposite_color(Game.turn)
+
 
 def interpret_move(notation, board):
 	"""Return tuple (src, dest). Each is algebraic.
@@ -47,16 +69,20 @@ def interpret_move(notation, board):
 			return (src_flag, dest)
 
 def show_moves():
-	for i in range(len(moves)):
+	for i in range(len(Game.moves)):
 		if i % 2 == 0:
-			print "%d. %s" % (i / 2 + 1, moves[i]),
+			print "%d. %s" % (i / 2 + 1, Game.moves[i]),
 		else:
-			print moves[i]
+			print Game.moves[i]
 
-	if len(moves) % 2:
+	if len(Game.moves) % 2:
 		print ""
 
 	print ""
+
+
+def can_move_this_turn(board, index, turn):
+	return get_color(board, index) == turn
 
 def process_command(board, command):
 	logging.debug("Received command %s" % command)
@@ -66,6 +92,11 @@ def process_command(board, command):
 		return 1
 	elif command == "s":
 		board.save()
+		print "board saved"
+		return
+	elif command == "l":
+		board.load()
+		print "board loaded"
 		return
 
 	try:
@@ -80,32 +111,36 @@ def process_command(board, command):
 	else:
 		logging.debug("Valid piece")
 
-	if board.get_piece(src) == Board.EMPTY:
+	src_idx, dest_idx = [sq_to_index(sq) for sq in [src, dest]]
+
+	if is_empty_square(board, src_idx):
 		print "E: %s is empty" % src
 		return
 
-	if not board.can_move_this_turn(src):
+	if not can_move_this_turn(board, src_idx, Game.turn):
 		print "E: It is not your turn"
 		return
 
 	try:
 		if is_legal_move(board, src, dest):
-			board.move_piece(src, dest)
-			board.flip_turn()
-			moves.append(command)
+			move_piece(board, src_idx, dest_idx)
+			Game.flip_turn()
+			Game.record_move(command)
 		else:
 			print "%s is an illegal move" % command
 	except ValueError as e:
 		print "Error! %s" % e.message
 
 def game_loop():
-	board = Board()
+	board = starter_board
 
 	while True:
 		show_moves()
-		board.show()
+		print_board(board)
 		print("Enter move as [src]-[dest], inspect square at [src], or q to quit")
 		command = raw_input(">> ")
+		if command == "":
+			continue
 
 		exit_status = process_command(board, command.lower())
 		if exit_status:

@@ -6,6 +6,8 @@ from board import is_valid_square
 from board import starter_board
 from board import load_board
 from board import dump_board
+from board import get_piece_list
+
 
 class BoardTest(T.TestCase):
     def test_sq_to_index(self):
@@ -68,6 +70,30 @@ class BoardTest(T.TestCase):
         ]
         # comparison by value
         assert dump_board(starter_board) == sample_board
+
+    def test_piece_list(self):
+        board = starter_board[:]
+        starter_piece_list = [
+            ("a1", "WR"),
+            ("a2", "WP"),
+            ("b1", "WN"),
+            ("b2", "WP"),
+            ("c1", "WB"),
+            ("c2", "WP"),
+            ("d1", "WQ"),
+            ("d2", "WP"),
+            ("e1", "WK"),
+            ("e2", "WP"),
+            ("f1", "WB"),
+            ("f2", "WP"),
+            ("g1", "WN"),
+            ("g2", "WP"),
+            ("h1", "WR"),
+            ("h2", "WP"),
+        ]
+        pl = get_piece_list(board, "W")
+        apl = [(index_to_sq(idx), piece) for idx, piece in pl]
+        assert sorted(apl) == starter_piece_list
 
 if __name__ == "__main__":
     T.main()

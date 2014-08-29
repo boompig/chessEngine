@@ -1,3 +1,5 @@
+import logging
+
 from utils import opposite_color
 
 from board import is_valid_square
@@ -9,6 +11,8 @@ from board import index_to_sq
 from board import index_to_row_col
 from board import get_piece_list
 from board import move_piece
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 def valid_and_empty(board, index):
@@ -39,14 +43,15 @@ def slide_and_check(board, index, piece, d_row, d_col, squares):
         if is_empty_square(board, index):
             squares.append(index)
         else:
+            logging.debug("square occupied by %s" % board[index])
+            logging.debug("attacking piece is %s" % piece)
             if piece[0] != get_color(board, index):
                 squares.append(index)
-            break
-
-    return
+            return
 
 
-def get_rook_valid_squares(board, index, piece):
+def get_rook_valid_squares(board, index):
+    piece = board[index]
     squares = []
     slide_and_check(board, index, piece, 0, 1, squares)
     slide_and_check(board, index, piece, 0, -1, squares)
@@ -55,7 +60,8 @@ def get_rook_valid_squares(board, index, piece):
     return [index_to_sq(index) for index in squares]
 
 
-def get_bishop_valid_squares(board, index, piece):
+def get_bishop_valid_squares(board, index):
+    piece = board[index]
     squares = []
     slide_and_check(board, index, piece, 1, 1, squares)
     slide_and_check(board, index, piece, 1, -1, squares)
@@ -64,16 +70,17 @@ def get_bishop_valid_squares(board, index, piece):
     return [index_to_sq(index) for index in squares]
 
 
-def get_queen_valid_squares(board, index, piece):
+def get_queen_valid_squares(board, index):
+    piece = board[index]
     squares = []
-    squares.extend(get_rook_valid_squares(board, index, piece))
-    squares.extend(get_bishop_valid_squares(board, index, piece))
+    squares.extend(get_rook_valid_squares(board, index))
+    squares.extend(get_bishop_valid_squares(board, index))
     return squares
 
 
-def get_king_valid_squares(board, index, piece):
+def get_king_valid_squares(board, index):
     """This is easily parallelisable."""
-
+    piece = board[index]
     squares = [
         slide_index(index, 1, -1),
         slide_index(index, 1, 0),
@@ -93,7 +100,8 @@ def get_king_valid_squares(board, index, piece):
     ]
 
 
-def get_pawn_valid_squares(board, index, piece):
+def get_pawn_valid_squares(board, index):
+    piece = board[index]
     d_row = (-1 if piece[0] == "W" else 1)
     row, col = index_to_row_col(index)
 
@@ -111,7 +119,8 @@ def get_pawn_valid_squares(board, index, piece):
     return [index_to_sq(index) for index in squares]
 
 
-def get_knight_valid_squares(board, index, piece):
+def get_knight_valid_squares(board, index):
+    piece = board[index]
     squares = [
         slide_index(index, 1, 2),
         slide_index(index, 1, -2),
@@ -122,7 +131,7 @@ def get_knight_valid_squares(board, index, piece):
         slide_index(index, -2, 1),
         slide_index(index, -2, -1),
     ]
-    
+
     return [index_to_sq(index) for index in squares
         if empty_or_capture(board, index, piece)
     ]
@@ -130,7 +139,6 @@ def get_knight_valid_squares(board, index, piece):
 
 def _get_piece_valid_squares(board, index):
     piece = board[index]
-
     return {
         "N": get_knight_valid_squares,
         "R": get_rook_valid_squares,
@@ -138,7 +146,7 @@ def _get_piece_valid_squares(board, index):
         "K": get_king_valid_squares,
         "P": get_pawn_valid_squares,
         "B": get_bishop_valid_squares
-    }[piece[1]](board, index, piece)
+    }[piece[1]](board, index)
 
 
 def get_piece_valid_squares(board, sq):
@@ -180,7 +188,9 @@ def is_in_check(board, color):
     # find the king
     king_index = [
         index for index, piece in get_piece_list(board, color)
-        if piece[1] == "K" 
-    ][0]
+        if piece[1] == "K"
+    ]
+    if king_index == []:
+        raise ValueError("King for color %s not present on board" % color)
 
-    return index_to_sq(king_index) in attacked_squares
+    return index_to_sq(king_index[0]) in attacked_squares

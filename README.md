@@ -22,3 +22,26 @@ I have no idea. Let's benchmark it against a human!
 * UI?
 * faster language than Python
 * actual analytics/metrics, to figure out what is the slow part
+
+## Design Choices (So Far)
+
+### Board Representation
+
+I currently represent the board as a flat array of pieces, empty spaces, and guard regions. This array contains 120 elements, and is meant to be viewed as a flattened matrix which is 12x10. The first and last 2 rows of this matrix contain only guard elements. The first and last element of each row are also guard elements. The 8x8 submatrix is the game board, where index (1, 1) of the submatrix is a8 on a chessboard. It is meant to be viewed as a board from the perspective of white.
+
+Possible inefficiencies with this approach:
+* ???
+
+### Piece Representation
+
+Pieces are represented as strings. Empty spaces are the empty string, guard regions are the string "G". Each piece is two characters, where the first one is the color and the second is the type.
+
+Possible inefficiencies:
+* strings are large-ish in memory, compared to numbers. A lot of space can be saved with 6-bit numbers. 1 bit for the color, 1 bit for whether it is actually a guard element, 1 bit for whether it is actually an empty square, and 3 bits for the piece type (since there are only 6). Note that by being clever, we could also include guard and empty stuff into these first 3 bits, to get a 4-bit int.
+
+Benefits:
+* easy to think about
+
+### Search Strategy
+
+Currently doing depth-limited minimax with alpha-beta pruning. I will be switching over to killer heuristic + negamax as soon as I can find the bugs with existing code...

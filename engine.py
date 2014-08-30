@@ -7,7 +7,8 @@ from board import starter_board
 from board import sq_to_index
 from board import index_to_sq
 from board import move_piece
-#from board import print_board
+from board import gen_successor
+from board import dump_board
 
 from piece_movement_rules import _get_piece_valid_squares
 from piece_movement_rules import is_legal_move
@@ -49,7 +50,11 @@ def dls_minimax(board, depth_remaining, turn, target_player, last_move=None,
 
     if _has_no_legal_moves(board, color):
         if is_in_check(board, color):
-            logging.debug("Reached terminal condition: found checkmate")
+            logging.info("Reached terminal condition: found checkmate")
+            logging.debug("Previous move is %s" % str(last_move))
+
+            for row in dump_board(board):
+                logging.info(row)
             if turn == MIN:
                 return (CHECKMATE, [last_move])
             else:
@@ -69,10 +74,9 @@ def dls_minimax(board, depth_remaining, turn, target_player, last_move=None,
         # score each potential move
         for (piece, src, dest) in gen_all_moves(board, color):
             move_gen_flag = True
-            logging.debug("Looking at move %s%s-%s" %
-                    (piece, index_to_sq(src), index_to_sq(dest)))
-            b_new = board[:]
-            move_piece(b_new, src, dest)
+            logging.debug("[%d] Looking at move %s%s-%s" %
+                    (depth_remaining, piece, index_to_sq(src), index_to_sq(dest)))
+            b_new = gen_successor(board, src, dest)
             a, move = dls_minimax(b_new, depth_remaining - 1, MIN, target_player, (piece, src, dest), alpha, beta)
             if a > alpha:
                 best_move = move
@@ -100,10 +104,9 @@ def dls_minimax(board, depth_remaining, turn, target_player, last_move=None,
         # score each potential move
         for (piece, src, dest) in gen_all_moves(board, color):
             move_gen_flag = True
-            logging.debug("Looking at move %s%s-%s" %
-                    (piece, index_to_sq(src), index_to_sq(dest)))
-            b_new = board[:]
-            move_piece(b_new, src, dest)
+            logging.debug("[%d] Looking at move %s%s-%s" %
+                    (depth_remaining, piece, index_to_sq(src), index_to_sq(dest)))
+            b_new = gen_successor(board, src, dest)
             b, move = dls_minimax(b_new, depth_remaining - 1, MAX, target_player, (piece, src, dest), alpha, beta)
             if b < beta:
                 beta = b
@@ -115,8 +118,6 @@ def dls_minimax(board, depth_remaining, turn, target_player, last_move=None,
         if not move_gen_flag:
             logging.debug("No moves generated, returning empty set")
             best_move = [None]
-
-        logging.debug(move_gen_flag)
 
         if last_move is not None:
             best_move.insert(0, last_move)
@@ -136,14 +137,6 @@ def gen_all_moves(board, color):
                 moves.append( (piece, location, sq_to_index(dest)) )
 
     return moves
-
-
-def apply_moves(board, moves):
-    new_board = board[:]
-    for move in moves:
-        move_piece(new_board, move[0], move[1])
-
-    return new_board
 
 
 def score_piece(piece, location):

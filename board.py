@@ -12,14 +12,14 @@ G = "G"
 starter_board = [
     G, G, G, G, G, G, G, G, G, G,
     G, G, G, G, G, G, G, G, G, G,
-    G, "BR", "BN", "BB", "BQ", "BK", "BB", "BN", "BR", G,
-    G, "BP", "BP", "BP", "BP", "BP", "BP", "BP", "BP", G,
+    G, "r", "n", "b", "q", "k", "b", "n", "r", G,
+    G, "p", "p", "p", "p", "p", "p", "p", "p", G,
     G, E, E, E, E, E, E, E, E, G,
     G, E, E, E, E, E, E, E, E, G,
     G, E, E, E, E, E, E, E, E, G,
     G, E, E, E, E, E, E, E, E, G,
-    G, "WP", "WP", "WP", "WP", "WP", "WP", "WP", "WP", G,
-    G, "WR", "WN", "WB", "WQ", "WK", "WB", "WN", "WR", G,
+    G, "P", "P", "P", "P", "P", "P", "P", "P", G,
+    G, "R", "N", "B", "Q", "K", "B", "N", "R", G,
     G, G, G, G, G, G, G, G, G, G,
     G, G, G, G, G, G, G, G, G, G,
 ]
@@ -62,10 +62,7 @@ def is_empty_square(board, index):
 
 
 def get_color(board, index):
-    if board[index] in set([E, G]):
-        return None
-    else:
-        return board[index][0]
+    return get_piece_color(board[index])
 
 
 def slide_index(index, dx, dy):
@@ -85,11 +82,14 @@ def load_board_from_file(board, fname="game.txt"):
 
 
 def get_piece_color(piece):
-    return piece[0]
+    if piece in set([E, G]):
+        return None
+    else:
+        return ("W" if piece.isupper() else "B")
 
 
 def get_raw_piece(piece):
-    return piece[1]
+    return piece.upper()
 
 
 def fen_to_board(fen):
@@ -100,11 +100,8 @@ def fen_to_board(fen):
         if c.isdigit():
             for i in range(int(c)):
                 flat_arr.append(E)
-        elif c.islower():
-            print "B" + c.upper()
-            flat_arr.append("B" + c.upper())
-        elif c.isupper():
-            flat_arr.append("W" + c)
+        elif c.isalpha():
+            flat_arr.append(c)
         elif c == " ":
             # ignore the other info
             break
@@ -174,3 +171,9 @@ def save_board(board, fname="game.txt"):
             if i % 10 == 0:
                 fp.write("\n")
             fp.write(sq)
+
+
+def gen_successor(board_init, move_src, move_dest):
+    board = board_init[:]
+    move_piece(board, move_src, move_dest)
+    return board

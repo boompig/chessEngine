@@ -10,10 +10,10 @@ from board import sq_to_index
 from board import index_to_sq
 from board import index_to_row_col
 from board import get_piece_list
-from board import move_piece
 from board import print_board
 from board import get_piece_color
 from board import get_raw_piece
+from board import gen_successor
 
 #logging.basicConfig(level=logging.DEBUG)
 
@@ -171,11 +171,7 @@ def is_legal_move(board, src, dest):
     if dest not in _get_piece_valid_squares(board, src_idx):
         return False
 
-    # apply the move
-    move_piece(board, src_idx, dest_idx)
-    has_check = is_in_check(board, color)
-    # undo the move
-    move_piece(board, dest_idx, src_idx)
+    has_check = is_in_check(gen_successor(board, src_idx, dest_idx), color)
     return not has_check
 
 
@@ -208,9 +204,7 @@ def _has_no_legal_moves(board, color):
     for pos, piece in get_piece_list(board, color):
         for dest in _get_piece_valid_squares(board, pos):
             dest_idx = sq_to_index(dest)
-            b_new = board[:]
-            # simulate that move
-            move_piece(b_new, pos, dest_idx)
+            b_new = gen_successor(board, pos, dest_idx)
             if not is_in_check(b_new, color):
                 #logging.debug("Piece %s can move from %s to %s" %
                 #            (piece, index_to_sq(pos), dest))

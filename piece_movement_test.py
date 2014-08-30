@@ -213,5 +213,21 @@ class PieceMovementTest(T.TestCase):
         assert is_in_stalemate(board, "B")
         assert not is_in_checkmate(board, "B")
 
+    def test_not_in_mate_1(self):
+        board = load_board([
+            [' ', ' ', ' ', ' ', 'r', 'b', 'Q', 'k'],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', 'p'],
+            ['p', ' ', ' ', 'p', ' ', 'P', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', 'R', ' ', ' '],
+            [' ', ' ', ' ', ' ', 'q', ' ', ' ', 'P'],
+            [' ', 'P', ' ', ' ', 'P', ' ', ' ', ' '],
+            ['P', 'B', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', 'K', ' ']
+        ])
+        assert not is_in_checkmate("B")
+        assert not is_in_checkmate("W")
+        assert not is_in_stalemate("B")
+        assert not is_in_stalemate("W")
+
 if __name__ == "__main__":
     T.main()

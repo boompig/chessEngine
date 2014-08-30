@@ -132,7 +132,7 @@ def load_board(arr):
 def dump_board(board):
     """dump the board to a relatively simple array-based format"""
     simple_arr = [
-        ("" if sq == E else sq) for sq in board
+        (" " if sq == E else sq) for sq in board
         if sq != G
     ]
     assert len(simple_arr) == 64

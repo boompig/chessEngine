@@ -6,6 +6,7 @@ from board import index_to_sq
 from board import sq_to_index
 from board import fen_to_board
 from board import print_board
+from board import dump_board
 
 from engine import find_mate_in_n
 from engine import CHECKMATE
@@ -95,10 +96,13 @@ class EngineTest(T.TestCase):
     def test_mate_in_2_p2(self):
         fen = "3r1b1k/5Q1p/p2p1P2/5R2/4q2P/1P2P3/PB5K/8 w"
         board = fen_to_board(fen)
-        print_board(board)
         result, mating_moves = find_mate_in_n(board, "W", 2)
         self.write_mate_result(mating_moves, sys.stdout)
-        assert len(mating_moves) == 3
+        #assert len(mating_moves) == 3
+        print >>sys.stderr, "initial board"
+        for row in dump_board(board):
+            print >>sys.stderr, str(row)
+        assert False
 
     def test_mate_in_3_anderssen_leipzig_1885(self):
         board = load_board([

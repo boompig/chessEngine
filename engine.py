@@ -6,7 +6,6 @@ from board import get_piece_list
 from board import starter_board
 from board import sq_to_index
 from board import index_to_sq
-from board import move_piece
 from board import gen_successor
 from board import dump_board
 
@@ -50,7 +49,7 @@ def dls_minimax(board, depth_remaining, turn, target_player, last_move=None,
 
     if _has_no_legal_moves(board, color):
         if is_in_check(board, color):
-            logging.info("Reached terminal condition: found checkmate")
+            logging.info("Reached terminal condition: %s is in checkmate" % color)
             logging.debug("Previous move is %s" % str(last_move))
 
             for row in dump_board(board):
@@ -60,7 +59,7 @@ def dls_minimax(board, depth_remaining, turn, target_player, last_move=None,
             else:
                 return (-1 * CHECKMATE, [last_move])
         else:
-            logging.debug("Reached terminal condition: stalemate")
+            logging.debug("Reached terminal condition: %s is in stalemate" % color)
             return (0, [last_move])
     elif depth_remaining == 0:
         # once we reach the max depth, just return 0 for the score

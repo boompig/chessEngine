@@ -8,7 +8,7 @@ from board import slide_index
 from board import get_color
 from board import sq_to_index
 from board import index_to_sq
-from board import index_to_row_col
+from board import index_to_row
 from board import get_piece_list
 from board import print_board
 from board import get_piece_color
@@ -106,14 +106,14 @@ def get_king_valid_squares(board, index):
 def get_pawn_valid_squares(board, index):
     piece = board[index]
     d_row = (-1 if get_piece_color(piece) == "W" else 1)
-    row, col = index_to_row_col(index)
+    row = index_to_row(index)
 
     l1 = [slide_index(index, 0, d_row)]
     if (row == 1 and get_piece_color(piece) == "B") or (row == 6 and get_piece_color(piece) == "W"):
         l1.append(slide_index(index, 0, 2 * d_row))
 
     # should be empty
-    squares = [index for index in l1 if valid_and_empty(board, index)]
+    squares = [i for i in l1 if valid_and_empty(board, i)]
     l2 = [slide_index(index, 1, d_row), slide_index(index, -1, d_row)]
     # should be capture
     squares.extend(
@@ -176,14 +176,6 @@ def is_legal_move(board, src, dest):
 
 
 def is_in_check(board, color):
-    attacked_squares = set([])
-    opp_color = opposite_color(color)
-    # get everything for that color
-    for index, piece in get_piece_list(board, opp_color):
-        attacked_squares.update(
-            _get_piece_valid_squares(board, index)
-        )
-
     # find the king
     king_index = [
         index for index, piece in get_piece_list(board, color)
@@ -194,10 +186,15 @@ def is_in_check(board, color):
         raise ValueError("King for color %s not present on board" % color)
 
     king_pos = index_to_sq(king_index[0])
-    #logging.debug("King is at %s" % king_pos)
-    #logging.debug("Squares under attack are %s" % str(attacked_squares))
-    return king_pos in attacked_squares
 
+    opp_color = opposite_color(color)
+    # get everything for that color
+    for index, piece in get_piece_list(board, opp_color):
+        vs = _get_piece_valid_squares(board, index)
+        if king_pos in vs:
+            return True
+
+    return False
 
 def _has_no_legal_moves(board, color):
     # get all possible moves

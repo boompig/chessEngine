@@ -36,8 +36,11 @@ def index_to_sq(index):
     return "%s%d" % (chr(col + 97), 8 - row)
 
 
+def index_to_row(index):
+    return index / 10 - 2
+
 def index_to_row_col(index):
-    row = index / 10 - 2
+    row = index_to_row(index)
     col = index % 10 - 1
     return (row, col)
 

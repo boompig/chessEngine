@@ -4,6 +4,8 @@ from board import sq_to_index
 from board import index_to_sq
 from board import starter_board
 from board import load_board
+from board import dump_board
+from board import gen_successor
 
 from piece_movement_rules import get_rook_valid_squares
 from piece_movement_rules import get_bishop_valid_squares
@@ -16,6 +18,7 @@ from piece_movement_rules import is_legal_move
 from piece_movement_rules import is_in_check
 from piece_movement_rules import is_in_checkmate
 from piece_movement_rules import is_in_stalemate
+from piece_movement_rules import _has_no_legal_moves
 
 
 class PieceMovementTest(T.TestCase):
@@ -224,10 +227,17 @@ class PieceMovementTest(T.TestCase):
             ['P', 'B', ' ', ' ', ' ', ' ', ' ', ' '],
             [' ', ' ', ' ', ' ', ' ', ' ', 'K', ' ']
         ])
-        assert not is_in_checkmate("B")
-        assert not is_in_checkmate("W")
-        assert not is_in_stalemate("B")
-        assert not is_in_stalemate("W")
+
+        b2 = gen_successor(board, sq_to_index("h8"), sq_to_index("g8"))
+        for row in dump_board(b2):
+            print row
+        assert not is_in_check(b2, "B")
+
+        assert not is_in_checkmate(board, "B")
+        assert not is_in_checkmate(board, "W")
+        assert not is_in_stalemate(board, "B")
+        assert not is_in_stalemate(board, "W")
+        assert not _has_no_legal_moves(board, "B")
 
 if __name__ == "__main__":
     T.main()

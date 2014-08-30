@@ -97,12 +97,11 @@ class EngineTest(T.TestCase):
         fen = "3r1b1k/5Q1p/p2p1P2/5R2/4q2P/1P2P3/PB5K/8 w"
         board = fen_to_board(fen)
         result, mating_moves = find_mate_in_n(board, "W", 2)
-        self.write_mate_result(mating_moves, sys.stdout)
-        #assert len(mating_moves) == 3
-        print >>sys.stderr, "initial board"
-        for row in dump_board(board):
-            print >>sys.stderr, str(row)
-        assert False
+        with open("mate.txt", "w") as fp:
+            self.write_mate_result(mating_moves, fp)
+        assert len(mating_moves) == 3
+        assert result == CHECKMATE
+
 
     def test_mate_in_3_anderssen_leipzig_1885(self):
         board = load_board([

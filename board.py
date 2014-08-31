@@ -39,6 +39,7 @@ def index_to_sq(index):
 def index_to_row(index):
     return index / 10 - 2
 
+
 def index_to_row_col(index):
     row = index_to_row(index)
     col = index % 10 - 1
@@ -74,7 +75,6 @@ def slide_index(index, dx, dy):
 
 def move_piece(board, src, dest):
     """No check on this."""
-
     piece = board[src]
     board[src] = E
     board[dest] = piece
@@ -112,7 +112,6 @@ def fen_to_board(fen):
             flat_arr.extend([G, G])
 
     flat_arr.append(G)
-
     assert len(flat_arr) == 80
     return ([G] * 20) + flat_arr + ([G] * 20)
 
@@ -127,7 +126,6 @@ def load_board(arr):
     board = [G] * 20
     for row in arr:
         board.extend([G] + [(E if sq.rstrip() == "" else sq) for sq in row] + [G])
-
     board.extend( [G] * 20 )
     return board
 

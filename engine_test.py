@@ -137,7 +137,6 @@ class MateInOneEngineTest(T.TestCase):
         assert mating_moves[0][2] == sq_to_index("h3")
 
 class MateInTwoEngineTest(T.TestCase):
-
     def test_mate_in_2_p1(self):
         fen = "1r6/4b2k/1q1pNrpp/p2Pp3/4P3/1P1R3Q/5PPP/5RK1 w"
         board = fen_to_board(fen)
@@ -163,31 +162,48 @@ class MateInTwoEngineTest(T.TestCase):
         assert len(mating_moves) == 3
 
 class MateInThreeEngineTest(T.TestCase):
-
     def test_mate_in_3_p1(self):
-        fen = "1r3r1k/5Bpp/8/8/P2qQ3/5R2/1b4PP/5K2 w"
-        board = fen_to_board(fen)
+        board = fen_to_board("1r3r1k/5Bpp/8/8/P2qQ3/5R2/1b4PP/5K2 w")
+        result, mating_moves = find_mate_in_n(board, "W", 3)
+        #with open("mate.txt", "w") as fp:
+        #    write_mate_result(mating_moves, fp)
+        assert result == CHECKMATE
+        assert len(mating_moves) == 5
+
+    def test_mate_in_3_p2(self):
+        board = fen_to_board("r1b1r1k1/1pq1bp1p/p3pBp1/3pR3/7Q/2PB4/PP3PPP/5RK1 w")
+        result, mating_moves = find_mate_in_n(board, "W", 3)
+        #with open("mate.txt", "w") as fp:
+        #    write_mate_result(mating_moves, fp)
+        assert result == CHECKMATE
+        assert len(mating_moves) == 5
+
+    def test_mate_in_3_p3(self):
+        board = fen_to_board("r5rk/5p1p/5R2/4B3/8/8/7P/7K w")
         result, mating_moves = find_mate_in_n(board, "W", 3)
         with open("mate.txt", "w") as fp:
             write_mate_result(mating_moves, fp)
         assert result == CHECKMATE
         assert len(mating_moves) == 5
 
-
-    def test_mate_in_3_anderssen_leipzig_1885(self):
-        board = load_board([
-            [""  , "q", "  ", "", "r", "  ", "  ", "  "],
-            ["k", "  ", "  ", "", ""  , "p", "  ", "  "],
-            ["p", "r", "  ", "", ""  , "b", "  ", "p"],
-            ["R", "  ", "  ", "", ""  , "  ", "  ", "  "],
-            ["  ", "P", "P", "", "B", "  ", "p", "  "],
-            ["  ", "  ", "  ", "", "  ", "  ", "P", "  "],
-            ["P", "  ", "  ", "", "  ", "  ", "K", "  "],
-            ["  ", "  ", "  ", "", "  ", "  ", "  ", "  "]
-        ])
-        #mate_result = find_mate_in_n(board, "W", 3)
-        #TODO
+    def test_mate_in_3_p4(self):
+        board = fen_to_board("5B2/6P1/1p6/8/1N6/kP6/2K5/8 w")
+        result, mating_moves = find_mate_in_n(board, "W", 3)
+        #with open("mate.txt", "w") as fp:
+        #    write_mate_result(mating_moves, fp)
+        #assert result == CHECKMATE
+        #assert len(mating_moves) == 5
         assert True
+
+
+class MateInFiveEngineTest(T.TestCase):
+    def test_mate_in_5_p1(self):
+        board = fen_to_board("2q1nk1r/4Rp2/1ppp1P2/6Pp/3p1B2/3P3P/PPP1Q3/6K1 w")
+        result, mating_moves = find_mate_in_n(board, "W", 5)
+        with open("mate.txt", "w") as fp:
+            write_mate_result(mating_moves, fp)
+        assert result == CHECKMATE
+        assert len(mating_moves) == 9
 
 
 if __name__ == "__main__":

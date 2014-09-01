@@ -6,6 +6,8 @@ from board import starter_board
 from board import load_board
 from board import dump_board
 from board import gen_successor
+from board import fen_to_board
+from board import print_board
 
 from piece_movement_rules import get_rook_valid_squares
 from piece_movement_rules import get_bishop_valid_squares
@@ -22,7 +24,6 @@ from piece_movement_rules import _has_no_legal_moves
 
 
 class PieceMovementTest(T.TestCase):
-
     def test_rook_starter_board_valid_squares(self):
         board = starter_board[:]
         index = sq_to_index("a1")
@@ -252,6 +253,23 @@ class PieceMovementTest(T.TestCase):
         assert not is_in_stalemate(board, "B")
         assert not is_in_stalemate(board, "W")
         assert not _has_no_legal_moves(board, "B")
+
+
+class CheckTest(T.TestCase):
+    def test_bishop_check(self):
+        board = fen_to_board("7k/8/8/4B3/8/8/8/K7 w")
+        assert is_in_check(board, "B")
+        assert not is_in_check(board, "W")
+
+    def test_pawn_can_defend(self):
+        board = fen_to_board("7k/5p2/8/4B3/8/8/8/K7 w")
+        print_board(board)
+        assert is_in_check(board, "B")
+        new_board = gen_successor(board, sq_to_index("f7"), sq_to_index("f6"))
+        print_board(new_board)
+        assert not is_in_check(new_board, "B")
+        # it follows that black is not in checkmate
+        assert not is_in_checkmate(board, "B")
 
 if __name__ == "__main__":
     T.main()

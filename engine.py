@@ -94,7 +94,7 @@ def dls_minimax(board, depth_remaining, turn, target_player, last_move=None,
             #TODO there should be some sort of theory on why this is good
             # but for now, the idea seems solid
             if alpha >= CHECKMATE:
-                logging.info("Checkmate found, not checking any more nodes")
+                logging.info("Checkmate found as MAX, not checking any more nodes")
                 break
 
             if alpha >= beta:
@@ -133,7 +133,7 @@ def dls_minimax(board, depth_remaining, turn, target_player, last_move=None,
                 best_move = move
 
             if beta <= -CHECKMATE:
-                logging.info("Checkmate found, not checking any more nodes")
+                logging.info("Checkmate found as MIN, not checking any more nodes")
                 break
 
             if alpha >= beta:

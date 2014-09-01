@@ -1,4 +1,5 @@
 import logging
+import sys
 
 from utils import opposite_color
 from utils import full_color_name
@@ -145,25 +146,25 @@ def dump_board(board):
 
 
 def print_board(board):
-    print ("*" * 25),
+    print ("*" * 18),
     for i, piece in enumerate(board):
         if not is_valid_square(i):
             continue
         if i % 10 == 1:
             print ""
             sq = index_to_sq(i)
-            print sq[1],
+            sys.stdout.write("%s " % sq[1])
         if piece == E:
-            print "  ",
+            sys.stdout.write("  ")
         else:
-            print piece,
+            sys.stdout.write("%s " % piece)
 
     print ""
-    print " ",
+    sys.stdout.write("  ")
     for i in range(8):
-        print "%s " % (chr(i + 97)),
+        sys.stdout.write("%s " % (chr(i + 97)))
     print ""
-    print ("*" * 25)
+    print ("*" * 18)
 
 
 def save_board(board, fname="game.txt"):

@@ -15,4 +15,8 @@ def gen_successor(board_init, src, dest):
     return board
 
 def gen_successor_from_move(board_init, move):
-    return gen_successor(board_init, move.src, move.dest)
+    board = gen_successor(board_init, move.src, move.dest)
+    if move.promotion:
+        # change the piece at dest into the correct piece
+        board[move.dest] = move.promotion
+    return board

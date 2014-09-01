@@ -219,10 +219,26 @@ def is_in_checkmate(board, color):
     1. is in check
     2. no move will bring the player out of check
     """
-
     return is_in_check(board, color) and _has_no_legal_moves(board, color)
 
 
 def is_in_stalemate(board, color):
-
     return not is_in_check(board, color) and _has_no_legal_moves(board, color)
+
+def get_promotions(board, src, dest):
+    if not is_legal_move(board, src, dest):
+        return []
+    else:
+        return _get_promotions(board[src], src, dest)
+
+def _get_promotions(piece, src, dest):
+    """Does not check if the move is valid."""
+    if get_raw_piece(piece) != "P":
+        return []
+
+    if get_piece_color(piece) == "W" and index_to_row(dest) == 0:
+        return ["Q", "B", "R", "N"]
+    elif get_piece_color(piece) == "B" and index_to_row(dest) == 7:
+        return ["q", "b", "r", "n"]
+    else:
+        return []

@@ -14,6 +14,7 @@ from piece_movement_rules import is_in_checkmate
 from piece_movement_rules import _has_no_legal_moves
 from piece_movement_rules import _get_piece_valid_squares
 from piece_movement_rules import is_legal_move
+from piece_movement_rules import _get_promotions
 
 from move import gen_successor
 from move import gen_successor_from_move
@@ -43,12 +44,13 @@ def gen_all_moves(board, color):
     for location, piece in get_piece_list(board, color):
         for dest in _get_piece_valid_squares(board, location):
             if is_legal_move(board, location, dest):
-                # the destination here is chess notation, rather than index
-                moves.append( Move(piece, location, dest) )
-
-        #if get_raw_piece(piece) == "P":
-            #for move in get_promotions(piece, src, dest):
-                #moves.append(Move(piece, src, dest, promotion=promotion)
+                prs = _get_promotions(piece, location, dest)
+                if prs != []:
+                    moves.extend([Move(piece, location, dest, promotion=p)
+                        for p in prs])
+                else:
+                    # the destination here is chess notation, rather than index
+                    moves.append( Move(piece, location, dest) )
 
     return moves
 

@@ -20,6 +20,7 @@ from piece_movement_rules import is_in_check
 from piece_movement_rules import is_in_checkmate
 from piece_movement_rules import is_in_stalemate
 from piece_movement_rules import _has_no_legal_moves
+from piece_movement_rules import get_promotions
 
 from move import gen_successor
 from move import Move
@@ -132,6 +133,149 @@ class PieceMovementTest(T.TestCase):
         assert is_legal_move(board, sq_to_index("e7"), sq_to_index("e6"))
         assert is_legal_move(board, sq_to_index("e7"), sq_to_index("e5"))
         assert not is_legal_move(board, sq_to_index("e7"), sq_to_index("e4"))
+
+    def test_promotions_not_pawn(self):
+        board = load_board([
+            [" ", "", "", "", "", "k", "", "K"],
+            ["R", "", "", "", "", " ", "", " "],
+            [" ", "", "", "", "", " ", "", " "],
+            [" ", "", "", "", "", " ", "", " "],
+            [" ", "", "", "", "", " ", "", " "],
+            [" ", "", "", "", "", " ", "", " "],
+            [" ", "", "", "", "", " ", "", " "],
+            [" ", "", "", "", "", " ", "", " "]
+        ])
+        board = starter_board[:]
+        assert get_promotions(board, sq_to_index("a7"), sq_to_index("a8")) == []
+
+    def test_promotions_pawn_backwards(self):
+        board = load_board([
+            [" ", "", "", "", " ", "k", "", "K"],
+            ["p", "", "", "", " ", " ", "", " "],
+            [" ", "", "", "", " ", " ", "", " "],
+            [" ", "", "", "", " ", " ", "", " "],
+            [" ", "", "", "", " ", " ", "", " "],
+            [" ", "", "", "", " ", " ", "", " "],
+            [" ", "", "", "", " ", " ", "", " "],
+            [" ", "", "", "", " ", " ", "", " "]
+        ])
+        assert get_promotions(board, sq_to_index("a7"), sq_to_index("a8")) == []
+
+    def test_promotions_pawn_forward_two_spaces(self):
+        board = load_board([
+            [" ", "", "", "", " ", "k", "", "K"],
+            [" ", "", "", "", " ", " ", "", " "],
+            ["P", "", "", "", " ", " ", "", " "],
+            [" ", "", "", "", " ", " ", "", " "],
+            [" ", "", "", "", " ", " ", "", " "],
+            [" ", "", "", "", " ", " ", "", " "],
+            [" ", "", "", "", " ", " ", "", " "],
+            [" ", "", "", "", " ", " ", "", " "]
+        ])
+        assert get_promotions(board, sq_to_index("a6"), sq_to_index("a8")) == []
+
+    def test_promotions_pawn_white_move(self):
+        board = load_board([
+            [" ", "", "", "", " ", "k", "", "K"],
+            ["P", "", "", "", " ", " ", "", " "],
+            [" ", "", "", "", " ", " ", "", " "],
+            [" ", "", "", "", " ", " ", "", " "],
+            [" ", "", "", "", " ", " ", "", " "],
+            [" ", "", "", "", " ", " ", "", " "],
+            [" ", "", "", "", " ", " ", "", " "],
+            [" ", "", "", "", " ", " ", "", " "]
+        ])
+        assert sorted(get_promotions(board, sq_to_index("a7"), sq_to_index("a8"))) == \
+               sorted(["Q", "R", "B", "N"])
+
+    def test_promotions_pawn_black_move(self):
+        board = load_board([
+            [" ", "", "", "", " ", "k", "", "K"],
+            [" ", "", "", "", " ", " ", "", " "],
+            [" ", "", "", "", " ", " ", "", " "],
+            [" ", "", "", "", " ", " ", "", " "],
+            [" ", "", "", "", " ", " ", "", " "],
+            [" ", "", "", "", " ", " ", "", " "],
+            ["p", "", "", "", " ", " ", "", " "],
+            [" ", "", "", "", " ", " ", "", " "]
+        ])
+        assert sorted(get_promotions(board, sq_to_index("a2"), sq_to_index("a1"))) == \
+               sorted(["q", "r", "b", "n"])
+
+    def test_promotions_pawn_black_capture(self):
+        board = load_board([
+            [" ", " ", "", "", " ", "k", "", "K"],
+            [" ", " ", "", "", " ", " ", "", " "],
+            [" ", " ", "", "", " ", " ", "", " "],
+            [" ", " ", "", "", " ", " ", "", " "],
+            [" ", " ", "", "", " ", " ", "", " "],
+            [" ", " ", "", "", " ", " ", "", " "],
+            ["p", " ", "", "", " ", " ", "", " "],
+            [" ", "B", "", "", " ", " ", "", " "]
+        ])
+        assert sorted(get_promotions(board, sq_to_index("a2"), sq_to_index("a1"))) == \
+               sorted(["q", "r", "b", "n"])
+        assert sorted(get_promotions(board, sq_to_index("a2"), sq_to_index("b1"))) == \
+               sorted(["q", "r", "b", "n"])
+
+    def test_promotions_blocked(self):
+        board = load_board([
+            [" ", " ", "", "", " ", " ", "", " "],
+            [" ", " ", "", "", " ", " ", "", " "],
+            [" ", " ", "", "", " ", " ", "", " "],
+            [" ", " ", "", "", " ", " ", "", " "],
+            [" ", " ", "", "", " ", " ", "", " "],
+            ["k", " ", "", "", " ", " ", "", " "],
+            ["p", " ", "", "", " ", " ", "", " "],
+            ["K", " ", "", "", " ", " ", "", " "]
+        ])
+        assert get_promotions(board, sq_to_index("a2"), sq_to_index("a1")) == []
+        assert get_promotions(board, sq_to_index("a2"), sq_to_index("b1")) == []
+
+
+class CheckTest(T.TestCase):
+    def test_bishop_check(self):
+        board = fen_to_board("7k/8/8/4B3/8/8/8/K7 w")
+        assert is_in_check(board, "B")
+        assert not is_in_check(board, "W")
+
+    def test_pawn_can_defend(self):
+        board = fen_to_board("7k/5p2/8/4B3/8/8/8/K7 w")
+        print_board(board)
+        assert is_in_check(board, "B")
+        new_board = gen_successor(board, sq_to_index("f7"), sq_to_index("f6"))
+        print_board(new_board)
+        assert not is_in_check(new_board, "B")
+        # it follows that black is not in checkmate
+        assert not is_in_checkmate(board, "B")
+
+    def test_pawn_not_give_check_above(self):
+        board = load_board([
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', 'k', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', 'P', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', 'K', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
+        ])
+        assert not is_in_check(board, "B")
+        assert not is_in_check(board, "W")
+
+    def test_pawn_give_check(self):
+        board = load_board([
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', 'k', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', 'P', ' ', ' '],
+            [' ', ' ', ' ', ' ', 'K', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
+        ])
+        assert is_in_check(board, "B")
+        assert not is_in_check(board, "W")
 
     def test_is_in_check_starter_board(self):
         board = starter_board[:]
@@ -258,51 +402,6 @@ class PieceMovementTest(T.TestCase):
         assert not is_in_stalemate(board, "B")
         assert not is_in_stalemate(board, "W")
         assert not _has_no_legal_moves(board, "B")
-
-
-class CheckTest(T.TestCase):
-    def test_bishop_check(self):
-        board = fen_to_board("7k/8/8/4B3/8/8/8/K7 w")
-        assert is_in_check(board, "B")
-        assert not is_in_check(board, "W")
-
-    def test_pawn_can_defend(self):
-        board = fen_to_board("7k/5p2/8/4B3/8/8/8/K7 w")
-        print_board(board)
-        assert is_in_check(board, "B")
-        new_board = gen_successor(board, sq_to_index("f7"), sq_to_index("f6"))
-        print_board(new_board)
-        assert not is_in_check(new_board, "B")
-        # it follows that black is not in checkmate
-        assert not is_in_checkmate(board, "B")
-
-    def test_pawn_not_give_check_above(self):
-        board = load_board([
-            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-            [' ', ' ', ' ', ' ', 'k', ' ', ' ', ' '],
-            [' ', ' ', ' ', ' ', 'P', ' ', ' ', ' '],
-            [' ', ' ', ' ', ' ', 'K', ' ', ' ', ' '],
-            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
-        ])
-        assert not is_in_check(board, "B")
-        assert not is_in_check(board, "W")
-
-    def test_pawn_give_check(self):
-        board = load_board([
-            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-            [' ', ' ', ' ', ' ', 'k', ' ', ' ', ' '],
-            [' ', ' ', ' ', ' ', ' ', 'P', ' ', ' '],
-            [' ', ' ', ' ', ' ', 'K', ' ', ' ', ' '],
-            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-            [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
-        ])
-        assert is_in_check(board, "B")
-        assert not is_in_check(board, "W")
 
 if __name__ == "__main__":
     T.main()

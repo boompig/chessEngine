@@ -37,17 +37,21 @@ logging.basicConfig(level=logging.INFO, format="%(message)s")
 def find_mate_in_n(board, color, n):
     """Find a mate in at most n moves. If no such mate exist, will return a
     non-CHECKMATE value in the first slot."""
-    return dls_minimax(board, (n - 1) * 2 + 1, MAX, opposite_color(color))
+    d = {"nodes_explored": 0}
+    results = dls_minimax(board, (n - 1) * 2 + 1, MAX, opposite_color(color), stats_dict=d)
+    print "nodes explored=%d" % d['nodes_explored']
+    return results
 
 
 def dls_minimax(board, depth_remaining, turn, target_player, last_move=None,
-        alpha=(-1 * CHECKMATE - 1), beta=(CHECKMATE + 1)):
+        alpha=(-1 * CHECKMATE - 1), beta=(CHECKMATE + 1), stats_dict={}):
     """Return whether or not there exists a winning combination of moves.
     Return this combination.
     target_player is the player being mated, not the one doing the mating
     TODO: alpha-beta this"""
 
     color = (target_player if turn == MIN else opposite_color(target_player))
+    stats_dict['nodes_explored'] += 1
 
     if _has_no_legal_moves(board, color):
         if is_in_check(board, color):
@@ -82,10 +86,16 @@ def dls_minimax(board, depth_remaining, turn, target_player, last_move=None,
             logging.debug("[%d] Looking at move %s%s-%s" %
                     (depth_remaining, piece, index_to_sq(src), index_to_sq(dest)))
             b_new = gen_successor(board, src, dest)
-            a, move = dls_minimax(b_new, depth_remaining - 1, MIN, target_player, (piece, src, dest), alpha, beta)
+            a, move = dls_minimax(b_new, depth_remaining - 1, MIN, target_player, (piece, src, dest), alpha, beta, stats_dict)
             if a > alpha:
                 best_move = move
                 alpha = a
+
+            #TODO there should be some sort of theory on why this is good
+            # but for now, the idea seems solid
+            if alpha >= CHECKMATE:
+                logging.info("Checkmate found, not checking any more nodes")
+                break
 
             if alpha >= beta:
                 logging.debug("beta cutoff for %s" % color)
@@ -117,10 +127,14 @@ def dls_minimax(board, depth_remaining, turn, target_player, last_move=None,
             logging.debug("[%d] Looking at move %s%s-%s" %
                     (depth_remaining, piece, index_to_sq(src), index_to_sq(dest)))
             b_new = gen_successor(board, src, dest)
-            b, move = dls_minimax(b_new, depth_remaining - 1, MAX, target_player, (piece, src, dest), alpha, beta)
+            b, move = dls_minimax(b_new, depth_remaining - 1, MAX, target_player, (piece, src, dest), alpha, beta, stats_dict)
             if b < beta:
                 beta = b
                 best_move = move
+
+            if beta <= -CHECKMATE:
+                logging.info("Checkmate found, not checking any more nodes")
+                break
 
             if alpha >= beta:
                 logging.debug("alpha cutoff")

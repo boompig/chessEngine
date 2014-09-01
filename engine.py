@@ -8,6 +8,7 @@ from board import sq_to_index
 from board import index_to_sq
 from board import gen_successor
 from board import dump_board
+from board import get_color
 
 from piece_movement_rules import _get_piece_valid_squares
 from piece_movement_rules import is_legal_move
@@ -25,6 +26,7 @@ piece_scores = {
     "K": 1000
 }
 CHECKMATE = 10000
+CHECK = 5
 MAX = True
 MIN = False
 
@@ -70,8 +72,12 @@ def dls_minimax(board, depth_remaining, turn, target_player, last_move=None,
         best_move = [None]
         move_gen_flag = False
 
+        def _score_move(move):
+            return score_move(board, move[1], move[2])
+
         # score each potential move
-        for (piece, src, dest) in gen_all_moves(board, color):
+        # order in order of score
+        for (piece, src, dest) in sorted(gen_all_moves(board, color), key=_score_move, reverse=True):
             move_gen_flag = True
             logging.debug("[%d] Looking at move %s%s-%s" %
                     (depth_remaining, piece, index_to_sq(src), index_to_sq(dest)))
@@ -100,8 +106,13 @@ def dls_minimax(board, depth_remaining, turn, target_player, last_move=None,
         logging.debug("[%d] Finding best move for player %s" % (depth_remaining, color))
         best_move = [None]
         move_gen_flag = False
+
+        def _score_move(move):
+            return score_move(board, move[1], move[2])
+
         # score each potential move
-        for (piece, src, dest) in gen_all_moves(board, color):
+        # order in order of score
+        for (piece, src, dest) in sorted(gen_all_moves(board, color), key=_score_move, reverse=True):
             move_gen_flag = True
             logging.debug("[%d] Looking at move %s%s-%s" %
                     (depth_remaining, piece, index_to_sq(src), index_to_sq(dest)))
@@ -136,6 +147,16 @@ def gen_all_moves(board, color):
                 moves.append( (piece, location, sq_to_index(dest)) )
 
     return moves
+
+
+def score_move(board, src, dest):
+    """Score moves which give a check higher than those which do not."""
+    moving_color = get_color(board, src)
+    new_board = gen_successor(board, src, dest)
+    if is_in_check(new_board, opposite_color(moving_color)):
+        return CHECK
+    else:
+        return 0
 
 
 def score_piece(piece, location):

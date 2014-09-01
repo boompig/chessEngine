@@ -10,13 +10,63 @@ from board import dump_board
 
 from engine import find_mate_in_n
 from engine import CHECKMATE
+from engine import score_move
+from engine import gen_all_moves
 
-class EngineTest(T.TestCase):
-    def write_mate_result(self, moves, fp):
-        for piece, src, dest in moves:
-            fp.write("%s %s-%s\n" % (
-                piece, index_to_sq(src), index_to_sq(dest)))
 
+def write_mate_result(moves, fp):
+    for piece, src, dest in moves:
+        fp.write("%s %s-%s\n" % (
+            piece, index_to_sq(src), index_to_sq(dest)))
+
+
+class MoveOrderingTest(T.TestCase):
+    def test_ordering_heuristic_simple(self):
+        board = load_board([
+            [" ", "", "", "k", "", "", "", ""],
+            [" ", "", "", " ", "", "", "", ""],
+            [" ", "", "", "K", "", "", "", ""],
+            [" ", "", "", " ", "", "", "", ""],
+            [" ", "", "", " ", "", "", "", ""],
+            [" ", "", "", " ", "", "", "", ""],
+            [" ", "", "", " ", "", "", "", ""],
+            ["R", "", "", " ", "", "", "", ""],
+        ])
+
+        winning_move_score = score_move(board, sq_to_index("a1"), sq_to_index("a8"))
+        idle_move_score = score_move(board, sq_to_index("a1"), sq_to_index("a7"))
+        assert winning_move_score > idle_move_score
+
+    def test_ordering_heuristic_in_gen_all_moves(self):
+        """Similar to test case above, but makes sure that sorting by key works as expected."""
+        board = load_board([
+            [" ", "", "", "k", "", "", "", ""],
+            [" ", "", "", " ", "", "", "", ""],
+            [" ", "", "", "K", "", "", "", ""],
+            [" ", "", "", " ", "", "", "", ""],
+            [" ", "", "", " ", "", "", "", ""],
+            [" ", "", "", " ", "", "", "", ""],
+            [" ", "", "", " ", "", "", "", ""],
+            ["R", "", "", " ", "", "", "", ""],
+        ])
+
+        all_moves = gen_all_moves(board, "W")
+        def _score_move(move):
+            return score_move(board, move[1], move[2])
+        all_moves_sorted = sorted(all_moves, key=_score_move, reverse=True)
+
+        win_move_index = None
+        idle_move_index = None
+        for i, (piece, src, dest) in enumerate(all_moves_sorted):
+            if piece == "R" and index_to_sq(src) == "a1" and index_to_sq(dest) == "a8":
+                win_move_index = i
+            elif piece == "R" and index_to_sq(src) == "a1" and index_to_sq(dest) == "a7":
+                idle_move_index = i
+
+        assert win_move_index < idle_move_index
+
+
+class MateInOneEngineTest(T.TestCase):
     def test_simple_rook_mate_in_1(self):
         board = load_board([
             ["", "", "", "k", "", "", "", ""],
@@ -80,17 +130,19 @@ class EngineTest(T.TestCase):
         ])
         result, mating_moves = find_mate_in_n(board, "W", 1)
         assert result == CHECKMATE
-        self.write_mate_result(mating_moves, sys.stdout)
+        write_mate_result(mating_moves, sys.stdout)
         assert len(mating_moves) == 1
         assert mating_moves[0][0] == "B"
         assert mating_moves[0][1] == sq_to_index("g2")
         assert mating_moves[0][2] == sq_to_index("h3")
 
+class MateInTwoEngineTest(T.TestCase):
+
     def test_mate_in_2_p1(self):
         fen = "1r6/4b2k/1q1pNrpp/p2Pp3/4P3/1P1R3Q/5PPP/5RK1 w"
         board = fen_to_board(fen)
         result, mating_moves = find_mate_in_n(board, "W", 2)
-        self.write_mate_result(mating_moves, sys.stdout)
+        write_mate_result(mating_moves, sys.stdout)
         assert result == CHECKMATE
         assert len(mating_moves) == 3
 
@@ -101,22 +153,23 @@ class EngineTest(T.TestCase):
         assert result == CHECKMATE
         assert len(mating_moves) == 3
 
-
     def test_mate_in_2_p3(self):
         fen = "r1bq2r1/b4pk1/p1pp1p2/1p2pP2/1P2P1PB/3P4/1PPQ2P1/R3K2R w"
         board = fen_to_board(fen)
         result, mating_moves = find_mate_in_n(board, "W", 2)
         with open("mate.txt", "w") as fp:
-            self.write_mate_result(mating_moves, fp)
+            write_mate_result(mating_moves, fp)
         assert result == CHECKMATE
         assert len(mating_moves) == 3
+
+class MateInThreeEngineTest(T.TestCase):
 
     def test_mate_in_3_p1(self):
         fen = "1r3r1k/5Bpp/8/8/P2qQ3/5R2/1b4PP/5K2 w"
         board = fen_to_board(fen)
         result, mating_moves = find_mate_in_n(board, "W", 3)
         with open("mate.txt", "w") as fp:
-            self.write_mate_result(mating_moves, fp)
+            write_mate_result(mating_moves, fp)
         assert result == CHECKMATE
         assert len(mating_moves) == 5
 

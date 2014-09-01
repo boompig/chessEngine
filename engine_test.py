@@ -22,12 +22,9 @@ from move import Move
 
 def write_mate_result(board, moves, fp):
     for move in moves:
-        if is_capture(board, move.dest, board[move.src]):
-            fp.write("%s %sx%s\n" % (
-                move.piece, index_to_sq(move.src), index_to_sq(move.dest)))
-        else:
-            fp.write("%s %s-%s\n" % (
-                move.piece, index_to_sq(move.src), index_to_sq(move.dest)))
+        fp.write("%s\n" % (
+            move.show(board)
+        ))
 
 
 class MoveOrderingTest(T.TestCase):
@@ -233,13 +230,12 @@ class MateInThreeTest(T.TestCase):
 
     def test_mate_in_3_p4(self):
         board = fen_to_board("5B2/6P1/1p6/8/1N6/kP6/2K5/8 w")
-        #result, mating_moves = find_mate_in_n(board, "W", 3)
-        #with open("mate.txt", "w") as fp:
-            #write_mate_result(board, mating_moves, fp)
+        result, mating_moves = find_mate_in_n(board, "W", 3)
+        with open("mate.txt", "w") as fp:
+            write_mate_result(board, mating_moves, fp)
         print_board(board)
-        #assert result == CHECKMATE
-        #assert len(mating_moves) == 5
-        assert False
+        assert result == CHECKMATE
+        assert len(mating_moves) == 5
 
 
 class MateInFiveTest(T.TestCase):

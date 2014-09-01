@@ -13,6 +13,7 @@ from board import get_piece_list
 from board import print_board
 from board import get_piece_color
 from board import get_raw_piece
+from board import is_capture
 
 from move import gen_successor
 
@@ -26,14 +27,6 @@ def valid_and_empty(board, index):
 def empty_or_capture(board, index, piece):
     return is_valid_square(index) and (
         is_empty_square(board, index) or is_capture(board, index, piece))
-
-
-def is_capture(board, index, piece):
-    """Return True iff the move is a capture.
-    return squares
-    index is the index to which piece is going, and piece is the source piece"""
-    return get_color(board, index) is not None and get_color(board, index) != get_piece_color(piece)
-
 
 def valid_capture(board, index, piece):
     return is_valid_square(index) and is_capture(board, index, piece)
@@ -158,7 +151,6 @@ def _get_piece_valid_squares(board, index):
         "B": get_bishop_valid_squares
     }[get_raw_piece(piece)](board, index)
     return squares
-    #return [index_to_sq(idx) for idx in squares]
 
 
 def get_piece_valid_squares(board, sq):
@@ -208,8 +200,6 @@ def _has_no_legal_moves(board, color):
         for dest in _get_piece_valid_squares(board, pos):
             b_new = gen_successor(board, pos, dest)
             if not is_in_check(b_new, color):
-                #logging.debug("Piece %s can move from %s to %s" %
-                #            (piece, index_to_sq(pos), dest))
                 return False
 
     return True

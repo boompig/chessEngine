@@ -3,7 +3,6 @@ import logging
 from utils import opposite_color
 
 from board import starter_board
-from board import index_to_sq
 from board import dump_board
 from board import get_color
 from board import get_raw_piece
@@ -34,8 +33,8 @@ CHECK = 5
 MAX = True
 MIN = False
 
-logging.basicConfig(level=logging.DEBUG, format="%(message)s")
-#logging.basicConfig(level=logging.INFO, format="%(message)s")
+#logging.basicConfig(level=logging.DEBUG, format="%(message)s")
+logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 def gen_all_moves(board, color):
     """Generate all valid moves by given color. This is a list."""
@@ -104,8 +103,8 @@ def dls_minimax(board, depth_remaining, turn, last_move=None,
         # order in order of score
         for g_move in sorted(gen_all_moves(board, color), key=_score_move, reverse=True):
             move_gen_flag = True
-            logging.debug("[%d] Looking at move %s%s-%s" %
-                    (depth_remaining, g_move.piece, index_to_sq(g_move.src), index_to_sq(g_move.dest)))
+            logging.debug("[%d] Looking at move %s" %
+                    (depth_remaining, g_move.show(board)))
             b_new = gen_successor_from_move(board, g_move)
             a, move = dls_minimax(b_new, depth_remaining - 1, MIN, g_move, alpha, beta, stats_dict)
             if a > alpha:
@@ -145,8 +144,8 @@ def dls_minimax(board, depth_remaining, turn, last_move=None,
         # order in order of score
         for g_move in sorted(gen_all_moves(board, color), key=_score_move, reverse=True):
             move_gen_flag = True
-            logging.debug("[%d] Looking at move %s%s-%s" %
-                    (depth_remaining, g_move.piece, index_to_sq(g_move.src), index_to_sq(g_move.dest)))
+            logging.debug("[%d] Looking at move %s" %
+                    (depth_remaining, g_move.show(board)))
             b_new = gen_successor_from_move(board, g_move)
             b, move = dls_minimax(b_new, depth_remaining - 1, MAX, g_move, alpha, beta, stats_dict)
             if b < beta:

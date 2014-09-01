@@ -1,4 +1,6 @@
 from board import move_piece
+from board import index_to_sq
+from board import is_capture
 
 class Move(object):
     def __init__(self, piece, src, dest, promotion=None, castle=None):
@@ -7,6 +9,24 @@ class Move(object):
         self.dest = dest
         self.promotion = promotion
         self.castle = castle
+
+    def show(self, board):
+        sym = ("x" if is_capture(board, self.dest, self.piece) else "-")
+        if self.promotion:
+            return "%s %s%s%s=%s" % (
+                self.piece,
+                index_to_sq(self.src),
+                sym,
+                index_to_sq(self.dest),
+                self.promotion
+            )
+        else:
+            return "%s %s%s%s" % (
+                self.piece,
+                index_to_sq(self.src),
+                sym,
+                index_to_sq(self.dest),
+            )
 
 
 def gen_successor(board_init, src, dest):

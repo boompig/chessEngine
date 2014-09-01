@@ -2,19 +2,22 @@ import logging
 
 from utils import opposite_color
 
-from board import get_piece_list
 from board import starter_board
 from board import index_to_sq
-from board import gen_successor
 from board import dump_board
 from board import get_color
 from board import get_raw_piece
+from board import get_piece_list
 
-from piece_movement_rules import _get_piece_valid_squares
-from piece_movement_rules import is_legal_move
 from piece_movement_rules import is_in_check
 from piece_movement_rules import is_in_checkmate
 from piece_movement_rules import _has_no_legal_moves
+from piece_movement_rules import _get_piece_valid_squares
+from piece_movement_rules import is_legal_move
+
+from move import gen_successor
+from move import gen_successor_from_move
+from move import Move
 
 
 piece_scores = {
@@ -32,6 +35,22 @@ MIN = False
 
 logging.basicConfig(level=logging.DEBUG, format="%(message)s")
 #logging.basicConfig(level=logging.INFO, format="%(message)s")
+
+def gen_all_moves(board, color):
+    """Generate all valid moves by given color. This is a list."""
+    moves = []
+
+    for location, piece in get_piece_list(board, color):
+        for dest in _get_piece_valid_squares(board, location):
+            if is_legal_move(board, location, dest):
+                # the destination here is chess notation, rather than index
+                moves.append( Move(piece, location, dest) )
+
+        #if get_raw_piece(piece) == "P":
+            #for move in get_promotions(piece, src, dest):
+                #moves.append(Move(piece, src, dest, promotion=promotion)
+
+    return moves
 
 
 def find_mate_in_n(board, color, n):
@@ -77,16 +96,16 @@ def dls_minimax(board, depth_remaining, turn, last_move=None,
         move_gen_flag = False
 
         def _score_move(move):
-            return score_move(board, move[1], move[2])
+            return score_move(board, move)
 
         # score each potential move
         # order in order of score
-        for (piece, src, dest) in sorted(gen_all_moves(board, color), key=_score_move, reverse=True):
+        for g_move in sorted(gen_all_moves(board, color), key=_score_move, reverse=True):
             move_gen_flag = True
             logging.debug("[%d] Looking at move %s%s-%s" %
-                    (depth_remaining, piece, index_to_sq(src), index_to_sq(dest)))
-            b_new = gen_successor(board, src, dest)
-            a, move = dls_minimax(b_new, depth_remaining - 1, MIN, (piece, src, dest), alpha, beta, stats_dict)
+                    (depth_remaining, g_move.piece, index_to_sq(g_move.src), index_to_sq(g_move.dest)))
+            b_new = gen_successor_from_move(board, g_move)
+            a, move = dls_minimax(b_new, depth_remaining - 1, MIN, g_move, alpha, beta, stats_dict)
             if a > alpha:
                 best_move = move
                 alpha = a
@@ -118,16 +137,16 @@ def dls_minimax(board, depth_remaining, turn, last_move=None,
         move_gen_flag = False
 
         def _score_move(move):
-            return score_move(board, move[1], move[2])
+            return score_move(board, move)
 
         # score each potential move
         # order in order of score
-        for (piece, src, dest) in sorted(gen_all_moves(board, color), key=_score_move, reverse=True):
+        for g_move in sorted(gen_all_moves(board, color), key=_score_move, reverse=True):
             move_gen_flag = True
             logging.debug("[%d] Looking at move %s%s-%s" %
-                    (depth_remaining, piece, index_to_sq(src), index_to_sq(dest)))
-            b_new = gen_successor(board, src, dest)
-            b, move = dls_minimax(b_new, depth_remaining - 1, MAX, (piece, src, dest), alpha, beta, stats_dict)
+                    (depth_remaining, g_move.piece, index_to_sq(g_move.src), index_to_sq(g_move.dest)))
+            b_new = gen_successor_from_move(board, g_move)
+            b, move = dls_minimax(b_new, depth_remaining - 1, MAX, g_move, alpha, beta, stats_dict)
             if b < beta:
                 beta = b
                 best_move = move
@@ -150,27 +169,12 @@ def dls_minimax(board, depth_remaining, turn, last_move=None,
         return (beta, best_move)
 
 
-def gen_all_moves(board, color):
-    """Generate all valid moves by given color. This is a list."""
-    moves = []
-
-    for location, piece in get_piece_list(board, color):
-        for dest in _get_piece_valid_squares(board, location):
-            if is_legal_move(board, location, dest):
-                # the destination here is chess notation, rather than index
-                moves.append( (piece, location, dest) )
-
-        #if get_raw_piece(piece) == "P":
-            #for move in get_promotions(piece, src, dest):
-                #moves.append(Move(piece, src, dest, promotion=promotion)
-
-    return moves
 
 
-def score_move(board, src, dest):
+def score_move(board, move):
     """Score moves which give a check higher than those which do not."""
-    moving_color = get_color(board, src)
-    new_board = gen_successor(board, src, dest)
+    moving_color = get_color(board, move.src)
+    new_board = gen_successor_from_move(board, move)
     if is_in_check(new_board, opposite_color(moving_color)):
         return CHECK
     else:

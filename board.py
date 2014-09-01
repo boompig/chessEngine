@@ -173,9 +173,3 @@ def save_board(board, fname="game.txt"):
             if i % 10 == 0:
                 fp.write("\n")
             fp.write(sq)
-
-
-def gen_successor(board_init, move_src, move_dest):
-    board = board_init[:]
-    move_piece(board, move_src, move_dest)
-    return board

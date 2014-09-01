@@ -13,7 +13,8 @@ from board import get_piece_list
 from board import print_board
 from board import get_piece_color
 from board import get_raw_piece
-from board import gen_successor
+
+from move import gen_successor
 
 #logging.basicConfig(level=logging.DEBUG)
 

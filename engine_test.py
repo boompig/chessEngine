@@ -17,15 +17,17 @@ from engine import gen_all_moves
 from engine import dls_minimax
 from engine import MIN, MAX
 
+from move import Move
+
 
 def write_mate_result(board, moves, fp):
-    for piece, src, dest in moves:
-        if is_capture(board, dest, board[src]):
+    for move in moves:
+        if is_capture(board, move.dest, board[move.src]):
             fp.write("%s %sx%s\n" % (
-                piece, index_to_sq(src), index_to_sq(dest)))
+                move.piece, index_to_sq(move.src), index_to_sq(move.dest)))
         else:
             fp.write("%s %s-%s\n" % (
-                piece, index_to_sq(src), index_to_sq(dest)))
+                move.piece, index_to_sq(move.src), index_to_sq(move.dest)))
 
 
 class MoveOrderingTest(T.TestCase):
@@ -41,8 +43,10 @@ class MoveOrderingTest(T.TestCase):
             ["R", "", "", " ", "", "", "", ""],
         ])
 
-        winning_move_score = score_move(board, sq_to_index("a1"), sq_to_index("a8"))
-        idle_move_score = score_move(board, sq_to_index("a1"), sq_to_index("a7"))
+        m1 = Move(board[sq_to_index("a1")], sq_to_index("a1"), sq_to_index("a8"))
+        winning_move_score = score_move(board, m1)
+        m2 = Move(board[sq_to_index("a1")], sq_to_index("a1"), sq_to_index("a7"))
+        idle_move_score = score_move(board, m2)
         assert winning_move_score > idle_move_score
 
     def test_ordering_heuristic_in_gen_all_moves(self):
@@ -60,15 +64,15 @@ class MoveOrderingTest(T.TestCase):
 
         all_moves = gen_all_moves(board, "W")
         def _score_move(move):
-            return score_move(board, move[1], move[2])
+            return score_move(board, move)
         all_moves_sorted = sorted(all_moves, key=_score_move, reverse=True)
 
         win_move_index = None
         idle_move_index = None
-        for i, (piece, src, dest) in enumerate(all_moves_sorted):
-            if piece == "R" and index_to_sq(src) == "a1" and index_to_sq(dest) == "a8":
+        for i, move in enumerate(all_moves_sorted):
+            if move.piece == "R" and index_to_sq(move.src) == "a1" and index_to_sq(move.dest) == "a8":
                 win_move_index = i
-            elif piece == "R" and index_to_sq(src) == "a1" and index_to_sq(dest) == "a7":
+            elif move.piece == "R" and index_to_sq(move.src) == "a1" and index_to_sq(move.dest) == "a7":
                 idle_move_index = i
 
         assert win_move_index < idle_move_index
@@ -90,9 +94,9 @@ class PositionRankingTest(T.TestCase):
         ])
         result, move_list = dls_minimax(board, 2, MIN)
         assert len(move_list) == 2
-        assert move_list[0][0] == "k"
-        assert move_list[0][1] == sq_to_index("e8")
-        assert move_list[0][2] == sq_to_index("f8")
+        assert move_list[0].piece == "k"
+        assert move_list[0].src == sq_to_index("e8")
+        assert move_list[0].dest == sq_to_index("f8")
 
 
 class MateInOneTest(T.TestCase):
@@ -112,9 +116,9 @@ class MateInOneTest(T.TestCase):
         assert mate_result[0] == CHECKMATE
         assert len(mate_result[1]) == 1
         winning_move = mate_result[1][0]
-        assert winning_move[0] == "R"
-        assert index_to_sq(winning_move[1]) == "a1"
-        assert index_to_sq(winning_move[2]) == "a8"
+        assert winning_move.piece == "R"
+        assert index_to_sq(winning_move.src) == "a1"
+        assert index_to_sq(winning_move.dest) == "a8"
 
     def test_simple_board_no_mate_in_1(self):
         board = load_board([
@@ -161,9 +165,9 @@ class MateInOneTest(T.TestCase):
         assert result == CHECKMATE
         write_mate_result(board, mating_moves, sys.stdout)
         assert len(mating_moves) == 1
-        assert mating_moves[0][0] == "B"
-        assert mating_moves[0][1] == sq_to_index("g2")
-        assert mating_moves[0][2] == sq_to_index("h3")
+        assert mating_moves[0].piece == "B"
+        assert mating_moves[0].src == sq_to_index("g2")
+        assert mating_moves[0].dest == sq_to_index("h3")
 
 class MateInTwoTest(T.TestCase):
     def test_mate_in_2_p1(self):

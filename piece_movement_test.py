@@ -5,7 +5,6 @@ from board import index_to_sq
 from board import starter_board
 from board import load_board
 from board import dump_board
-from board import gen_successor
 from board import fen_to_board
 from board import print_board
 
@@ -21,6 +20,9 @@ from piece_movement_rules import is_in_check
 from piece_movement_rules import is_in_checkmate
 from piece_movement_rules import is_in_stalemate
 from piece_movement_rules import _has_no_legal_moves
+
+from move import gen_successor
+from move import Move
 
 
 class PieceMovementTest(T.TestCase):

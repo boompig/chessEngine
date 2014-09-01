@@ -91,16 +91,34 @@ class EngineTest(T.TestCase):
         board = fen_to_board(fen)
         result, mating_moves = find_mate_in_n(board, "W", 2)
         self.write_mate_result(mating_moves, sys.stdout)
+        assert result == CHECKMATE
         assert len(mating_moves) == 3
 
     def test_mate_in_2_p2(self):
         fen = "3r1b1k/5Q1p/p2p1P2/5R2/4q2P/1P2P3/PB5K/8 w"
         board = fen_to_board(fen)
         result, mating_moves = find_mate_in_n(board, "W", 2)
+        assert result == CHECKMATE
+        assert len(mating_moves) == 3
+
+
+    def test_mate_in_2_p3(self):
+        fen = "r1bq2r1/b4pk1/p1pp1p2/1p2pP2/1P2P1PB/3P4/1PPQ2P1/R3K2R w"
+        board = fen_to_board(fen)
+        result, mating_moves = find_mate_in_n(board, "W", 2)
         with open("mate.txt", "w") as fp:
             self.write_mate_result(mating_moves, fp)
-        assert len(mating_moves) == 3
         assert result == CHECKMATE
+        assert len(mating_moves) == 3
+
+    def test_mate_in_3_p1(self):
+        fen = "1r3r1k/5Bpp/8/8/P2qQ3/5R2/1b4PP/5K2 w"
+        board = fen_to_board(fen)
+        result, mating_moves = find_mate_in_n(board, "W", 3)
+        with open("mate.txt", "w") as fp:
+            self.write_mate_result(mating_moves, fp)
+        assert result == CHECKMATE
+        assert len(mating_moves) == 5
 
 
     def test_mate_in_3_anderssen_leipzig_1885(self):

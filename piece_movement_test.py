@@ -146,6 +146,20 @@ class PieceMovementTest(T.TestCase):
         assert is_in_check(board, "B")
         assert not is_in_check(board, "W")
 
+    def test_is_in_check_basic_rook_2(self):
+        board = load_board([
+            ["R", "", "", "", "k", "", "", ""],
+            [" ", "", "", "", " ", "", "", ""],
+            [" ", "", "", "", "K", "", "", ""],
+            [" ", "", "", "", " ", "", "", ""],
+            [" ", "", "", "", " ", "", "", ""],
+            [" ", "", "", "", " ", "", "", ""],
+            [" ", "", "", "", " ", "", "", ""],
+            [" ", "", "", "", " ", "", "", ""],
+        ])
+        assert is_in_check(board, "B")
+        assert not is_in_check(board, "W")
+
     def test_is_in_check_basic_bishop(self):
         board = load_board([
             ["B", "", "", "", "", "", "", ""],

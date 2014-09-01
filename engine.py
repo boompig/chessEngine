@@ -4,11 +4,11 @@ from utils import opposite_color
 
 from board import get_piece_list
 from board import starter_board
-from board import sq_to_index
 from board import index_to_sq
 from board import gen_successor
 from board import dump_board
 from board import get_color
+from board import get_raw_piece
 
 from piece_movement_rules import _get_piece_valid_squares
 from piece_movement_rules import is_legal_move
@@ -156,9 +156,13 @@ def gen_all_moves(board, color):
 
     for location, piece in get_piece_list(board, color):
         for dest in _get_piece_valid_squares(board, location):
-            if is_legal_move(board, index_to_sq(location), dest):
+            if is_legal_move(board, location, dest):
                 # the destination here is chess notation, rather than index
-                moves.append( (piece, location, sq_to_index(dest)) )
+                moves.append( (piece, location, dest) )
+
+        #if get_raw_piece(piece) == "P":
+            #for move in get_promotions(piece, src, dest):
+                #moves.append(Move(piece, src, dest, promotion=promotion)
 
     return moves
 

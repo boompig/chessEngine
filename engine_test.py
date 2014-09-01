@@ -95,7 +95,7 @@ class PositionRankingTest(T.TestCase):
         assert move_list[0][2] == sq_to_index("f8")
 
 
-class MateInOneEngineTest(T.TestCase):
+class MateInOneTest(T.TestCase):
     def test_simple_rook_mate_in_1(self):
         board = load_board([
             ["", "", "", "k", "", "", "", ""],
@@ -165,7 +165,7 @@ class MateInOneEngineTest(T.TestCase):
         assert mating_moves[0][1] == sq_to_index("g2")
         assert mating_moves[0][2] == sq_to_index("h3")
 
-class MateInTwoEngineTest(T.TestCase):
+class MateInTwoTest(T.TestCase):
     def test_mate_in_2_p1(self):
         fen = "1r6/4b2k/1q1pNrpp/p2Pp3/4P3/1P1R3Q/5PPP/5RK1 w"
         board = fen_to_board(fen)
@@ -190,7 +190,7 @@ class MateInTwoEngineTest(T.TestCase):
         assert result == CHECKMATE
         assert len(mating_moves) == 3
 
-class MateInThreeEngineTest(T.TestCase):
+class MateInThreeTest(T.TestCase):
     def test_mate_in_3_p1(self):
         board = fen_to_board("1r3r1k/5Bpp/8/8/P2qQ3/5R2/1b4PP/5K2 w")
         result, mating_moves = find_mate_in_n(board, "W", 3)
@@ -222,8 +222,8 @@ class MateInThreeEngineTest(T.TestCase):
         """This is a reworking of above into mate in 2"""
         board = fen_to_board("r5rk/7p/R4p2/4B3/8/8/7P/7K w")
         result, mating_moves = find_mate_in_n(board, "W", 3)
-        with open("mate.txt", "w") as fp:
-            write_mate_result(board, mating_moves, fp)
+        #with open("mate.txt", "w") as fp:
+        #    write_mate_result(board, mating_moves, fp)
         assert result == CHECKMATE
         assert len(mating_moves) == 3
 
@@ -231,13 +231,14 @@ class MateInThreeEngineTest(T.TestCase):
         board = fen_to_board("5B2/6P1/1p6/8/1N6/kP6/2K5/8 w")
         #result, mating_moves = find_mate_in_n(board, "W", 3)
         #with open("mate.txt", "w") as fp:
-        #    write_mate_result(board, mating_moves, fp)
+            #write_mate_result(board, mating_moves, fp)
+        print_board(board)
         #assert result == CHECKMATE
         #assert len(mating_moves) == 5
-        assert True
+        assert False
 
 
-class MateInFiveEngineTest(T.TestCase):
+class MateInFiveTest(T.TestCase):
     def test_mate_in_5_p1(self):
         #board = fen_to_board("2q1nk1r/4Rp2/1ppp1P2/6Pp/3p1B2/3P3P/PPP1Q3/6K1 w")
         #result, mating_moves = find_mate_in_n(board, "W", 5)

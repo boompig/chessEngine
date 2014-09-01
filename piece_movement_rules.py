@@ -28,6 +28,8 @@ def empty_or_capture(board, index, piece):
 
 
 def is_capture(board, index, piece):
+    """Return True iff the move is a capture.
+    index is the index to which piece is going, and piece is the source piece"""
     return get_color(board, index) is not None and get_color(board, index) != get_piece_color(piece)
 
 

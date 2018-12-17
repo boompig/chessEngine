@@ -1,12 +1,12 @@
 import unittest as T
 
-from board import sq_to_index
-from board import index_to_sq
-from board import is_valid_square
-from board import starter_board
-from board import load_board
-from board import dump_board
-from board import get_piece_list
+from chess_engine.board import sq_to_index
+from chess_engine.board import index_to_sq
+from chess_engine.board import is_valid_square
+from chess_engine.board import starter_board
+from chess_engine.board import load_board
+from chess_engine.board import dump_board
+from chess_engine.board import get_piece_list
 
 
 class BoardTest(T.TestCase):

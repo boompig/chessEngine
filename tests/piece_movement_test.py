@@ -1,29 +1,29 @@
 import unittest as T
 
-from board import sq_to_index
-from board import index_to_sq
-from board import starter_board
-from board import load_board
-from board import dump_board
-from board import fen_to_board
-from board import print_board
+from chess_engine.board import sq_to_index
+from chess_engine.board import index_to_sq
+from chess_engine.board import starter_board
+from chess_engine.board import load_board
+from chess_engine.board import dump_board
+from chess_engine.board import fen_to_board
+from chess_engine.board import print_board
 
-from piece_movement_rules import get_rook_valid_squares
-from piece_movement_rules import get_bishop_valid_squares
-from piece_movement_rules import get_queen_valid_squares
-from piece_movement_rules import get_king_valid_squares
-from piece_movement_rules import get_pawn_valid_squares
-from piece_movement_rules import get_knight_valid_squares
-from piece_movement_rules import get_piece_valid_squares
-from piece_movement_rules import is_legal_move
-from piece_movement_rules import is_in_check
-from piece_movement_rules import is_in_checkmate
-from piece_movement_rules import is_in_stalemate
-from piece_movement_rules import _has_no_legal_moves
-from piece_movement_rules import get_promotions
+from chess_engine.piece_movement_rules import get_rook_valid_squares
+from chess_engine.piece_movement_rules import get_bishop_valid_squares
+from chess_engine.piece_movement_rules import get_queen_valid_squares
+from chess_engine.piece_movement_rules import get_king_valid_squares
+from chess_engine.piece_movement_rules import get_pawn_valid_squares
+from chess_engine.piece_movement_rules import get_knight_valid_squares
+from chess_engine.piece_movement_rules import get_piece_valid_squares
+from chess_engine.piece_movement_rules import is_legal_move
+from chess_engine.piece_movement_rules import is_in_check
+from chess_engine.piece_movement_rules import is_in_checkmate
+from chess_engine.piece_movement_rules import is_in_stalemate
+from chess_engine.piece_movement_rules import _has_no_legal_moves
+from chess_engine.piece_movement_rules import get_promotions
 
-from move import gen_successor
-from move import Move
+from chess_engine.move import gen_successor
+from chess_engine.move import Move
 
 
 class PieceMovementTest(T.TestCase):
@@ -394,7 +394,7 @@ class CheckTest(T.TestCase):
 
         b2 = gen_successor(board, sq_to_index("h8"), sq_to_index("g8"))
         for row in dump_board(b2):
-            print row
+            print(row)
         assert not is_in_check(b2, "B")
 
         assert not is_in_checkmate(board, "B")

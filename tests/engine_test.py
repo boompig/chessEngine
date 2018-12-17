@@ -1,23 +1,23 @@
 import unittest as T
 import sys
 
-from board import load_board
-from board import index_to_sq
-from board import sq_to_index
-from board import fen_to_board
-from board import print_board
-from board import dump_board
+from chess_engine.board import load_board
+from chess_engine.board import index_to_sq
+from chess_engine.board import sq_to_index
+from chess_engine.board import fen_to_board
+from chess_engine.board import print_board
+from chess_engine.board import dump_board
 
-from piece_movement_rules import is_capture
+from chess_engine.piece_movement_rules import is_capture
 
-from engine import find_mate_in_n
-from engine import CHECKMATE
-from engine import score_move
-from engine import gen_all_moves
-from engine import dls_minimax
-from engine import MIN, MAX
+from chess_engine.engine import find_mate_in_n
+from chess_engine.engine import CHECKMATE
+from chess_engine.engine import score_move
+from chess_engine.engine import gen_all_moves
+from chess_engine.engine import dls_minimax
+from chess_engine.engine import MIN, MAX
 
-from move import Move
+from chess_engine.move import Move
 
 
 def write_mate_result(board, moves, fp):

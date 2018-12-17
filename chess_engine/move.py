@@ -1,6 +1,6 @@
-from board import move_piece
-from board import index_to_sq
-from board import is_capture
+from .board import move_piece
+from .board import index_to_sq
+from .board import is_capture
 
 class Move(object):
     def __init__(self, piece, src, dest, promotion=None, castle=None):

@@ -1,23 +1,23 @@
 import logging
 
-from utils import opposite_color
+from .utils import opposite_color
 
-from board import starter_board
-from board import dump_board
-from board import get_color
-from board import get_raw_piece
-from board import get_piece_list
+from .board import starter_board
+from .board import dump_board
+from .board import get_color
+from .board import get_raw_piece
+from .board import get_piece_list
 
-from piece_movement_rules import is_in_check
-from piece_movement_rules import is_in_checkmate
-from piece_movement_rules import _has_no_legal_moves
-from piece_movement_rules import _get_piece_valid_squares
-from piece_movement_rules import is_legal_move
-from piece_movement_rules import _get_promotions
+from .piece_movement_rules import is_in_check
+from .piece_movement_rules import is_in_checkmate
+from .piece_movement_rules import _has_no_legal_moves
+from .piece_movement_rules import _get_piece_valid_squares
+from .piece_movement_rules import is_legal_move
+from .piece_movement_rules import _get_promotions
 
-from move import gen_successor
-from move import gen_successor_from_move
-from move import Move
+from .move import gen_successor
+from .move import gen_successor_from_move
+from .move import Move
 
 
 piece_scores = {
@@ -59,7 +59,7 @@ def find_mate_in_n(board, color, n: int):
     non-CHECKMATE value in the first slot."""
     d = {"nodes_explored": 0}
     results = dls_minimax(board, (n - 1) * 2 + 1, MAX, stats_dict=d)
-    print "nodes explored=%d" % d['nodes_explored']
+    print("nodes explored=%d" % d['nodes_explored'])
     return results
 
 

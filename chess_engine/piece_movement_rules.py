@@ -1,21 +1,21 @@
 import logging
 
-from utils import opposite_color
+from .utils import opposite_color
 
-from board import is_valid_square
-from board import is_empty_square
-from board import slide_index
-from board import get_color
-from board import sq_to_index
-from board import index_to_sq
-from board import index_to_row
-from board import get_piece_list
-from board import print_board
-from board import get_piece_color
-from board import get_raw_piece
-from board import is_capture
+from .board import is_valid_square
+from .board import is_empty_square
+from .board import slide_index
+from .board import get_color
+from .board import sq_to_index
+from .board import index_to_sq
+from .board import index_to_row
+from .board import get_piece_list
+from .board import print_board
+from .board import get_piece_color
+from .board import get_raw_piece
+from .board import is_capture
 
-from move import gen_successor
+from .move import gen_successor
 
 #logging.basicConfig(level=logging.DEBUG)
 

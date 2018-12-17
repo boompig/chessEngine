@@ -1,10 +1,5 @@
-import logging
 import sys
-
-from utils import opposite_color
-from utils import full_color_name
-
-#logging.basicConfig(level=logging.DEBUG)
+from typing import List
 
 E = "E"
 G = "G"
@@ -25,7 +20,8 @@ starter_board = [
     G, G, G, G, G, G, G, G, G, G,
 ]
 
-def get_piece_list(board, color):
+
+def get_piece_list(board: List[str], color):
     """Return the mapping."""
 
     return [(index, piece) for index, piece in enumerate(board)
@@ -127,7 +123,7 @@ def load_board(arr):
     board = [G] * 20
     for row in arr:
         board.extend([G] + [(E if sq.rstrip() == "" else sq) for sq in row] + [G])
-    board.extend( [G] * 20 )
+    board.extend([G] * 20)
     return board
 
 
@@ -141,17 +137,17 @@ def dump_board(board):
     # now split this up into sub-arrays by row
     rows = []
     for i in range(0, 64, 8):
-        rows.append( simple_arr[i: i + 8] )
+        rows.append(simple_arr[i: i + 8])
     return rows
 
 
 def print_board(board):
-    print ("*" * 18),
+    print("*" * 18),
     for i, piece in enumerate(board):
         if not is_valid_square(i):
             continue
         if i % 10 == 1:
-            print ""
+            print("")
             sq = index_to_sq(i)
             sys.stdout.write("%s " % sq[1])
         if piece == E:
@@ -159,12 +155,12 @@ def print_board(board):
         else:
             sys.stdout.write("%s " % piece)
 
-    print ""
+    print("")
     sys.stdout.write("  ")
     for i in range(8):
         sys.stdout.write("%s " % (chr(i + 97)))
-    print ""
-    print ("*" * 18)
+    print("")
+    print("*" * 18)
 
 
 def save_board(board, fname="game.txt"):

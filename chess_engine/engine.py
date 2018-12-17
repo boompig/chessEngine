@@ -36,7 +36,7 @@ MIN = False
 #logging.basicConfig(level=logging.DEBUG, format="%(message)s")
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
-def gen_all_moves(board, color):
+def gen_all_moves(board, color) -> list:
     """Generate all valid moves by given color. This is a list."""
     moves = []
 
@@ -54,7 +54,7 @@ def gen_all_moves(board, color):
     return moves
 
 
-def find_mate_in_n(board, color, n):
+def find_mate_in_n(board, color, n: int):
     """Find a mate in at most n moves. If no such mate exist, will return a
     non-CHECKMATE value in the first slot."""
     d = {"nodes_explored": 0}
@@ -63,7 +63,7 @@ def find_mate_in_n(board, color, n):
     return results
 
 
-def dls_minimax(board, depth_remaining, turn, last_move=None,
+def dls_minimax(board, depth_remaining : int, turn, last_move=None,
         alpha=(-1 * CHECKMATE - 1), beta=(CHECKMATE + 1), stats_dict={"nodes_explored": 0}):
     """Return whether or not there exists a winning combination of moves.
     Return this combination.

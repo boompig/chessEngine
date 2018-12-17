@@ -1,29 +1,20 @@
 import unittest as T
 
-from chess_engine.board import sq_to_index
-from chess_engine.board import index_to_sq
-from chess_engine.board import starter_board
-from chess_engine.board import load_board
-from chess_engine.board import dump_board
-from chess_engine.board import fen_to_board
-from chess_engine.board import print_board
-
-from chess_engine.piece_movement_rules import get_rook_valid_squares
-from chess_engine.piece_movement_rules import get_bishop_valid_squares
-from chess_engine.piece_movement_rules import get_queen_valid_squares
-from chess_engine.piece_movement_rules import get_king_valid_squares
-from chess_engine.piece_movement_rules import get_pawn_valid_squares
-from chess_engine.piece_movement_rules import get_knight_valid_squares
-from chess_engine.piece_movement_rules import get_piece_valid_squares
-from chess_engine.piece_movement_rules import is_legal_move
-from chess_engine.piece_movement_rules import is_in_check
-from chess_engine.piece_movement_rules import is_in_checkmate
-from chess_engine.piece_movement_rules import is_in_stalemate
-from chess_engine.piece_movement_rules import _has_no_legal_moves
-from chess_engine.piece_movement_rules import get_promotions
-
+from chess_engine.board import (dump_board, fen_to_board,
+                                load_board, print_board, sq_to_index,
+                                starter_board)
 from chess_engine.move import gen_successor
-from chess_engine.move import Move
+from chess_engine.piece_movement_rules import (_has_no_legal_moves,
+                                               get_bishop_valid_squares,
+                                               get_king_valid_squares,
+                                               get_knight_valid_squares,
+                                               get_pawn_valid_squares,
+                                               get_piece_valid_squares,
+                                               get_promotions,
+                                               get_queen_valid_squares,
+                                               get_rook_valid_squares,
+                                               is_in_check, is_in_checkmate,
+                                               is_in_stalemate, is_legal_move)
 
 
 class PieceMovementTest(T.TestCase):
@@ -44,8 +35,8 @@ class PieceMovementTest(T.TestCase):
             ["", "", "", "", "", "", "", ""],
         ])
         rook_squares = sorted([sq_to_index(sq) for sq in
-                ["a7", "b1", "b2", "b3", "b4", "b5", "b6", "b8",
-                        "c7", "d7", "e7", "f7", "g7", "h7"]])
+                               ["a7", "b1", "b2", "b3", "b4", "b5", "b6", "b8",
+                                "c7", "d7", "e7", "f7", "g7", "h7"]])
         assert sorted(get_rook_valid_squares(board, sq_to_index("b7"))) == rook_squares
 
     def test_rook_blocked_capture_valid_squares(self):
@@ -186,7 +177,7 @@ class PieceMovementTest(T.TestCase):
             [" ", "", "", "", " ", " ", "", " "]
         ])
         assert sorted(get_promotions(board, sq_to_index("a7"), sq_to_index("a8"))) == \
-               sorted(["Q", "R", "B", "N"])
+            sorted(["Q", "R", "B", "N"])
 
     def test_promotions_pawn_black_move(self):
         board = load_board([
@@ -200,7 +191,7 @@ class PieceMovementTest(T.TestCase):
             [" ", "", "", "", " ", " ", "", " "]
         ])
         assert sorted(get_promotions(board, sq_to_index("a2"), sq_to_index("a1"))) == \
-               sorted(["q", "r", "b", "n"])
+            sorted(["q", "r", "b", "n"])
 
     def test_promotions_pawn_black_capture(self):
         board = load_board([
@@ -214,9 +205,9 @@ class PieceMovementTest(T.TestCase):
             [" ", "B", "", "", " ", " ", "", " "]
         ])
         assert sorted(get_promotions(board, sq_to_index("a2"), sq_to_index("a1"))) == \
-               sorted(["q", "r", "b", "n"])
+            sorted(["q", "r", "b", "n"])
         assert sorted(get_promotions(board, sq_to_index("a2"), sq_to_index("b1"))) == \
-               sorted(["q", "r", "b", "n"])
+            sorted(["q", "r", "b", "n"])
 
     def test_promotions_blocked(self):
         board = load_board([
@@ -338,7 +329,6 @@ class CheckTest(T.TestCase):
         assert is_in_checkmate(board, "B")
         assert not is_in_checkmate(board, "W")
 
-
     def test_is_in_checkmate_unprotected_attacker(self):
         board = load_board([
             ["k", "", "", "", "", "", "", ""],
@@ -402,6 +392,7 @@ class CheckTest(T.TestCase):
         assert not is_in_stalemate(board, "B")
         assert not is_in_stalemate(board, "W")
         assert not _has_no_legal_moves(board, "B")
+
 
 if __name__ == "__main__":
     T.main()

@@ -94,5 +94,6 @@ class BoardTest(T.TestCase):
         apl = [(index_to_sq(idx), piece) for idx, piece in pl]
         assert sorted(apl) == starter_piece_list
 
+
 if __name__ == "__main__":
     T.main()

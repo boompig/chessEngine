@@ -42,7 +42,7 @@ def interpret_move(notation, board):
         else:
             raise ValueError("Cannot interpret this move: %s" % notation)
 
-        logging.debug("Inferring move with piece %s to %s" % (piece, dest))
+        logging.debug("Inferring move with piece %s to %s", piece, dest)
 
         src_list = board.get_piece_location(board.turn, board.turn + piece)
         src_flag = None

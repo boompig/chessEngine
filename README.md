@@ -34,7 +34,7 @@ Possible inefficiencies with this approach:
 
 ### Piece Representation
 
-Pieces are represented as strings. Empty spaces are the empty string, guard regions are the string "G". Each piece is a single character - capital for white and lower-case for black. This is consistent with FEN.
+Pieces are represented as strings. Empty spaces are the empty string, guard regions are the string "G". Each piece is a single character - capital for white and lower-case for black. This is consistent with [FEN](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation).
 
 Possible inefficiencies:
 * strings are large-ish in memory, compared to numbers. A lot of space can be saved with 6-bit numbers. 1 bit for the color, 1 bit for whether it is actually a guard element, 1 bit for whether it is actually an empty square, and 3 bits for the piece type (since there are only 6). Note that by being clever, we could also include guard and empty stuff into these first 3 bits, to get a 4-bit int.

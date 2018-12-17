@@ -89,7 +89,7 @@ class PositionRankingTest(T.TestCase):
             [" ", " ", "", " ", " ", "", "", ""],
             [" ", " ", "", " ", " ", "", "", ""]
         ])
-        result, move_list = dls_minimax(board, 2, MIN)
+        _, move_list = dls_minimax(board, 2, MIN)
         assert len(move_list) == 2
         assert move_list[0].piece == "k"
         assert move_list[0].src == sq_to_index("e8")

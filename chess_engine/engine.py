@@ -1,24 +1,11 @@
 import logging
 
+from .board import (dump_board, get_color, get_piece_list, get_raw_piece)
+from .move import Move, gen_successor_from_move
+from .piece_movement_rules import (_get_piece_valid_squares, _get_promotions,
+                                   _has_no_legal_moves, is_in_check,
+                                   is_legal_move)
 from .utils import opposite_color
-
-from .board import starter_board
-from .board import dump_board
-from .board import get_color
-from .board import get_raw_piece
-from .board import get_piece_list
-
-from .piece_movement_rules import is_in_check
-from .piece_movement_rules import is_in_checkmate
-from .piece_movement_rules import _has_no_legal_moves
-from .piece_movement_rules import _get_piece_valid_squares
-from .piece_movement_rules import is_legal_move
-from .piece_movement_rules import _get_promotions
-
-from .move import gen_successor
-from .move import gen_successor_from_move
-from .move import Move
-
 
 piece_scores = {
     "N": 3,
@@ -33,8 +20,8 @@ CHECK = 5
 MAX = True
 MIN = False
 
-#logging.basicConfig(level=logging.DEBUG, format="%(message)s")
 logging.basicConfig(level=logging.INFO, format="%(message)s")
+
 
 def gen_all_moves(board, color) -> list:
     """Generate all valid moves by given color. This is a list."""
@@ -46,10 +33,10 @@ def gen_all_moves(board, color) -> list:
                 prs = _get_promotions(piece, location, dest)
                 if prs != []:
                     moves.extend([Move(piece, location, dest, promotion=p)
-                        for p in prs])
+                                  for p in prs])
                 else:
                     # the destination here is chess notation, rather than index
-                    moves.append( Move(piece, location, dest) )
+                    moves.append(Move(piece, location, dest))
 
     return moves
 
@@ -63,8 +50,8 @@ def find_mate_in_n(board, color, n: int):
     return results
 
 
-def dls_minimax(board, depth_remaining : int, turn, last_move=None,
-        alpha=(-1 * CHECKMATE - 1), beta=(CHECKMATE + 1), stats_dict={"nodes_explored": 0}):
+def dls_minimax(board, depth_remaining: int, turn, last_move=None,
+                alpha=(-1 * CHECKMATE - 1), beta=(CHECKMATE + 1), stats_dict={"nodes_explored": 0}):
     """Return whether or not there exists a winning combination of moves.
     Return this combination.
     TODO: alpha-beta this"""
@@ -103,24 +90,24 @@ def dls_minimax(board, depth_remaining : int, turn, last_move=None,
         # order in order of score
         for g_move in sorted(gen_all_moves(board, color), key=_score_move, reverse=True):
             move_gen_flag = True
-            logging.debug("[%d] Looking at move %s" %
-                    (depth_remaining, g_move.show(board)))
+            logging.debug("[%d] Looking at move %s",
+                          depth_remaining, g_move.show(board))
             b_new = gen_successor_from_move(board, g_move)
             a, move = dls_minimax(b_new, depth_remaining - 1, MIN, g_move, alpha, beta, stats_dict)
             if a > alpha:
                 best_move = move
                 alpha = a
 
-            #TODO there should be some sort of theory on why this is good
+            # TODO there should be some sort of theory on why this is good
             # but for now, the idea seems solid
             if alpha >= CHECKMATE:
                 logging.info("Checkmate found as MAX, not checking any more nodes")
                 break
 
             if alpha >= beta:
-                logging.debug("beta cutoff for %s" % color)
-                logging.debug("exceeded beta value %d with alpha %d" % 
-                        (beta, alpha))
+                logging.debug("beta cutoff for %s", color)
+                logging.debug("exceeded beta value %d with alpha %d",
+                              beta, alpha)
                 break
 
         if not move_gen_flag:
@@ -133,7 +120,7 @@ def dls_minimax(board, depth_remaining : int, turn, last_move=None,
         logging.debug("returning alpha=%d" % alpha)
         return (alpha, best_move)
     elif turn == MIN:
-        logging.debug("[%d] Finding best move for player %s" % (depth_remaining, color))
+        logging.debug("[%d] Finding best move for player %s", depth_remaining, color)
         best_move = [None]
         move_gen_flag = False
 
@@ -144,8 +131,8 @@ def dls_minimax(board, depth_remaining : int, turn, last_move=None,
         # order in order of score
         for g_move in sorted(gen_all_moves(board, color), key=_score_move, reverse=True):
             move_gen_flag = True
-            logging.debug("[%d] Looking at move %s" %
-                    (depth_remaining, g_move.show(board)))
+            logging.debug("[%d] Looking at move %s",
+                          depth_remaining, g_move.show(board))
             b_new = gen_successor_from_move(board, g_move)
             b, move = dls_minimax(b_new, depth_remaining - 1, MAX, g_move, alpha, beta, stats_dict)
             if b < beta:
@@ -166,10 +153,8 @@ def dls_minimax(board, depth_remaining : int, turn, last_move=None,
         if last_move is not None:
             best_move.insert(0, last_move)
 
-        logging.debug("Returning beta=%d" % beta)
+        logging.debug("Returning beta=%d", beta)
         return (beta, best_move)
-
-
 
 
 def score_move(board, move):
@@ -192,7 +177,7 @@ def score_board(board):
     white_pts = sum([score_piece(piece, location)
                      for location, piece in get_piece_list(board, "W")])
 
-    black_pts = sum([score_piece(piece, location) 
+    black_pts = sum([score_piece(piece, location)
                      for location, piece in get_piece_list(board, "B")])
 
     return white_pts - black_pts

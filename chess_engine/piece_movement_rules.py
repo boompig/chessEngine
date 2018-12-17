@@ -1,23 +1,8 @@
-import logging
-
-from .utils import opposite_color
-
-from .board import is_valid_square
-from .board import is_empty_square
-from .board import slide_index
-from .board import get_color
-from .board import sq_to_index
-from .board import index_to_sq
-from .board import index_to_row
-from .board import get_piece_list
-from .board import print_board
-from .board import get_piece_color
-from .board import get_raw_piece
-from .board import is_capture
-
+from .board import (get_color, get_piece_color, get_piece_list, get_raw_piece,
+                    index_to_row, index_to_sq, is_capture, is_empty_square,
+                    is_valid_square, print_board, slide_index, sq_to_index)
 from .move import gen_successor
-
-#logging.basicConfig(level=logging.DEBUG)
+from .utils import opposite_color
 
 
 def valid_and_empty(board, index):
@@ -27,6 +12,7 @@ def valid_and_empty(board, index):
 def empty_or_capture(board, index, piece):
     return is_valid_square(index) and (
         is_empty_square(board, index) or is_capture(board, index, piece))
+
 
 def valid_capture(board, index, piece):
     return is_valid_square(index) and is_capture(board, index, piece)
@@ -43,8 +29,8 @@ def slide_and_check(board, index, piece, d_row, d_col, squares):
         if is_empty_square(board, index):
             squares.append(index)
         else:
-            #logging.debug("square occupied by %s" % board[index])
-            #logging.debug("attacking piece is %s" % piece)
+            # logging.debug("square occupied by %s" % board[index])
+            # logging.debug("attacking piece is %s" % piece)
             if get_piece_color(piece) != get_color(board, index):
                 squares.append(index)
             return
@@ -71,7 +57,7 @@ def get_bishop_valid_squares(board, index):
 
 
 def get_queen_valid_squares(board, index):
-    piece = board[index]
+    # piece = board[index]
     squares = []
     squares.extend(get_rook_valid_squares(board, index))
     squares.extend(get_bishop_valid_squares(board, index))
@@ -136,8 +122,7 @@ def get_knight_valid_squares(board, index):
     ]
 
     return [index for index in squares
-        if empty_or_capture(board, index, piece)
-    ]
+            if empty_or_capture(board, index, piece)]
 
 
 def _get_piece_valid_squares(board, index):
@@ -163,7 +148,7 @@ def is_legal_move(board, src, dest):
     if is_empty_square(board, src):
         raise ValueError("There is no piece at square %s" % index_to_sq(src))
 
-    piece = board[src]
+    # piece = board[src]
     color = get_color(board, src)
 
     if dest not in _get_piece_valid_squares(board, src):
@@ -187,22 +172,24 @@ def is_in_check(board, color):
 
     opp_color = opposite_color(color)
     # get everything for that color
-    for index, piece in get_piece_list(board, opp_color):
+    for index, _ in get_piece_list(board, opp_color):
         vs = _get_piece_valid_squares(board, index)
         if king_pos in vs:
             return True
 
     return False
 
+
 def _has_no_legal_moves(board, color):
     # get all possible moves
-    for pos, piece in get_piece_list(board, color):
+    for pos, _ in get_piece_list(board, color):
         for dest in _get_piece_valid_squares(board, pos):
             b_new = gen_successor(board, pos, dest)
             if not is_in_check(b_new, color):
                 return False
 
     return True
+
 
 def is_in_checkmate(board, color):
     """Criteria for checkmate:
@@ -215,11 +202,13 @@ def is_in_checkmate(board, color):
 def is_in_stalemate(board, color):
     return not is_in_check(board, color) and _has_no_legal_moves(board, color)
 
+
 def get_promotions(board, src, dest):
     if not is_legal_move(board, src, dest):
         return []
     else:
         return _get_promotions(board[src], src, dest)
+
 
 def _get_promotions(piece, src, dest):
     """Does not check if the move is valid."""

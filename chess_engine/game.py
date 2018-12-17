@@ -2,19 +2,10 @@
 
 import logging
 
-from board import index_to_sq
-from board import save_board
-from board import starter_board
-from board import print_board
-from board import get_color
-from board import sq_to_index
-from board import is_empty_square
-from board import move_piece
-
-from piece_movement_rules import is_legal_move
-from piece_movement_rules import get_piece_valid_squares
-
-from utils import opposite_color
+from .board import (get_color, index_to_sq, is_empty_square, move_piece,
+                    print_board, sq_to_index, starter_board)
+from .piece_movement_rules import get_piece_valid_squares, is_legal_move
+from .utils import opposite_color
 
 
 class Game(object):
@@ -24,7 +15,6 @@ class Game(object):
     @staticmethod
     def record_move(move):
         Game.moves.append(move)
-
 
     @staticmethod
     def flip_turn():
@@ -68,21 +58,21 @@ def interpret_move(notation, board):
         else:
             return (src_flag, dest)
 
+
 def show_moves():
     for i in range(len(Game.moves)):
         if i % 2 == 0:
-            print "%d. %s" % (i / 2 + 1, Game.moves[i]),
+            print("%d. %s" % (i / 2 + 1, Game.moves[i]))
         else:
-            print Game.moves[i]
-
+            print(Game.moves[i])
     if len(Game.moves) % 2:
-        print ""
-
-    print ""
+        print("")
+    print("")
 
 
 def can_move_this_turn(board, index, turn):
     return get_color(board, index) == turn
+
 
 def process_command(board, command):
     logging.debug("Received command %s" % command)
@@ -92,21 +82,21 @@ def process_command(board, command):
         return 1
     elif command == "s":
         board.save()
-        print "board saved"
+        print("board saved")
         return
     elif command == "l":
         board.load()
-        print "board loaded"
+        print("board loaded")
         return
 
     try:
         src, dest = interpret_move(command, board)
     except ValueError as e:
-        print "E: %s" % e.message
+        print("E: %s", e.message)
         return
 
     if len(src) != 2 or len(dest) != 2:
-        print "E: Invalid src or dest"
+        print("E: Invalid src or dest")
         return
     else:
         logging.debug("Valid piece")
@@ -114,11 +104,11 @@ def process_command(board, command):
     src_idx, dest_idx = [sq_to_index(sq) for sq in [src, dest]]
 
     if is_empty_square(board, src_idx):
-        print "E: %s is empty" % src
+        print("E: %s is empty", src)
         return
 
     if not can_move_this_turn(board, src_idx, Game.turn):
-        print "E: It is not your turn"
+        print("E: It is not your turn")
         return
 
     try:
@@ -127,9 +117,10 @@ def process_command(board, command):
             Game.flip_turn()
             Game.record_move(command)
         else:
-            print "%s is an illegal move" % command
+            print("%s is an illegal move", command)
     except ValueError as e:
-        print "Error! %s" % e.message
+        print("Error! %s" % e.message)
+
 
 def game_loop():
     board = starter_board
@@ -138,7 +129,7 @@ def game_loop():
         show_moves()
         print_board(board)
         print("Enter move as [src]-[dest], inspect square at [src], or q to quit")
-        command = raw_input(">> ")
+        command = input(">> ")
         if command == "":
             continue
 
@@ -147,6 +138,7 @@ def game_loop():
             return exit_status - 1
 
     return 0
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)

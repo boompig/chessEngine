@@ -2,7 +2,7 @@ import sys
 import unittest as T
 
 from chess_engine.board import (fen_to_board, index_to_sq, load_board,
-                                print_board, sq_to_index, WHITE)
+                                print_board, sq_to_index, WHITE, ROOK, BISHOP)
 from chess_engine.engine import (CHECKMATE, MIN, dls_minimax,
                                  find_mate_in_n, gen_all_moves, score_move)
 from chess_engine.move import Move
@@ -57,9 +57,9 @@ class MoveOrderingTest(T.TestCase):
         win_move_index = None
         idle_move_index = None
         for i, move in enumerate(all_moves_sorted):
-            if move.piece == "R" and index_to_sq(move.src) == "a1" and index_to_sq(move.dest) == "a8":
+            if move.piece == ROOK and index_to_sq(move.src) == "a1" and index_to_sq(move.dest) == "a8":
                 win_move_index = i
-            elif move.piece == "R" and index_to_sq(move.src) == "a1" and index_to_sq(move.dest) == "a7":
+            elif move.piece == ROOK and index_to_sq(move.src) == "a1" and index_to_sq(move.dest) == "a7":
                 idle_move_index = i
 
         assert win_move_index < idle_move_index
@@ -152,7 +152,7 @@ class MateInOneTest(T.TestCase):
         assert result == CHECKMATE
         write_mate_result(board, mating_moves, sys.stdout)
         assert len(mating_moves) == 1
-        assert mating_moves[0].piece == "B"
+        assert mating_moves[0].piece == BISHOP
         assert mating_moves[0].src == sq_to_index("g2")
         assert mating_moves[0].dest == sq_to_index("h3")
 

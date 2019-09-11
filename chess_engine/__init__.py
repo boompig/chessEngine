@@ -52,7 +52,7 @@ class Board:
             ))
 
         is_castle = is_castle_move(self._board, from_index, to_index)
-        move_piece(self._board, from_square, to_square, promotion=promotion, is_castle=is_castle)
+        move_piece(self._board, from_square, to_square, promotion_piece=promotion, is_castle=is_castle)
         return True
 
     def is_in_checkmate(self, color: str):

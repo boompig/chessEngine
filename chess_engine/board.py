@@ -1,11 +1,24 @@
 import sys
 from typing import List, Tuple, Optional
 
+PieceName = str
+Color = str
+
 E = "E"
 G = "G"
 
 WHITE = "W"
 BLACK = "B"
+
+PAWN = "P"
+KNIGHT = "N"
+BISHOP = "B"
+ROOK = "R"
+QUEEN = "Q"
+KING = "K"
+
+PIECES = frozenset([PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING])
+
 
 # the default board, with guard regions
 starter_board = [
@@ -97,7 +110,7 @@ def get_castle_rook_index(board, from_index, to_index) -> Tuple[int, int]:
 def move_piece_castle(board, from_index: int, to_index: int):
     # this should refer to the king only
     piece = board[from_index]
-    assert get_raw_piece(piece) == "K"
+    assert get_raw_piece(piece) == KING
     board[from_index] = E
     board[to_index] = piece
     # find the rook and move it
@@ -120,9 +133,11 @@ def move_piece(board, src: str, dest: str, promotion_piece: Optional[str] = None
     if is_castle:
         move_piece_castle(board, from_index, to_index)
     elif promotion_piece:
+        promotion_piece = promotion_piece.upper()
+        assert promotion_piece in PIECES
         piece = board[from_index]
         color = board[to_index]
-        assert get_raw_piece(piece) == "P"
+        assert get_raw_piece(piece) == PAWN
         assert index_to_row(to_index) in [0, 7]
         board[from_index] = E
         board[to_index] = get_piece_of_color(promotion_piece, color)

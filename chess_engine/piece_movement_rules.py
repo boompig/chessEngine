@@ -2,25 +2,26 @@ from typing import List
 
 from .board import (get_color, get_piece_color, get_piece_list, get_raw_piece,
                     index_to_row, index_to_sq, is_capture, is_empty_square,
-                    is_valid_square, print_board, slide_index, sq_to_index, E, WHITE, BLACK)
+                    is_valid_square, print_board, slide_index, sq_to_index, E, WHITE, BLACK,
+                    PieceName, KNIGHT, ROOK, QUEEN, KING, PAWN, BISHOP)
 from .move import gen_successor
 from .utils import opposite_color
 
 
-def valid_and_empty(board, index):
+def valid_and_empty(board, index: int) -> bool:
     return is_valid_square(index) and is_empty_square(board, index)
 
 
-def empty_or_capture(board, index, piece):
+def empty_or_capture(board, index: int, piece: PieceName) -> bool:
     return is_valid_square(index) and (
         is_empty_square(board, index) or is_capture(board, index, piece))
 
 
-def valid_capture(board, index, piece):
+def valid_capture(board, index: int, piece: PieceName):
     return is_valid_square(index) and is_capture(board, index, piece)
 
 
-def slide_and_check(board, index, piece, d_row, d_col, squares):
+def slide_and_check(board, index: int, piece: PieceName, d_row: int, d_col: int, squares: List[int]):
     """Extend squares array with valid squares.
     TODO, in the future, write this to be easily parallelisable"""
     while True:
@@ -89,7 +90,7 @@ def get_king_valid_squares(board, index: int) -> List[int]:
     ]
 
 
-def get_pawn_valid_squares(board, from_index: int, capture_only=False) -> list:
+def get_pawn_valid_squares(board, from_index: int, capture_only: bool = False) -> list:
     assert isinstance(from_index, int)
     piece = board[from_index]
 
@@ -113,7 +114,7 @@ def get_pawn_valid_squares(board, from_index: int, capture_only=False) -> list:
     return squares
 
 
-def get_knight_valid_squares(board, index):
+def get_knight_valid_squares(board, index: int) -> List[int]:
     piece = board[index]
     squares = [
         slide_index(index, 1, 2),
@@ -132,17 +133,17 @@ def get_knight_valid_squares(board, index):
 
 def _get_piece_valid_squares(board: list, from_index: int) -> List[int]:
     piece = get_raw_piece(board[from_index])
-    if piece == "N":
+    if piece == KNIGHT:
         return get_knight_valid_squares(board, from_index)
-    elif piece == "R":
+    elif piece == ROOK:
         return get_rook_valid_squares(board, from_index)
-    elif piece == "Q":
+    elif piece == QUEEN:
         return get_queen_valid_squares(board, from_index)
-    elif piece == "K":
+    elif piece == KING:
         return get_king_valid_squares(board, from_index)
-    elif piece == "P":
+    elif piece == PAWN:
         return get_pawn_valid_squares(board, from_index)
-    elif piece == "B":
+    elif piece == BISHOP:
         return get_bishop_valid_squares(board, from_index)
     else:
         raise Exception("no such piece: %s" % piece)
@@ -155,7 +156,7 @@ def get_piece_valid_squares(board: list, sq: str):
 def is_castle_move(board, from_index: int, to_index: int) -> bool:
     assert isinstance(from_index, int)
     assert isinstance(to_index, int)
-    if (get_raw_piece(board[from_index]) != "K"):
+    if (get_raw_piece(board[from_index]) != KING):
         return False
     potential_castle_squares = [
         slide_index(from_index, -2, 0),
@@ -208,7 +209,7 @@ def can_castle(board, from_index: int, to_index: int) -> bool:
     for square in check_squares:
         if not is_empty_square(board, square):
             return False
-    if get_raw_piece(board[rook_square]) != "R":
+    if get_raw_piece(board[rook_square]) != ROOK:
         return False
     color = get_color(board, from_index)
 
@@ -260,7 +261,7 @@ def is_in_check(board, color):
     # find the king
     king_index = [
         index for index, piece in get_piece_list(board, color)
-        if get_raw_piece(piece) == "K"
+        if get_raw_piece(piece) == KING
     ]
     if king_index == []:
         print_board(board)
@@ -311,7 +312,7 @@ def get_promotions(board, src, dest):
 
 def _get_promotions(piece, src, dest):
     """Does not check if the move is valid."""
-    if get_raw_piece(piece) != "P":
+    if get_raw_piece(piece) != PAWN:
         return []
 
     if get_piece_color(piece) == WHITE and index_to_row(dest) == 0:

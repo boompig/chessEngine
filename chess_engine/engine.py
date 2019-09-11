@@ -1,6 +1,7 @@
 import logging
 
-from .board import (dump_board, get_color, get_piece_list, get_raw_piece, WHITE, BLACK)
+from .board import (dump_board, get_color, get_piece_list, get_raw_piece, WHITE, BLACK,
+                    KNIGHT, BISHOP, ROOK, PAWN, QUEEN, KING, Color)
 from .move import Move, gen_successor_from_move
 from .piece_movement_rules import (_get_piece_valid_squares, _get_promotions,
                                    _has_no_legal_moves, is_in_check,
@@ -8,12 +9,12 @@ from .piece_movement_rules import (_get_piece_valid_squares, _get_promotions,
 from .utils import opposite_color
 
 piece_scores = {
-    "N": 3,
-    "B": 3,
-    "R": 5,
-    "P": 1,
-    "Q": 9,
-    "K": 1000
+    KNIGHT: 3,
+    BISHOP: 3,
+    ROOK: 5,
+    PAWN: 1,
+    QUEEN: 9,
+    KING: 1000
 }
 CHECKMATE = 10000
 CHECK = 5
@@ -41,7 +42,7 @@ def gen_all_moves(board, color: str) -> list:
     return moves
 
 
-def find_mate_in_n(board, color, n: int):
+def find_mate_in_n(board, color: Color, n: int):
     """Find a mate in at most n moves. If no such mate exist, will return a
     non-CHECKMATE value in the first slot."""
     d = {"nodes_explored": 0}
@@ -50,7 +51,7 @@ def find_mate_in_n(board, color, n: int):
     return results
 
 
-def dls_minimax(board, depth_remaining: int, turn, last_move=None,
+def dls_minimax(board, depth_remaining: int, turn: bool, last_move=None,
                 alpha=(-1 * CHECKMATE - 1), beta=(CHECKMATE + 1), stats_dict={"nodes_explored": 0}):
     """Return whether or not there exists a winning combination of moves.
     Return this combination.

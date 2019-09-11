@@ -183,9 +183,9 @@ def can_castle(board, from_index: int, to_index: int) -> bool:
     """
 
     # make sure the intermediate squares are empty
-    check_squares = []
+    check_squares = []  # type: List[int]
     # includes the final position
-    king_passes_squares = []
+    king_passes_squares = []  # type: List[int]
     rook_square = -1
     if from_index < to_index:
         # castling right

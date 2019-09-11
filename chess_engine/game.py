@@ -6,14 +6,15 @@ from .board import (get_color, index_to_sq, is_empty_square, move_piece,
                     print_board, sq_to_index, starter_board)
 from .piece_movement_rules import get_piece_valid_squares, is_legal_move
 from .utils import opposite_color
+from typing import List
 
 
 class Game(object):
     turn = "W"
-    moves = []
+    moves = []  # type: List[str]
 
     @staticmethod
-    def record_move(move):
+    def record_move(move: str):
         Game.moves.append(move)
 
     @staticmethod
@@ -74,7 +75,7 @@ def can_move_this_turn(board, index, turn):
     return get_color(board, index) == turn
 
 
-def process_command(board, command):
+def process_command(board, command: str):
     logging.debug("Received command %s" % command)
 
     if command == "q":
@@ -92,7 +93,7 @@ def process_command(board, command):
     try:
         src, dest = interpret_move(command, board)
     except ValueError as e:
-        print("E: %s", e.message)
+        print("E: %s", str(e))
         return
 
     if len(src) != 2 or len(dest) != 2:
@@ -113,13 +114,13 @@ def process_command(board, command):
 
     try:
         if is_legal_move(board, src, dest):
-            move_piece(board, src_idx, dest_idx)
+            move_piece(board, src, dest)
             Game.flip_turn()
             Game.record_move(command)
         else:
             print("%s is an illegal move", command)
     except ValueError as e:
-        print("Error! %s" % e.message)
+        print("Error! %s" % str(e))
 
 
 def game_loop():

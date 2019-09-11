@@ -5,7 +5,7 @@ from typing import List, Tuple
 
 
 from .board import (get_color, index_to_sq, is_empty_square, move_piece,
-                    print_board, sq_to_index, starter_board, WHITE)
+                    print_board, sq_to_index, starter_board, WHITE, get_piece_of_color)
 from .piece_movement_rules import get_piece_valid_squares, is_legal_move
 from .utils import opposite_color
 
@@ -24,7 +24,7 @@ class Game(object):
 
 
 def get_piece_location(board, piece_name: str, color: str) -> List[int]:
-    piece = (piece_name.upper() if color == WHITE else piece_name.lower())
+    piece = get_piece_of_color(piece_name, color)
     indexes = []
     try:
         start_index = 0

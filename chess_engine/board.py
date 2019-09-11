@@ -107,7 +107,7 @@ def move_piece_castle(board, from_index: int, to_index: int):
     board[rook_to_index] = piece
 
 
-def move_piece(board, src: str, dest: str, promotion: Optional[str] = None, is_castle=False):
+def move_piece(board, src: str, dest: str, promotion_piece: Optional[str] = None, is_castle=False):
     """No check on this.
     :param promotion: name of the promotion piece"""
     assert len(src) == 2
@@ -119,17 +119,21 @@ def move_piece(board, src: str, dest: str, promotion: Optional[str] = None, is_c
     to_index = sq_to_index(dest)
     if is_castle:
         move_piece_castle(board, from_index, to_index)
-    elif promotion:
+    elif promotion_piece:
         piece = board[from_index]
         color = board[to_index]
         assert get_raw_piece(piece) == "P"
         assert index_to_row(to_index) in [0, 7]
         board[from_index] = E
-        board[to_index] = (promotion.upper() if color == WHITE else promotion.lower())
+        board[to_index] = get_piece_of_color(promotion_piece, color)
     else:
         piece = board[from_index]
         board[from_index] = E
         board[to_index] = piece
+
+
+def get_piece_of_color(piece_name: str, color: str) -> str:
+    return (piece_name.upper() if color == WHITE else piece_name.lower())
 
 
 def load_board_from_file(board, fname="game.txt"):

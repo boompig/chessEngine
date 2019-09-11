@@ -136,7 +136,7 @@ def move_piece(board, src: str, dest: str, promotion_piece: Optional[str] = None
         promotion_piece = promotion_piece.upper()
         assert promotion_piece in PIECES
         piece = board[from_index]
-        color = board[to_index]
+        color = get_piece_color(piece)
         assert get_raw_piece(piece) == PAWN
         assert index_to_row(to_index) in [0, 7]
         board[from_index] = E

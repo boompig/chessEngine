@@ -20,7 +20,7 @@ class Board:
         else:
             self._board = starter_board[:]
 
-    def get_normal_person_move(self, from_square: str, to_square: str) -> str:
+    def get_normal_person_move(self, from_square: str, to_square: str, promotion: Optional[str]) -> str:
         from_index = sq_to_index(from_square)
         to_index = sq_to_index(to_square)
 
@@ -32,12 +32,21 @@ class Board:
         else:
             piece = get_raw_piece(self._board[from_index])
             s = ("-" if is_empty_square(self._board, to_index) else "x")
-            return "{piece}{from_square}{capture_or_move}{to_square}".format(
-                piece=piece,
-                from_square=from_square,
-                to_square=to_square,
-                capture_or_move=s
-            )
+            if promotion:
+                return "{piece}{from_square}{capture_or_move}{to_square}={promotion}".format(
+                    piece=piece,
+                    from_square=from_square,
+                    to_square=to_square,
+                    capture_or_move=s,
+                    promotion=promotion
+                )
+            else:
+                return "{piece}{from_square}{capture_or_move}{to_square}".format(
+                    piece=piece,
+                    from_square=from_square,
+                    to_square=to_square,
+                    capture_or_move=s
+                )
 
     def move_piece(self, from_square: str, to_square: str, promotion: Optional[str]):
         if promotion:

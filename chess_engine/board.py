@@ -37,7 +37,7 @@ starter_board = [
 ]
 
 
-def get_piece_list(board: List[str], color: str) -> list:
+def get_piece_list(board: List[str], color: str) -> List[tuple]:
     """Return the mapping."""
 
     return [(index, piece) for index, piece in enumerate(board)

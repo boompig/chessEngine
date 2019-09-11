@@ -27,23 +27,42 @@ def run_pgn(fname):
 
         board.move_piece(uci[:2], uci[2:4], promotion=(uci[4].upper() if move.promotion else None))
         board.print()
-
     # and that's it
-    # note that white resigned at the end here without check or checkmate
+    return board
 
+
+def test_weird_promotions():
+    """
+    Taken from here: http://www.chessgames.com/perl/chessgame?gid=1075750
+    lots of weird promotions here
+    """
+    fname = "data/macdonnell_bird_1874.pgn"
+    board = run_pgn(fname)
     assert not board.is_in_checkmate(WHITE) and not board.is_in_checkmate(BLACK)
+
+
+def test_weird_promotions_2():
+    """
+    Taken from here: http://www.chessgames.com/perl/chessgame?gid=1075778
+    lots of weird promotions here
+    """
+    fname = "data/wiede_goetz_1880.pgn"
+    board = run_pgn(fname)
+    assert board.is_in_checkmate(WHITE)
 
 
 def test_kasparov_topalov():
     """Taken from here: http://www.chessgames.com/perl/chessgame?gid=1011478"""
     fname = "data/kasparov_topalov_1999.pgn"
-    run_pgn(fname)
+    board = run_pgn(fname)
+    assert not board.is_in_checkmate(WHITE) and not board.is_in_checkmate(BLACK)
 
 
 def test_aronian_anand():
     """Taken from here: http://www.chessgames.com/perl/chessgame?gid=1451858"""
     fname = "data/aronian_anand_2007.pgn"
-    run_pgn(fname)
+    board = run_pgn(fname)
+    assert not board.is_in_checkmate(WHITE) and not board.is_in_checkmate(BLACK)
 
 
 def test_anand_carlsen_2013_game_5():
@@ -51,7 +70,8 @@ def test_anand_carlsen_2013_game_5():
     Taken from here: http://www.chessgames.com/perl/chessgame?gid=1737319
     """
     fname = "data/carlsen_anand_2013_game_5.pgn"
-    run_pgn(fname)
+    board = run_pgn(fname)
+    assert not board.is_in_checkmate(WHITE) and not board.is_in_checkmate(BLACK)
 
 
 def test_anand_carlsen_2013_game_6():
@@ -59,7 +79,8 @@ def test_anand_carlsen_2013_game_6():
     Taken from here: http://www.chessgames.com/perl/chessgame?gid=1737460
     """
     fname = "data/anand_carlsen_2013_game_6.pgn"
-    run_pgn(fname)
+    board = run_pgn(fname)
+    assert not board.is_in_checkmate(WHITE) and not board.is_in_checkmate(BLACK)
 
 
 def test_anand_carlsen_2013_game_9():
@@ -67,4 +88,5 @@ def test_anand_carlsen_2013_game_9():
     Taken from here: http://www.chessgames.com/perl/chessgame?gid=1737896
     """
     fname = "data/anand_carlsen_2013_game_9.pgn"
-    run_pgn(fname)
+    board = run_pgn(fname)
+    assert not board.is_in_checkmate(WHITE) and not board.is_in_checkmate(BLACK)

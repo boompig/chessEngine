@@ -1,8 +1,9 @@
 from typing import Optional
 
-
-from .piece_movement_rules import is_in_checkmate, is_legal_move, is_castle_move
-from .board import starter_board, move_piece, sq_to_index, print_board, get_raw_piece, is_empty_square
+from .board import (get_raw_piece, is_empty_square, move_piece, print_board,
+                    sq_to_index, starter_board)
+from .piece_movement_rules import (is_castle_move, is_in_check, is_in_checkmate,
+                                   is_legal_move)
 
 
 class MoveError(Exception):
@@ -64,9 +65,13 @@ class Board:
         move_piece(self._board, from_square, to_square, promotion_piece=promotion, is_castle=is_castle)
         return True
 
-    def is_in_checkmate(self, color: str):
+    def is_in_checkmate(self, color: str) -> bool:
         assert isinstance(color, str) and len(color) == 1
         return is_in_checkmate(self._board, color)
+
+    def is_in_check(self, color: str) -> bool:
+        assert isinstance(color, str) and len(color) == 1
+        return is_in_check(self._board, color)
 
     def print(self):
         print_board(self._board)

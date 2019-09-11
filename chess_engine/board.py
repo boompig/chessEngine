@@ -1,5 +1,5 @@
 import sys
-from typing import List
+from typing import List, Tuple, Optional
 
 E = "E"
 G = "G"
@@ -21,20 +21,20 @@ starter_board = [
 ]
 
 
-def get_piece_list(board: List[str], color):
+def get_piece_list(board: List[str], color: str) -> list:
     """Return the mapping."""
 
     return [(index, piece) for index, piece in enumerate(board)
             if get_piece_color(piece) == color]
 
 
-def index_to_sq(index):
+def index_to_sq(index: int) -> str:
     row, col = index_to_row_col(index)
     return "%s%d" % (chr(col + 97), 8 - row)
 
 
-def index_to_row(index):
-    return index / 10 - 2
+def index_to_row(index: int) -> int:
+    return index // 10 - 2
 
 
 def index_to_row_col(index):
@@ -43,13 +43,21 @@ def index_to_row_col(index):
     return (row, col)
 
 
-def sq_to_row_col(sq):
+def sq_to_row_col(sq: str) -> Tuple[int, int]:
+    assert isinstance(sq, str)
+    assert len(sq) == 2
     row = 8 - int(sq[1])
     col = ord(sq[0]) - 97
     return (row, col)
 
 
-def sq_to_index(sq):
+def sq_to_index(sq: str) -> int:
+    """
+    square is the square in UCI chess notation
+    index is into into board array
+    """
+    assert isinstance(sq, str)
+    assert len(sq) == 2
     row, col = sq_to_row_col(sq)
     return (row + 2) * 10 + col + 1
 
@@ -58,7 +66,7 @@ def is_valid_square(index):
     return starter_board[index] != G
 
 
-def is_empty_square(board, index):
+def is_empty_square(board: list, index: int):
     return board[index] == E
 
 
@@ -66,15 +74,59 @@ def get_color(board, index):
     return get_piece_color(board[index])
 
 
-def slide_index(index, dx, dy):
+def slide_index(index: int, dx: int, dy: int) -> int:
+    assert isinstance(index, int)
+    assert isinstance(dx, int)
+    assert isinstance(dy, int)
     return index + (10 * dy) + dx
 
 
-def move_piece(board, src, dest):
-    """No check on this."""
-    piece = board[src]
-    board[src] = E
-    board[dest] = piece
+def get_castle_rook_index(board, from_index, to_index) -> Tuple[int, int]:
+    """return (from_index, to_index) for the rook"""
+    if from_index < to_index:
+        # castle right (short)
+        return slide_index(from_index, 3, 0), slide_index(from_index, 1, 0)
+    else:
+        # castle left (long)
+        return slide_index(from_index, -4, 0), slide_index(from_index, -1, 0)
+
+
+def move_piece_castle(board, from_index: int, to_index: int):
+    # this should refer to the king only
+    piece = board[from_index]
+    assert get_raw_piece(piece) == "K"
+    board[from_index] = E
+    board[to_index] = piece
+    # find the rook and move it
+    rook_from_index, rook_to_index = get_castle_rook_index(board, from_index, to_index)
+    piece = board[rook_from_index]
+    board[rook_from_index] = E
+    board[rook_to_index] = piece
+
+
+def move_piece(board, src: str, dest: str, promotion: Optional[str] = None, is_castle=False):
+    """No check on this.
+    :param promotion: name of the promotion piece"""
+    assert len(src) == 2
+    assert isinstance(src, str)
+    assert len(dest) == 2
+    assert isinstance(dest, str)
+
+    from_index = sq_to_index(src)
+    to_index = sq_to_index(dest)
+    if is_castle:
+        move_piece_castle(board, from_index, to_index)
+    elif promotion:
+        piece = board[from_index]
+        color = board[to_index]
+        assert get_raw_piece(piece) == "P"
+        assert index_to_row(to_index) in [0, 7]
+        board[from_index] = E
+        board[to_index] = (promotion.upper() if color == "W" else promotion.lower())
+    else:
+        piece = board[from_index]
+        board[from_index] = E
+        board[to_index] = piece
 
 
 def load_board_from_file(board, fname="game.txt"):

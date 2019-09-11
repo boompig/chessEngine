@@ -9,7 +9,3 @@ class UtilsTest(T.TestCase):
 
     def test_opposite_color(self):
         assert opposite_color("B") == "W"
-
-
-if __name__ == "__main__":
-    T.main()

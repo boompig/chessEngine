@@ -23,7 +23,7 @@ MIN = False
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 
-def gen_all_moves(board, color) -> list:
+def gen_all_moves(board, color: str) -> list:
     """Generate all valid moves by given color. This is a list."""
     moves = []
 

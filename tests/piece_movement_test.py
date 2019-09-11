@@ -95,6 +95,7 @@ class PieceMovementTest(T.TestCase):
         board = starter_board[:]
         index = sq_to_index("e1")
         assert get_king_valid_squares(board, index) == []
+        assert get_king_valid_squares(board, index) == []
 
     def test_pawn_valid_squares(self):
         board = starter_board[:]
@@ -110,6 +111,7 @@ class PieceMovementTest(T.TestCase):
 
     def test_piece_valid_squares(self):
         board = starter_board[:]
+        assert get_piece_valid_squares(board, "e1") == []
         assert get_piece_valid_squares(board, "e1") == []
         assert get_piece_valid_squares(board, "a1") == []
         assert get_piece_valid_squares(board, "a8") == []
@@ -392,7 +394,3 @@ class CheckTest(T.TestCase):
         assert not is_in_stalemate(board, "B")
         assert not is_in_stalemate(board, "W")
         assert not _has_no_legal_moves(board, "B")
-
-
-if __name__ == "__main__":
-    T.main()

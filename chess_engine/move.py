@@ -30,9 +30,11 @@ class Move(object):
             )
 
 
-def gen_successor(board_init, src, dest):
+def gen_successor(board_init: list, src: int, dest: int) -> list:
+    assert isinstance(src, int)
+    assert isinstance(dest, int)
     board = board_init[:]
-    move_piece(board, src, dest)
+    move_piece(board, index_to_sq(src), index_to_sq(dest))
     return board
 
 

@@ -51,6 +51,15 @@ def test_weird_promotions_2():
     assert board.is_in_checkmate(WHITE)
 
 
+def test_stalemate():
+    """
+    Taken from here: http://www.chessgames.com/perl/chessgame?gid=1255706
+    """
+    fname = "data/stalemate.pgn"
+    board = run_pgn(fname)
+    assert board.is_in_stalemate(WHITE)
+
+
 def test_kasparov_topalov():
     """Taken from here: http://www.chessgames.com/perl/chessgame?gid=1011478"""
     fname = "data/kasparov_topalov_1999.pgn"

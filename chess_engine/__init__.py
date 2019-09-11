@@ -3,7 +3,7 @@ from typing import Optional
 from .board import (get_raw_piece, is_empty_square, move_piece, print_board,
                     sq_to_index, starter_board)
 from .piece_movement_rules import (is_castle_move, is_in_check, is_in_checkmate,
-                                   is_legal_move)
+                                   is_in_stalemate, is_legal_move)
 
 
 class MoveError(Exception):
@@ -72,6 +72,10 @@ class Board:
     def is_in_check(self, color: str) -> bool:
         assert isinstance(color, str) and len(color) == 1
         return is_in_check(self._board, color)
+
+    def is_in_stalemate(self, color: str) -> bool:
+        assert isinstance(color, str) and len(color) == 1
+        return is_in_stalemate(self._board, color)
 
     def print(self):
         print_board(self._board)

@@ -151,10 +151,6 @@ def get_piece_of_color(piece_name: str, color: str) -> str:
     return (piece_name.upper() if color == WHITE else piece_name.lower())
 
 
-def load_board_from_file(board, fname="game.txt"):
-    raise ValueError("Not implemented")
-
-
 def get_piece_color(piece):
     if piece in set([E, G]):
         return None
@@ -235,14 +231,6 @@ def print_board(board):
         sys.stdout.write("%s " % (chr(i + 97)))
     print("")
     print("*" * 18)
-
-
-def save_board(board, fname="game.txt"):
-    with open(fname, "w") as fp:
-        for i, sq in enumerate(board):
-            if i % 10 == 0:
-                fp.write("\n")
-            fp.write(sq)
 
 
 def is_capture(board, index, piece):

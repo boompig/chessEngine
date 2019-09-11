@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
 import logging
+from typing import List, Tuple
+
 
 from .board import (get_color, index_to_sq, is_empty_square, move_piece,
                     print_board, sq_to_index, starter_board)
 from .piece_movement_rules import get_piece_valid_squares, is_legal_move
 from .utils import opposite_color
-from typing import List
 
 
 class Game(object):
@@ -22,16 +23,37 @@ class Game(object):
         Game.turn = opposite_color(Game.turn)
 
 
-def interpret_move(notation, board):
+def get_piece_location(board, piece_name: str, color: str) -> List[int]:
+    piece = (piece_name.upper() if color == "W" else piece_name.lower())
+    indexes = []
+    try:
+        start_index = 0
+        while True:
+            i = board.index(piece, start_index)
+            indexes.append(i)
+            start_index = i + 1
+    except ValueError:
+        # stop
+        pass
+
+    return indexes
+
+
+
+def interpret_move(notation: str, board) -> Tuple[str, str]:
     """Return tuple (src, dest). Each is algebraic.
     Raises ValueError on improper notation."""
 
     if notation.upper() == "O-O" or notation.upper() == "O-O-O":
         raise ValueError("Castling is not yet implemented")
     elif "-" in notation:
-        return notation.split("-")
+        move = notation.split("-")
+        assert len(move) == 2
+        return tuple(move)
     elif "x" in notation:
-        return notation.split("x")
+        move = notation.split("x")
+        assert len(move) == 2
+        return tuple(move)
     else:
         if len(notation) == 2:
             # pawn move
@@ -45,13 +67,14 @@ def interpret_move(notation, board):
 
         logging.debug("Inferring move with piece %s to %s", piece, dest)
 
-        src_list = board.get_piece_location(board.turn, board.turn + piece)
+        src_list = get_piece_location(board, piece, Game.turn)
         src_flag = None
-        for src in src_list:
+        for src_idx in src_list:
+            src = index_to_sq(src_idx)
             logging.debug("Trying piece at %s" % str(src))
-            valid_sqs = get_piece_valid_squares(board, index_to_sq(*src))
+            valid_sqs = get_piece_valid_squares(board, src)
             if dest in valid_sqs:
-                src_flag = index_to_sq(*src)
+                src_flag = src
                 break
 
         if src_flag is None:
@@ -89,38 +112,41 @@ def process_command(board, command: str):
         board.load()
         print("board loaded")
         return
+    elif "-" in command or "x" in command:
+        try:
+            src, dest = interpret_move(command, board)
+        except ValueError as e:
+            print("E: %s" % str(e))
+            return
 
-    try:
-        src, dest = interpret_move(command, board)
-    except ValueError as e:
-        print("E: %s", str(e))
-        return
-
-    if len(src) != 2 or len(dest) != 2:
-        print("E: Invalid src or dest")
-        return
-    else:
-        logging.debug("Valid piece")
-
-    src_idx, dest_idx = [sq_to_index(sq) for sq in [src, dest]]
-
-    if is_empty_square(board, src_idx):
-        print("E: %s is empty", src)
-        return
-
-    if not can_move_this_turn(board, src_idx, Game.turn):
-        print("E: It is not your turn")
-        return
-
-    try:
-        if is_legal_move(board, src, dest):
-            move_piece(board, src, dest)
-            Game.flip_turn()
-            Game.record_move(command)
+        if len(src) != 2 or len(dest) != 2:
+            print("E: Invalid src or dest")
+            return
         else:
-            print("%s is an illegal move", command)
-    except ValueError as e:
-        print("Error! %s" % str(e))
+            logging.debug("Valid piece")
+
+        src_idx, dest_idx = [sq_to_index(sq) for sq in [src, dest]]
+
+        if is_empty_square(board, src_idx):
+            print("E: %s is empty", src)
+            return
+
+        if not can_move_this_turn(board, src_idx, Game.turn):
+            print("E: It is not your turn")
+            return
+
+        try:
+            if is_legal_move(board, src_idx, dest_idx):
+                move_piece(board, src, dest)
+                Game.flip_turn()
+                Game.record_move(command)
+            else:
+                print("%s is an illegal move", command)
+        except ValueError as e:
+            print("Error! %s" % str(e))
+    else:
+        i = sq_to_index(command)
+        print(board[i])
 
 
 def game_loop():

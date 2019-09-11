@@ -2,7 +2,7 @@ import unittest as T
 
 from chess_engine.board import (dump_board, fen_to_board,
                                 load_board, print_board, sq_to_index,
-                                starter_board)
+                                starter_board, BLACK, WHITE)
 from chess_engine.move import gen_successor
 from chess_engine.piece_movement_rules import (_has_no_legal_moves,
                                                get_bishop_valid_squares,
@@ -229,18 +229,18 @@ class PieceMovementTest(T.TestCase):
 class CheckTest(T.TestCase):
     def test_bishop_check(self):
         board = fen_to_board("7k/8/8/4B3/8/8/8/K7 w")
-        assert is_in_check(board, "B")
-        assert not is_in_check(board, "W")
+        assert is_in_check(board, BLACK)
+        assert not is_in_check(board, WHITE)
 
     def test_pawn_can_defend(self):
         board = fen_to_board("7k/5p2/8/4B3/8/8/8/K7 w")
         print_board(board)
-        assert is_in_check(board, "B")
+        assert is_in_check(board, BLACK)
         new_board = gen_successor(board, sq_to_index("f7"), sq_to_index("f6"))
         print_board(new_board)
-        assert not is_in_check(new_board, "B")
+        assert not is_in_check(new_board, BLACK)
         # it follows that black is not in checkmate
-        assert not is_in_checkmate(board, "B")
+        assert not is_in_checkmate(board, BLACK)
 
     def test_pawn_not_give_check_above(self):
         board = load_board([
@@ -253,8 +253,8 @@ class CheckTest(T.TestCase):
             [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
             [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
         ])
-        assert not is_in_check(board, "B")
-        assert not is_in_check(board, "W")
+        assert not is_in_check(board, BLACK)
+        assert not is_in_check(board, WHITE)
 
     def test_pawn_give_check(self):
         board = load_board([
@@ -267,13 +267,13 @@ class CheckTest(T.TestCase):
             [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
             [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
         ])
-        assert is_in_check(board, "B")
-        assert not is_in_check(board, "W")
+        assert is_in_check(board, BLACK)
+        assert not is_in_check(board, WHITE)
 
     def test_is_in_check_starter_board(self):
         board = starter_board[:]
-        assert not is_in_check(board, "W")
-        assert not is_in_check(board, "B")
+        assert not is_in_check(board, WHITE)
+        assert not is_in_check(board, BLACK)
 
     def test_is_in_check_basic_rook(self):
         board = load_board([
@@ -286,8 +286,8 @@ class CheckTest(T.TestCase):
             ["", "", "", "", "", "", "", ""],
             ["", "", "", "", "", "", "", ""],
         ])
-        assert is_in_check(board, "B")
-        assert not is_in_check(board, "W")
+        assert is_in_check(board, BLACK)
+        assert not is_in_check(board, WHITE)
 
     def test_is_in_check_basic_rook_2(self):
         board = load_board([
@@ -300,8 +300,8 @@ class CheckTest(T.TestCase):
             [" ", "", "", "", " ", "", "", ""],
             [" ", "", "", "", " ", "", "", ""],
         ])
-        assert is_in_check(board, "B")
-        assert not is_in_check(board, "W")
+        assert is_in_check(board, BLACK)
+        assert not is_in_check(board, WHITE)
 
     def test_is_in_check_basic_bishop(self):
         board = load_board([
@@ -314,8 +314,8 @@ class CheckTest(T.TestCase):
             ["", "", "", "", "", "", "K", ""],
             ["", "", "", "", "", "", "", ""],
         ])
-        assert is_in_check(board, "B")
-        assert not is_in_check(board, "W")
+        assert is_in_check(board, BLACK)
+        assert not is_in_check(board, WHITE)
 
     def test_is_in_checkmate_simple_rook_mate(self):
         board = load_board([
@@ -328,8 +328,8 @@ class CheckTest(T.TestCase):
             ["", "", "", "", "", "", "", ""],
             ["", "", "", "", "", "", "", ""],
         ])
-        assert is_in_checkmate(board, "B")
-        assert not is_in_checkmate(board, "W")
+        assert is_in_checkmate(board, BLACK)
+        assert not is_in_checkmate(board, WHITE)
 
     def test_is_in_checkmate_unprotected_attacker(self):
         board = load_board([
@@ -342,7 +342,7 @@ class CheckTest(T.TestCase):
             ["", "", "K", "", "", "", "", ""],
             ["", "", "", "", "", "", "", ""],
         ])
-        assert not is_in_checkmate(board, "B")
+        assert not is_in_checkmate(board, BLACK)
 
     def test_is_in_checkmate_simple_rook_check(self):
         board = load_board([
@@ -355,8 +355,8 @@ class CheckTest(T.TestCase):
             ["", "", "", "", "", "", "", ""],
             ["", "", "", "", "", "", "", ""],
         ])
-        assert not is_in_checkmate(board, "B")
-        assert not is_in_checkmate(board, "W")
+        assert not is_in_checkmate(board, BLACK)
+        assert not is_in_checkmate(board, WHITE)
 
     def test_is_in_stalemate_with_rook(self):
         board = load_board([
@@ -369,8 +369,8 @@ class CheckTest(T.TestCase):
             ["", "", "", "", "", "", "", ""],
             ["", "", "", "", "", "", "", ""],
         ])
-        assert is_in_stalemate(board, "B")
-        assert not is_in_checkmate(board, "B")
+        assert is_in_stalemate(board, BLACK)
+        assert not is_in_checkmate(board, BLACK)
 
     def test_not_in_mate_1(self):
         board = load_board([
@@ -387,10 +387,10 @@ class CheckTest(T.TestCase):
         b2 = gen_successor(board, sq_to_index("h8"), sq_to_index("g8"))
         for row in dump_board(b2):
             print(row)
-        assert not is_in_check(b2, "B")
+        assert not is_in_check(b2, BLACK)
 
-        assert not is_in_checkmate(board, "B")
-        assert not is_in_checkmate(board, "W")
-        assert not is_in_stalemate(board, "B")
-        assert not is_in_stalemate(board, "W")
-        assert not _has_no_legal_moves(board, "B")
+        assert not is_in_checkmate(board, BLACK)
+        assert not is_in_checkmate(board, WHITE)
+        assert not is_in_stalemate(board, BLACK)
+        assert not is_in_stalemate(board, WHITE)
+        assert not _has_no_legal_moves(board, BLACK)

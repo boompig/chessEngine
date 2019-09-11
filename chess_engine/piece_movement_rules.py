@@ -2,7 +2,7 @@ from typing import List
 
 from .board import (get_color, get_piece_color, get_piece_list, get_raw_piece,
                     index_to_row, index_to_sq, is_capture, is_empty_square,
-                    is_valid_square, print_board, slide_index, sq_to_index, E)
+                    is_valid_square, print_board, slide_index, sq_to_index, E, WHITE, BLACK)
 from .move import gen_successor
 from .utils import opposite_color
 
@@ -93,14 +93,14 @@ def get_pawn_valid_squares(board, from_index: int, capture_only=False) -> list:
     assert isinstance(from_index, int)
     piece = board[from_index]
 
-    d_row = (-1 if get_piece_color(piece) == "W" else 1)
+    d_row = (-1 if get_piece_color(piece) == WHITE else 1)
     row = index_to_row(from_index)
 
     if capture_only:
         squares = []  # type: List[int]
     else:
         l1 = [slide_index(from_index, 0, d_row)]
-        if (row == 1 and get_piece_color(piece) == "B") or (row == 6 and get_piece_color(piece) == "W"):
+        if (row == 1 and get_piece_color(piece) == BLACK) or (row == 6 and get_piece_color(piece) == WHITE):
             l1.append(slide_index(from_index, 0, 2 * d_row))
 
         # should be empty
@@ -215,7 +215,7 @@ def can_castle(board, from_index: int, to_index: int) -> bool:
     if get_color(board, rook_square) != color:
         return False
 
-    if color == "W":
+    if color == WHITE:
         if sq_to_index("e1") != from_index:
             return False
     else:
@@ -314,9 +314,9 @@ def _get_promotions(piece, src, dest):
     if get_raw_piece(piece) != "P":
         return []
 
-    if get_piece_color(piece) == "W" and index_to_row(dest) == 0:
+    if get_piece_color(piece) == WHITE and index_to_row(dest) == 0:
         return ["Q", "B", "R", "N"]
-    elif get_piece_color(piece) == "B" and index_to_row(dest) == 7:
+    elif get_piece_color(piece) == BLACK and index_to_row(dest) == 7:
         return ["q", "b", "r", "n"]
     else:
         return []

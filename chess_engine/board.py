@@ -4,6 +4,9 @@ from typing import List, Tuple, Optional
 E = "E"
 G = "G"
 
+WHITE = "W"
+BLACK = "B"
+
 # the default board, with guard regions
 starter_board = [
     G, G, G, G, G, G, G, G, G, G,
@@ -122,7 +125,7 @@ def move_piece(board, src: str, dest: str, promotion: Optional[str] = None, is_c
         assert get_raw_piece(piece) == "P"
         assert index_to_row(to_index) in [0, 7]
         board[from_index] = E
-        board[to_index] = (promotion.upper() if color == "W" else promotion.lower())
+        board[to_index] = (promotion.upper() if color == WHITE else promotion.lower())
     else:
         piece = board[from_index]
         board[from_index] = E
@@ -137,7 +140,7 @@ def get_piece_color(piece):
     if piece in set([E, G]):
         return None
     else:
-        return ("W" if piece.isupper() else "B")
+        return (WHITE if piece.isupper() else BLACK)
 
 
 def get_raw_piece(piece):

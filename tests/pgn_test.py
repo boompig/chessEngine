@@ -4,6 +4,7 @@ This file makes sure that full chess games can be played
 
 import chess.pgn
 from chess_engine import Board
+from chess_engine.board import WHITE, BLACK
 
 
 def read_pgn_moves(fname):
@@ -32,4 +33,4 @@ def test_anand_carlsen_2013():
     # and that's it
     # note that white resigned at the end here without check or checkmate
 
-    assert not board.is_in_checkmate("W") and not board.is_in_checkmate("B")
+    assert not board.is_in_checkmate(WHITE) and not board.is_in_checkmate(BLACK)

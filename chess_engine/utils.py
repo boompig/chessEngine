@@ -1,12 +1,13 @@
 import logging
+from .board import WHITE, BLACK
 
 
 def opposite_color(col):
-    return ("W" if col == "B" else "B")
+    return (WHITE if col == BLACK else BLACK)
 
 
 def full_color_name(col):
-    return ("white" if col == "W" else "black")
+    return ("white" if col == WHITE else "black")
 
 
 def setup_logging(verbose: bool):

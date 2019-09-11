@@ -1,11 +1,10 @@
-import unittest as T
-
 from chess_engine.utils import opposite_color
+from chess_engine.board import WHITE, BLACK
 
 
-class UtilsTest(T.TestCase):
-    def test_opposite_color_W(self):
-        assert opposite_color("W") == "B"
+def test_opposite_color_W():
+    assert opposite_color(WHITE) == BLACK
 
-    def test_opposite_color(self):
-        assert opposite_color("B") == "W"
+
+def test_opposite_color():
+    assert opposite_color(BLACK) == WHITE

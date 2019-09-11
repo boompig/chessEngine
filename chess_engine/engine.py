@@ -1,6 +1,6 @@
 import logging
 
-from .board import (dump_board, get_color, get_piece_list, get_raw_piece)
+from .board import (dump_board, get_color, get_piece_list, get_raw_piece, WHITE, BLACK)
 from .move import Move, gen_successor_from_move
 from .piece_movement_rules import (_get_piece_valid_squares, _get_promotions,
                                    _has_no_legal_moves, is_in_check,
@@ -57,7 +57,7 @@ def dls_minimax(board, depth_remaining: int, turn, last_move=None,
     TODO: alpha-beta this"""
 
     # color is the color of the player being mated
-    color = ("B" if turn == MIN else "W")
+    color = (BLACK if turn == MIN else WHITE)
     stats_dict['nodes_explored'] += 1
 
     if _has_no_legal_moves(board, color):
@@ -175,7 +175,7 @@ def score_board(board):
     """My heuristic for determining value of a position."""
 
     white_pts = sum([score_piece(piece, location)
-                     for location, piece in get_piece_list(board, "W")])
+                     for location, piece in get_piece_list(board, WHITE)])
 
     black_pts = sum([score_piece(piece, location)
                      for location, piece in get_piece_list(board, "B")])

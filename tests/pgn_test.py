@@ -124,3 +124,10 @@ def test_carlsen_caruana_2018_game_13():
     fname = "data/carlsen_caruana_2018.pgn"
     board = run_pgn(fname)
     assert not board.is_in_checkmate(WHITE) and not board.is_in_checkmate(BLACK)
+
+
+def test_aronian():
+    """from http://www.chessgames.com/perl/chessgame?gid=1399152"""
+    fname = "data/aronian_anand_2007.pgn"
+    board = run_pgn(fname)
+    assert not board.is_in_checkmate(WHITE) and not board.is_in_checkmate(BLACK)

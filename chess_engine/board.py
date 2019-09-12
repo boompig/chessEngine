@@ -3,6 +3,7 @@ from typing import List, Tuple, Optional
 
 PieceName = str
 Color = str
+Board = List[str]
 
 E = "E"
 G = "G"
@@ -37,7 +38,7 @@ starter_board = [
 ]
 
 
-def get_piece_list(board: List[str], color: str) -> List[tuple]:
+def get_piece_list(board: Board, color: str) -> List[tuple]:
     """Return the mapping."""
 
     return [(index, piece) for index, piece in enumerate(board)
@@ -89,11 +90,11 @@ def is_valid_square(index):
     return starter_board[index] != G
 
 
-def is_empty_square(board: list, index: int):
+def is_empty_square(board: Board, index: int):
     return board[index] == E
 
 
-def get_color(board, index):
+def get_color(board: Board, index):
     return get_piece_color(board[index])
 
 
@@ -109,7 +110,7 @@ def slide_index(index: int, dx: int, dy: int) -> int:
     return index + (-10 * dy) + dx
 
 
-def get_castle_rook_index(board, from_index: int, to_index: int) -> Tuple[int, int]:
+def get_castle_rook_index(board: Board, from_index: int, to_index: int) -> Tuple[int, int]:
     """return (from_index, to_index) for the rook"""
     if from_index < to_index:
         # castle right (short)
@@ -119,7 +120,7 @@ def get_castle_rook_index(board, from_index: int, to_index: int) -> Tuple[int, i
         return slide_index(from_index, -4, 0), slide_index(from_index, -1, 0)
 
 
-def move_piece_castle(board, from_index: int, to_index: int) -> None:
+def move_piece_castle(board: Board, from_index: int, to_index: int) -> None:
     # this should refer to the king only
     piece = board[from_index]
     assert get_raw_piece(piece) == KING
@@ -132,7 +133,7 @@ def move_piece_castle(board, from_index: int, to_index: int) -> None:
     board[rook_to_index] = piece
 
 
-def move_piece_en_passant(board, from_index: int, to_index: int) -> None:
+def move_piece_en_passant(board: Board, from_index: int, to_index: int) -> None:
     """
     Must be called with a pawn move
     """
@@ -150,7 +151,7 @@ def move_piece_en_passant(board, from_index: int, to_index: int) -> None:
     board[to_index] = piece
 
 
-def move_piece(board, src: str, dest: str, promotion_piece: Optional[str] = None,
+def move_piece(board: Board, src: str, dest: str, promotion_piece: Optional[str] = None,
                is_castle=False,
                is_en_passant=False):
     """No check on this.
@@ -267,7 +268,7 @@ def print_board(board):
     print("*" * 18)
 
 
-def is_capture(board, index, piece):
+def is_capture(board: Board, index, piece):
     """Return True iff the move is a capture.
     return squares
     index is the index to which piece is going, and piece is the source piece"""

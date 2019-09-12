@@ -3,7 +3,7 @@ from typing import List
 from .board import (get_color, get_piece_color, get_piece_list, get_raw_piece,
                     index_to_row, index_to_sq, is_capture, is_empty_square,
                     is_valid_square, print_board, slide_index, sq_to_index, E, WHITE, BLACK,
-                    PieceName, KNIGHT, ROOK, QUEEN, KING, PAWN, BISHOP)
+                    PieceName, Board, KNIGHT, ROOK, QUEEN, KING, PAWN, BISHOP)
 from .move import gen_successor
 from .utils import opposite_color
 
@@ -171,7 +171,7 @@ def get_knight_valid_squares(board, index: int) -> List[int]:
             if empty_or_capture(board, index, piece)]
 
 
-def _get_piece_valid_squares(board: list, from_index: int) -> List[int]:
+def _get_piece_valid_squares(board: Board, from_index: int) -> List[int]:
     piece = get_raw_piece(board[from_index])
     if piece == KNIGHT:
         return get_knight_valid_squares(board, from_index)
@@ -189,7 +189,7 @@ def _get_piece_valid_squares(board: list, from_index: int) -> List[int]:
         raise Exception("no such piece: %s" % piece)
 
 
-def get_piece_valid_squares(board: list, sq: str):
+def get_piece_valid_squares(board: Board, sq: str):
     return _get_piece_valid_squares(board, sq_to_index(sq))
 
 

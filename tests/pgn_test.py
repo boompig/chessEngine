@@ -107,9 +107,20 @@ def test_carlsen_bu_2017():
     board = run_pgn(fname)
     assert not board.is_in_checkmate(WHITE) and not board.is_in_checkmate(BLACK)
 
+
 def test_carlsen_karjakin_2016_game_16():
     """Taken from: http://www.chessgames.com/perl/chessgame?gid=1848607
     This game is interesting because both players castle and it has en-passant"""
     fname = "data/carlsen_karjakin_2016_game_16.pgn"
+    board = run_pgn(fname)
+    assert (not board.is_in_checkmate(WHITE) and
+            not board.is_in_checkmate(BLACK) and
+            board.is_in_check(BLACK))
+
+
+def test_carlsen_caruana_2018_game_13():
+    """Taken from http://www.chessgames.com/perl/chessgame?gid=1937925
+    """
+    fname = "data/carlsen_caruana_2018.pgn"
     board = run_pgn(fname)
     assert not board.is_in_checkmate(WHITE) and not board.is_in_checkmate(BLACK)

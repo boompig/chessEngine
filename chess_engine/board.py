@@ -46,8 +46,16 @@ def get_piece_list(board: Board, color: str) -> List[tuple]:
 
 
 def index_to_sq(index: int) -> str:
-    row, col = index_to_row_col(index)
+    row = index_to_row(index)
+    col = index_to_col(index)
     return "%s%d" % (chr(col + 97), row)
+
+
+def index_to_col(index: int) -> int:
+    """
+    col is index into letters (0-7)
+    """
+    return index % 10 - 1
 
 
 def index_to_row(index: int) -> int:
@@ -55,16 +63,6 @@ def index_to_row(index: int) -> int:
     Returned row is algebraic (1-8)
     """
     return 8 - (index // 10 - 2)
-
-
-def index_to_row_col(index: int) -> Tuple[int, int]:
-    """
-    row is algebraic (1-8)
-    col is index into letters (0-7)
-    """
-    row = index_to_row(index)
-    col = index % 10 - 1
-    return (row, col)
 
 
 def sq_to_row_col(sq: str) -> Tuple[int, int]:

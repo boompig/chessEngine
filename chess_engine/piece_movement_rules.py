@@ -1,14 +1,14 @@
 from typing import List
 
 from .board import (get_color, get_piece_color, get_piece_list, get_raw_piece,
-                    index_to_row, index_to_sq, is_capture, is_empty_square,
+                    index_to_row, index_to_sq, index_to_col, is_capture, is_empty_square,
                     is_valid_square, print_board, slide_index, sq_to_index, E, WHITE, BLACK,
-                    PieceName, Board, KNIGHT, ROOK, QUEEN, KING, PAWN, BISHOP)
+                    PieceName, Color, Board, KNIGHT, ROOK, QUEEN, KING, PAWN, BISHOP)
 from .move import gen_successor
 from .utils import opposite_color
 
 
-def valid_and_empty(board, index: int) -> bool:
+def is_valid_and_empty(board, index: int) -> bool:
     return is_valid_square(index) and is_empty_square(board, index)
 
 
@@ -29,6 +29,13 @@ def is_valid_en_passant(board, from_index: int, to_index: int) -> bool:
     2. this is a valid pawn capture move (diagonal motion)
     """
     if not is_valid_square(to_index):
+        return False
+
+    if get_raw_piece(board[from_index]) != PAWN:
+        return False
+
+    if index_to_col(from_index) == index_to_col(to_index):
+        # not a capture move
         return False
 
     # destination square must be empty, otherwise could not have moved pawn 2 squares on previous turn
@@ -140,13 +147,17 @@ def get_pawn_valid_squares(board, from_index: int, capture_only: bool = False) -
     squares = []  # type: List[int]
     if not capture_only:
         l1 = [slide_index(from_index, 0, dy)]
-        if (row == 7 and get_piece_color(piece) == BLACK) or (row == 2 and get_piece_color(piece) == WHITE):
+        if (((row == 7 and get_piece_color(piece) == BLACK) or (row == 2 and get_piece_color(piece) == WHITE)) and
+                is_empty_square(board, l1[0])):
             l1.append(slide_index(from_index, 0, 2 * dy))
+
         # only add these candidate moves to squares array if target square is empty
-        squares = [i for i in l1 if valid_and_empty(board, i)]
+        for to_index in l1:
+            if is_valid_and_empty(board, to_index):
+                squares.append(to_index)
     l2 = [slide_index(from_index, 1, dy), slide_index(from_index, -1, dy)]
     for to_index in l2:
-        if is_empty_square(board, to_index) and is_valid_en_passant(board, from_index, to_index):
+        if is_valid_and_empty(board, to_index) and is_valid_en_passant(board, from_index, to_index):
             squares.append(to_index)
         elif is_valid_capture(board, to_index, piece):
             squares.append(to_index)
@@ -297,7 +308,7 @@ def is_legal_move(board, from_index: int, to_index: int) -> bool:
     return not has_check
 
 
-def is_in_check(board, color):
+def is_in_check(board, color: Color):
     # find the king
     king_index = [
         index for index, piece in get_piece_list(board, color)
@@ -319,7 +330,7 @@ def is_in_check(board, color):
     return False
 
 
-def _has_no_legal_moves(board, color):
+def _has_no_legal_moves(board, color: Color):
     # get all possible moves
     for pos, _ in get_piece_list(board, color):
         # if the king cannot move regularly then it also cannot castle
@@ -327,11 +338,10 @@ def _has_no_legal_moves(board, color):
             b_new = gen_successor(board, pos, dest)
             if not is_in_check(b_new, color):
                 return False
-
     return True
 
 
-def is_in_checkmate(board, color):
+def is_in_checkmate(board, color: Color):
     """Criteria for checkmate:
     1. is in check
     2. no move will bring the player out of check
@@ -339,7 +349,7 @@ def is_in_checkmate(board, color):
     return is_in_check(board, color) and _has_no_legal_moves(board, color)
 
 
-def is_in_stalemate(board, color):
+def is_in_stalemate(board, color: Color):
     return not is_in_check(board, color) and _has_no_legal_moves(board, color)
 
 

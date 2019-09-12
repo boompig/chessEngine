@@ -137,3 +137,10 @@ def test_mvl():
    fname = "data/vachier-lagrave_caruana_2013.pgn"
    board = run_pgn(fname)
    assert not board.is_in_checkmate(WHITE) and not board.is_in_checkmate(BLACK)
+
+def test_alekhine_many_promos():
+    """http://www.chessgames.com/perl/chessgame?gid=1282607
+    interesting because has many promotions"""
+    fname = "data/alekhine_nn_1915.pgn"
+    board = run_pgn(fname)
+    assert board.is_in_checkmate(BLACK)

@@ -46,14 +46,21 @@ def get_piece_list(board: List[str], color: str) -> List[tuple]:
 
 def index_to_sq(index: int) -> str:
     row, col = index_to_row_col(index)
-    return "%s%d" % (chr(col + 97), 8 - row)
+    return "%s%d" % (chr(col + 97), row)
 
 
 def index_to_row(index: int) -> int:
-    return index // 10 - 2
+    """
+    Returned row is algebraic (1-8)
+    """
+    return 8 - (index // 10 - 2)
 
 
-def index_to_row_col(index):
+def index_to_row_col(index: int) -> Tuple[int, int]:
+    """
+    row is algebraic (1-8)
+    col is index into letters (0-7)
+    """
     row = index_to_row(index)
     col = index % 10 - 1
     return (row, col)
@@ -143,7 +150,7 @@ def move_piece(board, src: str, dest: str, promotion_piece: Optional[str] = None
         piece = board[from_index]
         color = get_piece_color(piece)
         assert get_raw_piece(piece) == PAWN
-        assert index_to_row(to_index) in [0, 7]
+        assert index_to_row(to_index) in [1, 8]
         board[from_index] = E
         board[to_index] = get_piece_of_color(promotion_piece, color)
     else:

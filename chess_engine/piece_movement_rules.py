@@ -21,11 +21,11 @@ def valid_capture(board, index: int, piece: PieceName):
     return is_valid_square(index) and is_capture(board, index, piece)
 
 
-def slide_and_check(board, index: int, piece: PieceName, d_row: int, d_col: int, squares: List[int]):
+def slide_and_check(board, index: int, piece: PieceName, dy: int, dx: int, squares: List[int]):
     """Extend squares array with valid squares.
     TODO, in the future, write this to be easily parallelisable"""
     while True:
-        index = slide_index(index, d_col, d_row)
+        index = slide_index(index, dx, dy)
 
         if not is_valid_square(index):
             break
@@ -94,19 +94,19 @@ def get_pawn_valid_squares(board, from_index: int, capture_only: bool = False) -
     assert isinstance(from_index, int)
     piece = board[from_index]
 
-    d_row = (1 if get_piece_color(piece) == WHITE else -1)
+    dy = (1 if get_piece_color(piece) == WHITE else -1)
     row = index_to_row(from_index)
 
     if capture_only:
         squares = []  # type: List[int]
     else:
-        l1 = [slide_index(from_index, 0, d_row)]
-        if (row == 1 and get_piece_color(piece) == BLACK) or (row == 6 and get_piece_color(piece) == WHITE):
-            l1.append(slide_index(from_index, 0, 2 * d_row))
+        l1 = [slide_index(from_index, 0, dy)]
+        if (row == 7 and get_piece_color(piece) == BLACK) or (row == 2 and get_piece_color(piece) == WHITE):
+            l1.append(slide_index(from_index, 0, 2 * dy))
 
         # should be empty
         squares = [i for i in l1 if valid_and_empty(board, i)]
-    l2 = [slide_index(from_index, 1, d_row), slide_index(from_index, -1, d_row)]
+    l2 = [slide_index(from_index, 1, dy), slide_index(from_index, -1, dy)]
     # should be capture
     squares.extend(
         [index for index in l2 if valid_capture(board, index, piece)]
@@ -315,9 +315,9 @@ def _get_promotions(piece, src, dest):
     if get_raw_piece(piece) != PAWN:
         return []
 
-    if get_piece_color(piece) == WHITE and index_to_row(dest) == 0:
+    if get_piece_color(piece) == WHITE and index_to_row(dest) == 8:
         return ["Q", "B", "R", "N"]
-    elif get_piece_color(piece) == BLACK and index_to_row(dest) == 7:
+    elif get_piece_color(piece) == BLACK and index_to_row(dest) == 1:
         return ["q", "b", "r", "n"]
     else:
         return []

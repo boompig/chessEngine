@@ -17,11 +17,51 @@ def empty_or_capture(board, index: int, piece: PieceName) -> bool:
         is_empty_square(board, index) or is_capture(board, index, piece))
 
 
-def valid_capture(board, index: int, piece: PieceName):
-    return is_valid_square(index) and is_capture(board, index, piece)
+def is_valid_en_passant(board, from_index: int, to_index: int) -> bool:
+    """
+    This method only checks if the given pawn-capture move is a valid en-passant move
+
+    NOTE: with current board representation it is impossible to check for en-passant completely accurately
+    So this is a bit of a hack
+
+    Assume:
+    1. piece is pawn
+    2. this is a valid pawn capture move (diagonal motion)
+    """
+    if not is_valid_square(to_index):
+        return False
+
+    # destination square must be empty, otherwise could not have moved pawn 2 squares on previous turn
+    if not is_empty_square(board, to_index):
+        return False
+
+    piece = board[from_index]
+    color = get_piece_color(piece)
+    if color == WHITE:
+        en_passant_dest_row = 6
+        expected_target_pawn_index = slide_index(to_index, 0, -1)
+    else:
+        en_passant_dest_row = 3
+        expected_target_pawn_index = slide_index(to_index, 0, 1)
+    if index_to_row(to_index) != en_passant_dest_row:
+        return False
+
+    # this would be much easier if board had a list of previous moves
+    # however this requires us to check that the expected square contains an opposite-colored pawn
+    return (not is_empty_square(board, expected_target_pawn_index) and
+            opposite_color(color) == get_piece_color(board[expected_target_pawn_index]) and
+            get_raw_piece(board[expected_target_pawn_index]) == PAWN)
 
 
-def slide_and_check(board, index: int, piece: PieceName, dy: int, dx: int, squares: List[int]):
+def is_valid_capture(board, to_index: int, piece: PieceName) -> bool:
+    """
+    This method does not handle en-passant
+    That is handled by its own method
+    """
+    return is_valid_square(to_index) and is_capture(board, to_index, piece)
+
+
+def slide_and_check(board, index: int, piece: PieceName, dy: int, dx: int, squares: List[int]) -> None:
     """Extend squares array with valid squares.
     TODO, in the future, write this to be easily parallelisable"""
     while True:
@@ -97,20 +137,20 @@ def get_pawn_valid_squares(board, from_index: int, capture_only: bool = False) -
     dy = (1 if get_piece_color(piece) == WHITE else -1)
     row = index_to_row(from_index)
 
-    if capture_only:
-        squares = []  # type: List[int]
-    else:
+    squares = []  # type: List[int]
+    if not capture_only:
         l1 = [slide_index(from_index, 0, dy)]
         if (row == 7 and get_piece_color(piece) == BLACK) or (row == 2 and get_piece_color(piece) == WHITE):
             l1.append(slide_index(from_index, 0, 2 * dy))
-
-        # should be empty
+        # only add these candidate moves to squares array if target square is empty
         squares = [i for i in l1 if valid_and_empty(board, i)]
     l2 = [slide_index(from_index, 1, dy), slide_index(from_index, -1, dy)]
-    # should be capture
-    squares.extend(
-        [index for index in l2 if valid_capture(board, index, piece)]
-    )
+    for to_index in l2:
+        if is_empty_square(board, to_index) and is_valid_en_passant(board, from_index, to_index):
+            squares.append(to_index)
+        elif is_valid_capture(board, to_index, piece):
+            squares.append(to_index)
+
     return squares
 
 

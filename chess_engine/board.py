@@ -109,7 +109,7 @@ def slide_index(index: int, dx: int, dy: int) -> int:
     return index + (-10 * dy) + dx
 
 
-def get_castle_rook_index(board, from_index, to_index) -> Tuple[int, int]:
+def get_castle_rook_index(board, from_index: int, to_index: int) -> Tuple[int, int]:
     """return (from_index, to_index) for the rook"""
     if from_index < to_index:
         # castle right (short)
@@ -159,22 +159,22 @@ def move_piece(board, src: str, dest: str, promotion_piece: Optional[str] = None
         board[to_index] = piece
 
 
-def get_piece_of_color(piece_name: str, color: str) -> str:
+def get_piece_of_color(piece_name: str, color: Color) -> PieceName:
     return (piece_name.upper() if color == WHITE else piece_name.lower())
 
 
-def get_piece_color(piece):
+def get_piece_color(piece: PieceName) -> Color:
     if piece in set([E, G]):
         return None
     else:
         return (WHITE if piece.isupper() else BLACK)
 
 
-def get_raw_piece(piece):
+def get_raw_piece(piece: PieceName) -> PieceName:
     return piece.upper()
 
 
-def fen_to_board(fen):
+def fen_to_board(fen: str):
     """Convert FEN to a row-array"""
     flat_arr = [G]
 

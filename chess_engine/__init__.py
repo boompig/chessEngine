@@ -1,9 +1,10 @@
 from typing import Optional
 
 from .board import (get_raw_piece, is_empty_square, move_piece, print_board,
-                    sq_to_index, starter_board)
+                    sq_to_index, starter_board, get_piece_color)
 from .piece_movement_rules import (is_castle_move, is_in_check, is_in_checkmate,
                                    is_in_stalemate, is_legal_move)
+from . import utils as utils
 
 
 class MoveError(Exception):
@@ -57,8 +58,10 @@ class Board:
 
         if not is_legal_move(self._board, from_index, to_index):
             print_board(self._board)
-            raise MoveError("cannot move piece from {} to {}".format(
-                from_square, to_square
+            piece = self._board[from_index]
+            color = utils.full_color_name(get_piece_color(piece))
+            raise MoveError("{} cannot move piece {} from {} to {}".format(
+                color, piece, from_square, to_square
             ))
 
         is_castle = is_castle_move(self._board, from_index, to_index)

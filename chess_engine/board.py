@@ -92,7 +92,7 @@ def is_empty_square(board: Board, index: int) -> bool:
     return board[index] == E
 
 
-def get_color(board: Board, index: int) -> Color:
+def get_color(board: Board, index: int) -> Optional[Color]:
     return get_piece_color(board[index])
 
 
@@ -150,7 +150,7 @@ def move_piece_en_passant(board: Board, from_index: int, to_index: int) -> None:
 
 
 def move_piece(board: Board, from_index: int, to_index: int,
-               promotion_piece: Optional[str] = None,
+               promotion_piece: Optional[PieceName] = None,
                is_castle=False,
                is_en_passant=False) -> None:
     """No check on this.
@@ -165,6 +165,7 @@ def move_piece(board: Board, from_index: int, to_index: int,
         piece = board[from_index]
         color = get_piece_color(piece)
         assert get_raw_piece(piece) == PAWN
+        assert color is not None
         assert index_to_row(to_index) in [1, 8]
         board[from_index] = E
         board[to_index] = get_piece_of_color(promotion_piece, color)
@@ -174,7 +175,7 @@ def move_piece(board: Board, from_index: int, to_index: int,
         board[to_index] = piece
 
 
-def get_piece_of_color(piece_name: str, color: Color) -> PieceName:
+def get_piece_of_color(piece_name: PieceName, color: Color) -> PieceName:
     return (piece_name.upper() if color == WHITE else piece_name.lower())
 
 

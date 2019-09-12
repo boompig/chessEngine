@@ -3,7 +3,7 @@ import logging
 from .board import (dump_board, get_color, get_piece_list, get_raw_piece, WHITE, BLACK,
                     KNIGHT, BISHOP, ROOK, PAWN, QUEEN, KING, Color)
 from .move import Move, gen_successor_from_move
-from .piece_movement_rules import (_get_piece_valid_squares, _get_promotions,
+from .piece_movement_rules import (get_piece_valid_squares, _get_promotions,
                                    _has_no_legal_moves, is_in_check,
                                    is_legal_move)
 from .utils import opposite_color
@@ -29,7 +29,7 @@ def gen_all_moves(board, color: str) -> list:
     moves = []
 
     for location, piece in get_piece_list(board, color):
-        for dest in _get_piece_valid_squares(board, location):
+        for dest in get_piece_valid_squares(board, location):
             if is_legal_move(board, location, dest):
                 prs = _get_promotions(piece, location, dest)
                 if prs != []:

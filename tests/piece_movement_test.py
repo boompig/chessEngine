@@ -111,11 +111,14 @@ class PieceMovementTest(T.TestCase):
 
     def test_piece_valid_squares(self):
         board = starter_board[:]
-        assert get_piece_valid_squares(board, "e1") == []
-        assert get_piece_valid_squares(board, "e1") == []
-        assert get_piece_valid_squares(board, "a1") == []
-        assert get_piece_valid_squares(board, "a8") == []
-        assert sorted(get_piece_valid_squares(board, "e2")) == sorted([sq_to_index(idx) for idx in ["e3", "e4"]])
+        assert get_piece_valid_squares(board, sq_to_index("e1")) == []
+        assert get_piece_valid_squares(board, sq_to_index("d1")) == []
+        assert get_piece_valid_squares(board, sq_to_index("c1")) == []
+        assert get_piece_valid_squares(board, sq_to_index("a1")) == []
+        assert get_piece_valid_squares(board, sq_to_index("a8")) == []
+        assert get_piece_valid_squares(board, sq_to_index("e8")) == []
+        assert sorted(get_piece_valid_squares(board, sq_to_index("e2"))) == \
+            sorted([sq_to_index(idx) for idx in ["e3", "e4"]])
 
     def test_is_legal_pawn_move(self):
         board = starter_board[:]

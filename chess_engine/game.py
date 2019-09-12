@@ -72,7 +72,7 @@ def interpret_move(notation: str, board) -> Tuple[str, str]:
         for src_idx in src_list:
             src = index_to_sq(src_idx)
             logging.debug("Trying piece at %s" % str(src))
-            valid_sqs = get_piece_valid_squares(board, src)
+            valid_sqs = get_piece_valid_squares(board, src_idx)
             if dest in valid_sqs:
                 src_flag = src
                 break

@@ -8,16 +8,16 @@ from .move import gen_successor
 from .utils import opposite_color
 
 
-def is_valid_and_empty(board, index: int) -> bool:
+def is_valid_and_empty(board: Board, index: int) -> bool:
     return is_valid_square(index) and is_empty_square(board, index)
 
 
-def empty_or_capture(board, index: int, piece: PieceName) -> bool:
+def is_empty_or_capture(board: Board, index: int, piece: PieceName) -> bool:
     return is_valid_square(index) and (
         is_empty_square(board, index) or is_capture(board, index, piece))
 
 
-def is_valid_en_passant(board, from_index: int, to_index: int) -> bool:
+def is_valid_en_passant(board: Board, from_index: int, to_index: int) -> bool:
     """
     This method only checks if the given pawn-capture move is a valid en-passant move
 
@@ -60,7 +60,7 @@ def is_valid_en_passant(board, from_index: int, to_index: int) -> bool:
             get_raw_piece(board[expected_target_pawn_index]) == PAWN)
 
 
-def is_valid_capture(board, to_index: int, piece: PieceName) -> bool:
+def is_valid_capture(board: Board, to_index: int, piece: PieceName) -> bool:
     """
     This method does not handle en-passant
     That is handled by its own method
@@ -68,7 +68,7 @@ def is_valid_capture(board, to_index: int, piece: PieceName) -> bool:
     return is_valid_square(to_index) and is_capture(board, to_index, piece)
 
 
-def slide_and_check(board, index: int, piece: PieceName, dy: int, dx: int, squares: List[int]) -> None:
+def slide_and_check(board: Board, index: int, piece: PieceName, dy: int, dx: int, squares: List[int]) -> None:
     """Extend squares array with valid squares.
     TODO, in the future, write this to be easily parallelisable"""
     while True:
@@ -86,7 +86,7 @@ def slide_and_check(board, index: int, piece: PieceName, dy: int, dx: int, squar
             return
 
 
-def get_rook_valid_squares(board, index: int) -> List[int]:
+def get_rook_valid_squares(board: Board, index: int) -> List[int]:
     piece = board[index]
     squares = []  # type: List[int]
     slide_and_check(board, index, piece, 0, 1, squares)
@@ -96,7 +96,7 @@ def get_rook_valid_squares(board, index: int) -> List[int]:
     return squares
 
 
-def get_bishop_valid_squares(board, index: int) -> List[int]:
+def get_bishop_valid_squares(board: Board, index: int) -> List[int]:
     piece = board[index]
     squares = []  # type: List[int]
     slide_and_check(board, index, piece, 1, 1, squares)
@@ -106,7 +106,7 @@ def get_bishop_valid_squares(board, index: int) -> List[int]:
     return squares
 
 
-def get_queen_valid_squares(board, index: int) -> List[int]:
+def get_queen_valid_squares(board: Board, index: int) -> List[int]:
     # piece = board[index]
     squares = []
     squares.extend(get_rook_valid_squares(board, index))
@@ -114,7 +114,7 @@ def get_queen_valid_squares(board, index: int) -> List[int]:
     return squares
 
 
-def get_king_valid_squares(board, index: int) -> List[int]:
+def get_king_valid_squares(board: Board, index: int) -> List[int]:
     """This is easily parallelisable. """
     assert isinstance(index, int)
     piece = board[index]
@@ -128,16 +128,15 @@ def get_king_valid_squares(board, index: int) -> List[int]:
         slide_index(index, -1, 0),
         slide_index(index, -1, 1),
     ]
-
     # TODO, this does not check whether capture is possible by the king
     # this will be implemented later
     return [
         index for index in squares
-        if empty_or_capture(board, index, piece)
+        if is_empty_or_capture(board, index, piece)
     ]
 
 
-def get_pawn_valid_squares(board, from_index: int, capture_only: bool = False) -> list:
+def get_pawn_valid_squares(board: Board, from_index: int, capture_only: bool = False) -> list:
     assert isinstance(from_index, int)
     piece = board[from_index]
 
@@ -165,7 +164,7 @@ def get_pawn_valid_squares(board, from_index: int, capture_only: bool = False) -
     return squares
 
 
-def get_knight_valid_squares(board, index: int) -> List[int]:
+def get_knight_valid_squares(board: Board, index: int) -> List[int]:
     piece = board[index]
     squares = [
         slide_index(index, 1, 2),
@@ -177,12 +176,11 @@ def get_knight_valid_squares(board, index: int) -> List[int]:
         slide_index(index, -2, 1),
         slide_index(index, -2, -1),
     ]
-
     return [index for index in squares
-            if empty_or_capture(board, index, piece)]
+            if is_empty_or_capture(board, index, piece)]
 
 
-def _get_piece_valid_squares(board: Board, from_index: int) -> List[int]:
+def get_piece_valid_squares(board: Board, from_index: int) -> List[int]:
     piece = get_raw_piece(board[from_index])
     if piece == KNIGHT:
         return get_knight_valid_squares(board, from_index)
@@ -200,11 +198,7 @@ def _get_piece_valid_squares(board: Board, from_index: int) -> List[int]:
         raise Exception("no such piece: %s" % piece)
 
 
-def get_piece_valid_squares(board: Board, sq: str):
-    return _get_piece_valid_squares(board, sq_to_index(sq))
-
-
-def is_castle_move(board, from_index: int, to_index: int) -> bool:
+def is_castle_move(board: Board, from_index: int, to_index: int) -> bool:
     assert isinstance(from_index, int)
     assert isinstance(to_index, int)
     if (get_raw_piece(board[from_index]) != KING):
@@ -216,7 +210,7 @@ def is_castle_move(board, from_index: int, to_index: int) -> bool:
     return to_index in potential_castle_squares
 
 
-def can_castle(board, from_index: int, to_index: int) -> bool:
+def can_castle(board: Board, from_index: int, to_index: int) -> bool:
     """
     Castling is quite complicated and I have not implemented all the rules
     1. The king must have never moved. Using the current arguments, there is no way to verify this
@@ -263,6 +257,7 @@ def can_castle(board, from_index: int, to_index: int) -> bool:
     if get_raw_piece(board[rook_square]) != ROOK:
         return False
     color = get_color(board, from_index)
+    assert color is not None
 
     if get_color(board, rook_square) != color:
         return False
@@ -287,28 +282,31 @@ def can_castle(board, from_index: int, to_index: int) -> bool:
     return True
 
 
-def is_legal_move(board, from_index: int, to_index: int) -> bool:
+def is_legal_move(board: Board, from_index: int, to_index: int) -> bool:
     """No turn checking."""
     assert isinstance(from_index, int)
     assert isinstance(to_index, int)
 
     if is_empty_square(board, from_index):
         raise ValueError("There is no piece at square %s" % index_to_sq(from_index))
+    if not is_valid_square(from_index):
+        raise ValueError("Invalid source index: %d" % from_index)
 
     # piece = board[src]
     color = get_color(board, from_index)
+    assert color is not None
 
     if is_castle_move(board, from_index, to_index):
         return can_castle(board, from_index, to_index)
     else:
-        if to_index not in _get_piece_valid_squares(board, from_index):
+        if to_index not in get_piece_valid_squares(board, from_index):
             return False
 
     has_check = is_in_check(gen_successor(board, from_index, to_index), color)
     return not has_check
 
 
-def is_in_check(board, color: Color):
+def is_in_check(board: Board, color: Color):
     # find the king
     king_index = [
         index for index, piece in get_piece_list(board, color)
@@ -323,25 +321,25 @@ def is_in_check(board, color: Color):
     opp_color = opposite_color(color)
     # get everything for that color
     for index, _ in get_piece_list(board, opp_color):
-        vs = _get_piece_valid_squares(board, index)
+        vs = get_piece_valid_squares(board, index)
         if king_pos in vs:
             return True
 
     return False
 
 
-def _has_no_legal_moves(board, color: Color):
+def _has_no_legal_moves(board: Board, color: Color):
     # get all possible moves
     for pos, _ in get_piece_list(board, color):
         # if the king cannot move regularly then it also cannot castle
-        for dest in _get_piece_valid_squares(board, pos):
+        for dest in get_piece_valid_squares(board, pos):
             b_new = gen_successor(board, pos, dest)
             if not is_in_check(b_new, color):
                 return False
     return True
 
 
-def is_in_checkmate(board, color: Color):
+def is_in_checkmate(board: Board, color: Color):
     """Criteria for checkmate:
     1. is in check
     2. no move will bring the player out of check
@@ -349,18 +347,18 @@ def is_in_checkmate(board, color: Color):
     return is_in_check(board, color) and _has_no_legal_moves(board, color)
 
 
-def is_in_stalemate(board, color: Color):
+def is_in_stalemate(board: Board, color: Color):
     return not is_in_check(board, color) and _has_no_legal_moves(board, color)
 
 
-def get_promotions(board, src, dest):
+def get_promotions(board: Board, src: int, dest: int) -> List[PieceName]:
     if not is_legal_move(board, src, dest):
         return []
     else:
         return _get_promotions(board[src], src, dest)
 
 
-def _get_promotions(piece, src, dest):
+def _get_promotions(piece: PieceName, src: int, dest: int) -> List[PieceName]:
     """Does not check if the move is valid."""
     if get_raw_piece(piece) != PAWN:
         return []

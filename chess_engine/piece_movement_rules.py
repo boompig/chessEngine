@@ -94,7 +94,7 @@ def get_pawn_valid_squares(board, from_index: int, capture_only: bool = False) -
     assert isinstance(from_index, int)
     piece = board[from_index]
 
-    d_row = (-1 if get_piece_color(piece) == WHITE else 1)
+    d_row = (1 if get_piece_color(piece) == WHITE else -1)
     row = index_to_row(from_index)
 
     if capture_only:

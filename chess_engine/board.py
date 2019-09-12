@@ -91,10 +91,15 @@ def get_color(board, index):
 
 
 def slide_index(index: int, dx: int, dy: int) -> int:
+    """
+    dy operates with respect to algebraic rows
+    So a oppositive dy will take you from row 2 to row 3
+    Makes it easier to work with rows
+    """
     assert isinstance(index, int)
     assert isinstance(dx, int)
     assert isinstance(dy, int)
-    return index + (10 * dy) + dx
+    return index + (-10 * dy) + dx
 
 
 def get_castle_rook_index(board, from_index, to_index) -> Tuple[int, int]:

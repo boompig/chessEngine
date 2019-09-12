@@ -38,7 +38,7 @@ starter_board = [
 ]
 
 
-def get_piece_list(board: Board, color: str) -> List[tuple]:
+def get_piece_list(board: Board, color: Color) -> List[tuple]:
     """Return the mapping."""
 
     return [(index, piece) for index, piece in enumerate(board)
@@ -84,15 +84,15 @@ def sq_to_index(sq: str) -> int:
     return (row + 2) * 10 + col + 1
 
 
-def is_valid_square(index):
+def is_valid_square(index: int) -> bool:
     return starter_board[index] != G
 
 
-def is_empty_square(board: Board, index: int):
+def is_empty_square(board: Board, index: int) -> bool:
     return board[index] == E
 
 
-def get_color(board: Board, index):
+def get_color(board: Board, index: int) -> Color:
     return get_piece_color(board[index])
 
 
@@ -149,18 +149,12 @@ def move_piece_en_passant(board: Board, from_index: int, to_index: int) -> None:
     board[to_index] = piece
 
 
-def move_piece(board: Board, src: str, dest: str, promotion_piece: Optional[str] = None,
+def move_piece(board: Board, from_index: int, to_index: int,
+               promotion_piece: Optional[str] = None,
                is_castle=False,
-               is_en_passant=False):
+               is_en_passant=False) -> None:
     """No check on this.
     :param promotion: name of the promotion piece"""
-    assert len(src) == 2
-    assert isinstance(src, str)
-    assert len(dest) == 2
-    assert isinstance(dest, str)
-
-    from_index = sq_to_index(src)
-    to_index = sq_to_index(dest)
     if is_castle:
         move_piece_castle(board, from_index, to_index)
     elif is_en_passant:
@@ -184,7 +178,7 @@ def get_piece_of_color(piece_name: str, color: Color) -> PieceName:
     return (piece_name.upper() if color == WHITE else piece_name.lower())
 
 
-def get_piece_color(piece: PieceName) -> Color:
+def get_piece_color(piece: PieceName) -> Optional[Color]:
     if piece in set([E, G]):
         return None
     else:
@@ -195,7 +189,7 @@ def get_raw_piece(piece: PieceName) -> PieceName:
     return piece.upper()
 
 
-def fen_to_board(fen: str):
+def fen_to_board(fen: str) -> Board:
     """Convert FEN to a row-array"""
     flat_arr = [G]
 
@@ -216,7 +210,7 @@ def fen_to_board(fen: str):
     return ([G] * 20) + flat_arr + ([G] * 20)
 
 
-def load_board(arr):
+def load_board(arr) -> Board:
     # this is an array of arrays
     # each sub-array is a row
     # return a proper representation
@@ -230,7 +224,7 @@ def load_board(arr):
     return board
 
 
-def dump_board(board):
+def dump_board(board: Board):
     """dump the board to a relatively simple array-based format"""
     simple_arr = [
         (" " if sq == E else sq) for sq in board
@@ -244,8 +238,8 @@ def dump_board(board):
     return rows
 
 
-def print_board(board):
-    print("*" * 18),
+def print_board(board: Board) -> None:
+    print("*" * 18)
     for i, piece in enumerate(board):
         if not is_valid_square(i):
             continue

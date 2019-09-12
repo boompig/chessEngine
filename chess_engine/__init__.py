@@ -76,7 +76,7 @@ class Board:
         is_ep = (get_raw_piece(self._board[from_index]) == PAWN and
                  is_valid_en_passant(self._board, from_index, to_index))
         is_castle = is_castle_move(self._board, from_index, to_index)
-        move_piece(self._board, from_square, to_square,
+        move_piece(self._board, from_index, to_index,
                    promotion_piece=promotion,
                    is_castle=is_castle,
                    is_en_passant=is_ep)

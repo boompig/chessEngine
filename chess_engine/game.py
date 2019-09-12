@@ -137,7 +137,7 @@ def process_command(board, command: str):
 
         try:
             if is_legal_move(board, src_idx, dest_idx):
-                move_piece(board, src, dest)
+                move_piece(board, src_idx, dest_idx)
                 Game.flip_turn()
                 Game.record_move(command)
             else:

@@ -131,3 +131,9 @@ def test_aronian():
     fname = "data/aronian_anand_2007.pgn"
     board = run_pgn(fname)
     assert not board.is_in_checkmate(WHITE) and not board.is_in_checkmate(BLACK)
+
+def test_mvl():
+   """from http://www.chessgames.com/perl/chessgame?gid=1729531"""
+   fname = "data/vachier-lagrave_caruana_2013.pgn"
+   board = run_pgn(fname)
+   assert not board.is_in_checkmate(WHITE) and not board.is_in_checkmate(BLACK)

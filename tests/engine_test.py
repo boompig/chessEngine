@@ -1,11 +1,11 @@
 import sys
 import unittest as T
 
-from chess_engine.board import (fen_to_board, index_to_sq, load_board,
+from chess_engine.core.board import (fen_to_board, index_to_sq, load_board,
                                 print_board, sq_to_index, WHITE, ROOK, BISHOP)
 from chess_engine.engine import (CHECKMATE, MIN, dls_minimax,
                                  find_mate_in_n, gen_all_moves, score_move)
-from chess_engine.move import Move
+from chess_engine.core.move import Move
 
 
 def write_mate_result(board, moves, fp):

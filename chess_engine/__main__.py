@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 
 from chess_engine.game import game_loop
-from chess_engine.utils import setup_logging
+from chess_engine.core.utils import setup_logging
 
 
 if __name__ == "__main__":

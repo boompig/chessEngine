@@ -1,10 +1,10 @@
 from typing import Optional
 
-from .board import (get_raw_piece, is_empty_square, move_piece, print_board,
+from .core.board import (get_raw_piece, is_empty_square, move_piece, print_board,
                     sq_to_index, starter_board, get_piece_color, PAWN)
-from .piece_movement_rules import (is_castle_move, is_in_check, is_in_checkmate,
+from .core.piece_movement_rules import (is_castle_move, is_in_check, is_in_checkmate,
                                    is_in_stalemate, is_legal_move, is_valid_en_passant)
-from . import utils as utils
+from .core import utils
 
 
 class MoveError(Exception):

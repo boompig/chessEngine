@@ -5,7 +5,7 @@ import os
 
 import chess.pgn
 from chess_engine import Board
-from chess_engine.board import WHITE, BLACK
+from chess_engine.core.board import WHITE, BLACK
 
 
 def read_pgn_moves(fname: str):

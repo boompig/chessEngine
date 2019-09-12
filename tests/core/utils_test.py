@@ -1,5 +1,5 @@
-from chess_engine.utils import opposite_color
-from chess_engine.board import WHITE, BLACK
+from chess_engine.core.utils import opposite_color
+from chess_engine.core.board import WHITE, BLACK
 
 
 def test_opposite_color_W():

@@ -1,12 +1,12 @@
 import logging
 
-from .board import (dump_board, get_color, get_piece_list, get_raw_piece, WHITE, BLACK,
+from .core.board import (dump_board, get_color, get_piece_list, get_raw_piece, WHITE, BLACK,
                     KNIGHT, BISHOP, ROOK, PAWN, QUEEN, KING, Color)
-from .move import Move, gen_successor_from_move
-from .piece_movement_rules import (get_piece_valid_squares, _get_promotions,
+from .core.move import Move, gen_successor_from_move
+from .core.piece_movement_rules import (get_piece_valid_squares, _get_promotions,
                                    _has_no_legal_moves, is_in_check,
                                    is_legal_move)
-from .utils import opposite_color
+from .core.utils import opposite_color
 
 piece_scores = {
     KNIGHT: 3,

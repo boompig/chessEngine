@@ -1,10 +1,10 @@
 import unittest as T
 
-from chess_engine.board import (dump_board, fen_to_board,
+from chess_engine.core.board import (dump_board, fen_to_board,
                                 load_board, print_board, sq_to_index,
                                 starter_board, BLACK, WHITE)
-from chess_engine.move import gen_successor
-from chess_engine.piece_movement_rules import (_has_no_legal_moves,
+from chess_engine.core.move import gen_successor
+from chess_engine.core.piece_movement_rules import (_has_no_legal_moves,
                                                get_bishop_valid_squares,
                                                get_king_valid_squares,
                                                get_knight_valid_squares,

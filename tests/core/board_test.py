@@ -1,11 +1,11 @@
-from chess_engine.board import WHITE
-from chess_engine.board import sq_to_index
-from chess_engine.board import index_to_sq
-from chess_engine.board import is_valid_square
-from chess_engine.board import starter_board
-from chess_engine.board import load_board
-from chess_engine.board import dump_board
-from chess_engine.board import get_piece_list
+from chess_engine.core.board import WHITE
+from chess_engine.core.board import sq_to_index
+from chess_engine.core.board import index_to_sq
+from chess_engine.core.board import is_valid_square
+from chess_engine.core.board import starter_board
+from chess_engine.core.board import load_board
+from chess_engine.core.board import dump_board
+from chess_engine.core.board import get_piece_list
 
 
 def test_sq_to_index():

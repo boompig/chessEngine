@@ -144,3 +144,36 @@ def test_alekhine_many_promos():
     fname = "data/alekhine_nn_1915.pgn"
     board = run_pgn(fname)
     assert board.is_in_checkmate(BLACK)
+
+def test_alekhine_quad_pawns():
+    """from http://www.chessgames.com/perl/chessgame?gid=1011704"""
+    fname = "data/alekhine_nenarokov_1907.pgn"
+    board = run_pgn(fname)
+    assert not board.is_in_checkmate(WHITE) and not board.is_in_checkmate(BLACK)
+
+def test_fischer_mate():
+    """from http://www.chessgames.com/perl/chessgame?gid=1242850"""
+    fname = "data/fischer_greenblatt_1977.pgn"
+    board = run_pgn(fname)
+    assert board.is_in_checkmate(BLACK)
+
+
+def test_weird_mates():
+    """from:
+    - http://www.chessgames.com/perl/chessgame?gid=1075778
+    - http://www.chessgames.com/perl/chessgame?gid=1284180
+    - http://www.chessgames.com/perl/chessgame?gid=1358125
+    """
+    fnames = [
+        "data/wiede_goetz_1880.pgn",
+        "data/e_clemenz_eisenschmidt_1862.pgn",
+        "data/malinin_savinov_1988.pgn",
+    ]
+    for i, fname in enumerate(fnames):
+        board = run_pgn(fname)
+        if i == 0:
+            assert board.is_in_check(WHITE)
+            assert board.is_in_checkmate(WHITE)
+        else:
+            assert board.is_in_check(BLACK)
+            assert board.is_in_checkmate(BLACK)

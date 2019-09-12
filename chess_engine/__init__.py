@@ -35,7 +35,7 @@ class Board:
         else:
             is_ep = get_raw_piece(self._board[from_index]) == PAWN and is_valid_en_passant(self._board, from_index, to_index)
             piece = get_raw_piece(self._board[from_index])
-            s = ("x" if is_empty_square(self._board, to_index) and not is_ep else "x")
+            s = ("-" if is_empty_square(self._board, to_index) and not is_ep else "x")
             if promotion:
                 # promotion always pawn
                 return "{from_square}{capture_or_move}{to_square}={promotion}".format(
@@ -80,7 +80,6 @@ class Board:
                    promotion_piece=promotion,
                    is_castle=is_castle,
                    is_en_passant=is_ep)
-        return True
 
     def is_in_checkmate(self, color: str) -> bool:
         assert isinstance(color, str) and len(color) == 1

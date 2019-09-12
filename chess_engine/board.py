@@ -119,7 +119,7 @@ def get_castle_rook_index(board, from_index: int, to_index: int) -> Tuple[int, i
         return slide_index(from_index, -4, 0), slide_index(from_index, -1, 0)
 
 
-def move_piece_castle(board, from_index: int, to_index: int):
+def move_piece_castle(board, from_index: int, to_index: int) -> None:
     # this should refer to the king only
     piece = board[from_index]
     assert get_raw_piece(piece) == KING
@@ -132,7 +132,27 @@ def move_piece_castle(board, from_index: int, to_index: int):
     board[rook_to_index] = piece
 
 
-def move_piece(board, src: str, dest: str, promotion_piece: Optional[str] = None, is_castle=False):
+def move_piece_en_passant(board, from_index: int, to_index: int) -> None:
+    """
+    Must be called with a pawn move
+    """
+    piece = board[from_index]
+    color = get_piece_color(piece)
+    assert get_raw_piece(piece) == PAWN
+    board[from_index] = E
+
+    # location of the target pawn
+    if color == WHITE:
+        en_passant_capture_index = slide_index(to_index, 0, -1)
+    else:
+        en_passant_capture_index = slide_index(to_index, 0, 1)
+    board[en_passant_capture_index] = E
+    board[to_index] = piece
+
+
+def move_piece(board, src: str, dest: str, promotion_piece: Optional[str] = None,
+               is_castle=False,
+               is_en_passant=False):
     """No check on this.
     :param promotion: name of the promotion piece"""
     assert len(src) == 2
@@ -144,6 +164,8 @@ def move_piece(board, src: str, dest: str, promotion_piece: Optional[str] = None
     to_index = sq_to_index(dest)
     if is_castle:
         move_piece_castle(board, from_index, to_index)
+    elif is_en_passant:
+        move_piece_en_passant(board, from_index, to_index)
     elif promotion_piece:
         promotion_piece = promotion_piece.upper()
         assert promotion_piece in PIECES

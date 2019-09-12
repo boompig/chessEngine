@@ -1,9 +1,9 @@
 from typing import Optional
 
 from .board import (get_raw_piece, is_empty_square, move_piece, print_board,
-                    sq_to_index, starter_board, get_piece_color)
+                    sq_to_index, starter_board, get_piece_color, PAWN)
 from .piece_movement_rules import (is_castle_move, is_in_check, is_in_checkmate,
-                                   is_in_stalemate, is_legal_move)
+                                   is_in_stalemate, is_legal_move, is_valid_en_passant)
 from . import utils as utils
 
 
@@ -31,20 +31,29 @@ class Board:
                 return "O-O"
             else:
                 return "O-O-O"
+
         else:
+            is_ep = get_raw_piece(self._board[from_index]) == PAWN and is_valid_en_passant(self._board, from_index, to_index)
             piece = get_raw_piece(self._board[from_index])
-            s = ("-" if is_empty_square(self._board, to_index) else "x")
+            s = ("x" if is_empty_square(self._board, to_index) and not is_ep else "x")
             if promotion:
-                return "{piece}{from_square}{capture_or_move}{to_square}={promotion}".format(
-                    piece=piece,
+                # promotion always pawn
+                return "{from_square}{capture_or_move}{to_square}={promotion}".format(
                     from_square=from_square,
                     to_square=to_square,
                     capture_or_move=s,
                     promotion=promotion
                 )
+            elif is_ep:
+                # ep always pawn
+                return "{from_square}{capture_or_move}{to_square} (ep)".format(
+                    from_square=from_square,
+                    to_square=to_square,
+                    capture_or_move=s
+                )
             else:
                 return "{piece}{from_square}{capture_or_move}{to_square}".format(
-                    piece=piece,
+                    piece=("" if piece == PAWN else piece),
                     from_square=from_square,
                     to_square=to_square,
                     capture_or_move=s
@@ -64,8 +73,13 @@ class Board:
                 color, piece, from_square, to_square
             ))
 
+        is_ep = (get_raw_piece(self._board[from_index]) == PAWN and
+                 is_valid_en_passant(self._board, from_index, to_index))
         is_castle = is_castle_move(self._board, from_index, to_index)
-        move_piece(self._board, from_square, to_square, promotion_piece=promotion, is_castle=is_castle)
+        move_piece(self._board, from_square, to_square,
+                   promotion_piece=promotion,
+                   is_castle=is_castle,
+                   is_en_passant=is_ep)
         return True
 
     def is_in_checkmate(self, color: str) -> bool:

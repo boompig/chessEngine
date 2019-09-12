@@ -46,14 +46,21 @@ def get_piece_list(board: List[str], color: str) -> List[tuple]:
 
 def index_to_sq(index: int) -> str:
     row, col = index_to_row_col(index)
-    return "%s%d" % (chr(col + 97), 8 - row)
+    return "%s%d" % (chr(col + 97), row)
 
 
 def index_to_row(index: int) -> int:
-    return index // 10 - 2
+    """
+    Returned row is algebraic (1-8)
+    """
+    return 8 - (index // 10 - 2)
 
 
-def index_to_row_col(index):
+def index_to_row_col(index: int) -> Tuple[int, int]:
+    """
+    row is algebraic (1-8)
+    col is index into letters (0-7)
+    """
     row = index_to_row(index)
     col = index % 10 - 1
     return (row, col)
@@ -91,13 +98,18 @@ def get_color(board, index):
 
 
 def slide_index(index: int, dx: int, dy: int) -> int:
+    """
+    dy operates with respect to algebraic rows
+    So a oppositive dy will take you from row 2 to row 3
+    Makes it easier to work with rows
+    """
     assert isinstance(index, int)
     assert isinstance(dx, int)
     assert isinstance(dy, int)
-    return index + (10 * dy) + dx
+    return index + (-10 * dy) + dx
 
 
-def get_castle_rook_index(board, from_index, to_index) -> Tuple[int, int]:
+def get_castle_rook_index(board, from_index: int, to_index: int) -> Tuple[int, int]:
     """return (from_index, to_index) for the rook"""
     if from_index < to_index:
         # castle right (short)
@@ -107,7 +119,7 @@ def get_castle_rook_index(board, from_index, to_index) -> Tuple[int, int]:
         return slide_index(from_index, -4, 0), slide_index(from_index, -1, 0)
 
 
-def move_piece_castle(board, from_index: int, to_index: int):
+def move_piece_castle(board, from_index: int, to_index: int) -> None:
     # this should refer to the king only
     piece = board[from_index]
     assert get_raw_piece(piece) == KING
@@ -120,7 +132,27 @@ def move_piece_castle(board, from_index: int, to_index: int):
     board[rook_to_index] = piece
 
 
-def move_piece(board, src: str, dest: str, promotion_piece: Optional[str] = None, is_castle=False):
+def move_piece_en_passant(board, from_index: int, to_index: int) -> None:
+    """
+    Must be called with a pawn move
+    """
+    piece = board[from_index]
+    color = get_piece_color(piece)
+    assert get_raw_piece(piece) == PAWN
+    board[from_index] = E
+
+    # location of the target pawn
+    if color == WHITE:
+        en_passant_capture_index = slide_index(to_index, 0, -1)
+    else:
+        en_passant_capture_index = slide_index(to_index, 0, 1)
+    board[en_passant_capture_index] = E
+    board[to_index] = piece
+
+
+def move_piece(board, src: str, dest: str, promotion_piece: Optional[str] = None,
+               is_castle=False,
+               is_en_passant=False):
     """No check on this.
     :param promotion: name of the promotion piece"""
     assert len(src) == 2
@@ -132,13 +164,15 @@ def move_piece(board, src: str, dest: str, promotion_piece: Optional[str] = None
     to_index = sq_to_index(dest)
     if is_castle:
         move_piece_castle(board, from_index, to_index)
+    elif is_en_passant:
+        move_piece_en_passant(board, from_index, to_index)
     elif promotion_piece:
         promotion_piece = promotion_piece.upper()
         assert promotion_piece in PIECES
         piece = board[from_index]
         color = get_piece_color(piece)
         assert get_raw_piece(piece) == PAWN
-        assert index_to_row(to_index) in [0, 7]
+        assert index_to_row(to_index) in [1, 8]
         board[from_index] = E
         board[to_index] = get_piece_of_color(promotion_piece, color)
     else:
@@ -147,22 +181,22 @@ def move_piece(board, src: str, dest: str, promotion_piece: Optional[str] = None
         board[to_index] = piece
 
 
-def get_piece_of_color(piece_name: str, color: str) -> str:
+def get_piece_of_color(piece_name: str, color: Color) -> PieceName:
     return (piece_name.upper() if color == WHITE else piece_name.lower())
 
 
-def get_piece_color(piece):
+def get_piece_color(piece: PieceName) -> Color:
     if piece in set([E, G]):
         return None
     else:
         return (WHITE if piece.isupper() else BLACK)
 
 
-def get_raw_piece(piece):
+def get_raw_piece(piece: PieceName) -> PieceName:
     return piece.upper()
 
 
-def fen_to_board(fen):
+def fen_to_board(fen: str):
     """Convert FEN to a row-array"""
     flat_arr = [G]
 

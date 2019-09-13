@@ -66,6 +66,7 @@ def interpret_move(notation: str, board) -> Tuple[str, str]:
             raise ValueError("Cannot interpret this move: %s" % notation)
 
         logging.debug("Inferring move with piece %s to %s", piece, dest)
+        dest_index = sq_to_index(dest)
 
         src_list = get_piece_location(board, piece, Game.turn)
         src_flag = None
@@ -73,7 +74,7 @@ def interpret_move(notation: str, board) -> Tuple[str, str]:
             src = index_to_sq(src_idx)
             logging.debug("Trying piece at %s" % str(src))
             valid_sqs = get_piece_valid_squares(board, src_idx)
-            if dest in valid_sqs:
+            if dest_index in valid_sqs:
                 src_flag = src
                 break
 

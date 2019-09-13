@@ -21,7 +21,7 @@ class PieceMovementTest(T.TestCase):
     def test_rook_starter_board_valid_squares(self):
         board = starter_board[:]
         index = sq_to_index("a1")
-        assert get_rook_valid_squares(board, index) == []
+        assert [sq for sq in get_rook_valid_squares(board, index)] == []
 
     def test_rook_empty_board_valid_squares(self):
         board = load_board([
@@ -84,18 +84,18 @@ class PieceMovementTest(T.TestCase):
     def test_bishop_valid_squares(self):
         board = starter_board[:]
         index = sq_to_index("c1")
-        assert get_bishop_valid_squares(board, index) == []
+        assert [sq for sq in get_bishop_valid_squares(board, index)] == []
 
     def test_queen_valid_squares(self):
         board = starter_board[:]
         index = sq_to_index("d1")
-        assert get_queen_valid_squares(board, index) == []
+        assert [sq for sq in get_queen_valid_squares(board, index)] == []
 
     def test_king_valid_squares(self):
         board = starter_board[:]
         index = sq_to_index("e1")
-        assert get_king_valid_squares(board, index) == []
-        assert get_king_valid_squares(board, index) == []
+        assert [sq for sq in get_king_valid_squares(board, index)] == []
+        assert [sq for sq in get_king_valid_squares(board, index)] == []
 
     def test_pawn_valid_squares(self):
         board = starter_board[:]
@@ -111,12 +111,12 @@ class PieceMovementTest(T.TestCase):
 
     def test_piece_valid_squares(self):
         board = starter_board[:]
-        assert get_piece_valid_squares(board, sq_to_index("e1")) == []
-        assert get_piece_valid_squares(board, sq_to_index("d1")) == []
-        assert get_piece_valid_squares(board, sq_to_index("c1")) == []
-        assert get_piece_valid_squares(board, sq_to_index("a1")) == []
-        assert get_piece_valid_squares(board, sq_to_index("a8")) == []
-        assert get_piece_valid_squares(board, sq_to_index("e8")) == []
+        assert [sq for sq in get_piece_valid_squares(board, sq_to_index("e1"))] == []
+        assert [sq for sq in get_piece_valid_squares(board, sq_to_index("d1"))] == []
+        assert [sq for sq in get_piece_valid_squares(board, sq_to_index("c1"))] == []
+        assert [sq for sq in get_piece_valid_squares(board, sq_to_index("a1"))] == []
+        assert [sq for sq in get_piece_valid_squares(board, sq_to_index("a8"))]  == []
+        assert [sq for sq in get_piece_valid_squares(board, sq_to_index("e8"))] == []
         assert sorted(get_piece_valid_squares(board, sq_to_index("e2"))) == \
             sorted([sq_to_index(idx) for idx in ["e3", "e4"]])
 

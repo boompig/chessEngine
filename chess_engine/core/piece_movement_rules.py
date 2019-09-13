@@ -1,4 +1,5 @@
-from typing import List
+import itertools
+from typing import List, Iterator
 
 from .board import (BISHOP, BLACK, KING, KNIGHT, PAWN, QUEEN, ROOK, WHITE,
                     Board, Color, E, PieceName, find_king_index, get_color,
@@ -70,8 +71,10 @@ def is_valid_capture(board: Board, to_index: int, piece: PieceName) -> bool:
     return is_valid_square(to_index) and is_capture(board, to_index, piece)
 
 
-def slide_and_check(board: Board, index: int, piece: PieceName, dy: int, dx: int, squares: List[int]) -> None:
-    """Extend squares array with valid squares.
+def slide_and_check(board: Board, index: int, piece: PieceName, dy: int, dx: int) -> Iterator[int]:
+    """Slide the given piece in the direction (dx, dy) from index.
+    Return a generator over all the squares that the piece could visit, including captures, in that direction
+    Extend squares array with valid squares.
     TODO, in the future, write this to be easily parallelisable"""
     while True:
         index = slide_index(index, dx, dy)
@@ -79,44 +82,44 @@ def slide_and_check(board: Board, index: int, piece: PieceName, dy: int, dx: int
         if not is_valid_square(index):
             return
         if is_empty_square(board, index):
-            squares.append(index)
+            yield index
         else:
             # logging.debug("square occupied by %s" % board[index])
             # logging.debug("attacking piece is %s" % piece)
             if get_piece_color(piece) != get_color(board, index):
-                squares.append(index)
+                # this is a capture
+                yield index
             return
 
 
-def get_rook_valid_squares(board: Board, index: int) -> List[int]:
+def get_rook_valid_squares(board: Board, index: int) -> Iterator[int]:
     piece = board[index]
-    squares = []  # type: List[int]
-    slide_and_check(board, index, piece, 0, 1, squares)
-    slide_and_check(board, index, piece, 0, -1, squares)
-    slide_and_check(board, index, piece, 1, 0, squares)
-    slide_and_check(board, index, piece, -1, 0, squares)
-    return squares
+    return itertools.chain(
+        slide_and_check(board, index, piece, 0, 1),
+        slide_and_check(board, index, piece, 0, -1),
+        slide_and_check(board, index, piece, 1, 0),
+        slide_and_check(board, index, piece, -1, 0)
+    )
 
 
-def get_bishop_valid_squares(board: Board, index: int) -> List[int]:
+def get_bishop_valid_squares(board: Board, index: int) -> Iterator[int]:
     piece = board[index]
-    squares = []  # type: List[int]
-    slide_and_check(board, index, piece, 1, 1, squares)
-    slide_and_check(board, index, piece, 1, -1, squares)
-    slide_and_check(board, index, piece, -1, 1, squares)
-    slide_and_check(board, index, piece, -1, -1, squares)
-    return squares
+    return itertools.chain(
+        slide_and_check(board, index, piece, 1, 1),
+        slide_and_check(board, index, piece, 1, -1),
+        slide_and_check(board, index, piece, -1, 1),
+        slide_and_check(board, index, piece, -1, -1)
+    )
 
 
-def get_queen_valid_squares(board: Board, index: int) -> List[int]:
-    # piece = board[index]
-    squares = []
-    squares.extend(get_rook_valid_squares(board, index))
-    squares.extend(get_bishop_valid_squares(board, index))
-    return squares
+def get_queen_valid_squares(board: Board, index: int) -> Iterator[int]:
+    return itertools.chain(
+        get_rook_valid_squares(board, index),
+        get_bishop_valid_squares(board, index)
+    )
 
 
-def get_king_valid_squares(board: Board, index: int) -> List[int]:
+def get_king_valid_squares(board: Board, index: int) -> Iterator[int]:
     """This is easily parallelisable. """
     piece = board[index]
     squares = [
@@ -131,19 +134,17 @@ def get_king_valid_squares(board: Board, index: int) -> List[int]:
     ]
     # TODO, this does not check whether capture is possible by the king
     # this will be implemented later
-    return [
+    return (
         index for index in squares
         if is_empty_or_capture(board, index, piece)
-    ]
+    )
 
 
-def get_pawn_valid_squares(board: Board, from_index: int) -> List[int]:
+def get_pawn_valid_squares(board: Board, from_index: int) -> Iterator[int]:
     piece = board[from_index]
 
     dy = (1 if get_piece_color(piece) == WHITE else -1)
     row = index_to_row(from_index)
-
-    squares = []  # type: List[int]
 
     # regular moves
     l1 = [slide_index(from_index, 0, dy)]
@@ -154,20 +155,18 @@ def get_pawn_valid_squares(board: Board, from_index: int) -> List[int]:
     # only add these candidate moves to squares array if target square is empty
     for to_index in l1:
         if is_valid_and_empty(board, to_index):
-            squares.append(to_index)
+            yield to_index
 
     # capture moves
     l2 = [slide_index(from_index, 1, dy), slide_index(from_index, -1, dy)]
     for to_index in l2:
         if is_valid_and_empty(board, to_index) and is_valid_en_passant(board, from_index, to_index):
-            squares.append(to_index)
+            yield to_index
         elif is_valid_capture(board, to_index, piece):
-            squares.append(to_index)
-
-    return squares
+            yield to_index
 
 
-def get_knight_valid_squares(board: Board, index: int) -> List[int]:
+def get_knight_valid_squares(board: Board, index: int) -> Iterator[int]:
     piece = board[index]
     squares = [
         slide_index(index, 1, 2),
@@ -179,11 +178,11 @@ def get_knight_valid_squares(board: Board, index: int) -> List[int]:
         slide_index(index, -2, 1),
         slide_index(index, -2, -1),
     ]
-    return [index for index in squares
-            if is_empty_or_capture(board, index, piece)]
+    return (index for index in squares
+            if is_empty_or_capture(board, index, piece))
 
 
-def get_piece_valid_squares(board: Board, from_index: int) -> List[int]:
+def get_piece_valid_squares(board: Board, from_index: int) -> Iterator[int]:
     piece = get_raw_piece(board[from_index])
     if piece == KNIGHT:
         return get_knight_valid_squares(board, from_index)

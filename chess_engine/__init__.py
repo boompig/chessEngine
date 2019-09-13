@@ -1,7 +1,7 @@
 from typing import Optional
 
 from .core.board import (get_raw_piece, is_empty_square, move_piece, print_board,
-                    sq_to_index, starter_board, get_piece_color, PAWN)
+                    sq_to_index, starter_board, get_piece_color, PAWN, Color, PieceName)
 from .core.piece_movement_rules import (is_castle_move, is_in_check, is_in_checkmate,
                                    is_in_stalemate, is_legal_move, is_valid_en_passant)
 from .core import utils
@@ -22,7 +22,8 @@ class Board:
         else:
             self._board = starter_board[:]
 
-    def get_normal_person_move(self, from_square: str, to_square: str, promotion: Optional[str]) -> str:
+    def get_normal_person_move(self, from_square: str, to_square: str,
+                               promotion: Optional[PieceName]) -> str:
         from_index = sq_to_index(from_square)
         to_index = sq_to_index(to_square)
 
@@ -59,7 +60,7 @@ class Board:
                     capture_or_move=s
                 )
 
-    def move_piece(self, from_square: str, to_square: str, promotion: Optional[str]):
+    def move_piece(self, from_square: str, to_square: str, promotion: Optional[PieceName]):
         if promotion:
             assert isinstance(promotion, str) and len(promotion) == 1
         from_index = sq_to_index(from_square)
@@ -81,16 +82,13 @@ class Board:
                    is_castle=is_castle,
                    is_en_passant=is_ep)
 
-    def is_in_checkmate(self, color: str) -> bool:
-        assert isinstance(color, str) and len(color) == 1
+    def is_in_checkmate(self, color: Color) -> bool:
         return is_in_checkmate(self._board, color)
 
-    def is_in_check(self, color: str) -> bool:
-        assert isinstance(color, str) and len(color) == 1
+    def is_in_check(self, color: Color) -> bool:
         return is_in_check(self._board, color)
 
-    def is_in_stalemate(self, color: str) -> bool:
-        assert isinstance(color, str) and len(color) == 1
+    def is_in_stalemate(self, color: Color) -> bool:
         return is_in_stalemate(self._board, color)
 
     def print(self):

@@ -7,7 +7,7 @@ from .core.move import Move, gen_successor_from_move
 from .core.piece_movement_rules import (get_piece_valid_squares, _get_promotions,
                                    _has_no_legal_moves, is_in_check,
                                    is_legal_move)
-from .core.utils import opposite_color
+from .core.utils import get_opposite_color
 
 from typing import List, Optional, Tuple
 
@@ -172,7 +172,7 @@ def score_move(board: Board, move: Move):
     """Score moves which give a check higher than those which do not."""
     moving_color = get_color(board, move.src)
     new_board = gen_successor_from_move(board, move)
-    if is_in_check(new_board, opposite_color(moving_color)):
+    if is_in_check(new_board, get_opposite_color(moving_color)):
         return CHECK
     else:
         return 0

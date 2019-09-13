@@ -2,7 +2,7 @@ import logging
 from .board import WHITE, BLACK
 
 
-def opposite_color(col):
+def get_opposite_color(col):
     return (WHITE if col == BLACK else BLACK)
 
 

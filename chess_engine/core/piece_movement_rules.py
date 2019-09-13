@@ -8,7 +8,7 @@ from .board import (BISHOP, BLACK, KING, KNIGHT, PAWN, QUEEN, ROOK, WHITE,
                     is_empty_square, is_valid_square, slide_index,
                     sq_to_index)
 from .move import gen_successor
-from .utils import opposite_color
+from .utils import get_opposite_color
 
 
 def is_valid_and_empty(board: Board, index: int) -> bool:
@@ -59,7 +59,7 @@ def is_valid_en_passant(board: Board, from_index: int, to_index: int) -> bool:
     # this would be much easier if board had a list of previous moves
     # however this requires us to check that the expected square contains an opposite-colored pawn
     return (not is_empty_square(board, expected_target_pawn_index) and
-            opposite_color(color) == get_piece_color(board[expected_target_pawn_index]) and
+            get_opposite_color(color) == get_piece_color(board[expected_target_pawn_index]) and
             get_raw_piece(board[expected_target_pawn_index]) == PAWN)
 
 
@@ -311,7 +311,7 @@ def is_in_check(board: Board, color: Color) -> bool:
     # find the king
     king_pos = find_king_index(board, color)
 
-    opp_color = opposite_color(color)
+    opp_color = get_opposite_color(color)
     # get everything for that color
     for index, _ in get_piece_list(board, opp_color):
         vs = get_piece_valid_squares(board, index)

@@ -2,14 +2,15 @@ import sys
 from typing import List, Tuple, Optional, Iterator
 
 PieceName = str
-Color = str
+Color = bool
 Board = List[str]
 
 E = "E"
 G = "G"
 
-WHITE = "W"
-BLACK = "B"
+# colors (note that colors can be none)
+WHITE = True
+BLACK = False
 
 PAWN = "P"
 KNIGHT = "N"

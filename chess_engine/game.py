@@ -5,7 +5,8 @@ from typing import List, Tuple
 
 
 from .core.board import (get_color, index_to_sq, is_empty_square, move_piece,
-                    print_board, sq_to_index, starter_board, WHITE, get_piece_of_color)
+                         print_board, sq_to_index, starter_board, WHITE, get_piece_of_color,
+                         Color)
 from .core.piece_movement_rules import get_piece_valid_squares, is_legal_move
 from .core.utils import opposite_color
 
@@ -23,7 +24,7 @@ class Game(object):
         Game.turn = opposite_color(Game.turn)
 
 
-def get_piece_location(board, piece_name: str, color: str) -> List[int]:
+def get_piece_location(board, piece_name: str, color: Color) -> List[int]:
     piece = get_piece_of_color(piece_name, color)
     indexes = []
     try:

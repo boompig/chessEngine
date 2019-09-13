@@ -1,7 +1,7 @@
 import logging
 
 from .core.board import (dump_board, get_color, get_piece_list, get_raw_piece, is_capture,
-                         WHITE, BLACK,
+                         WHITE, BLACK, PieceName,
                     KNIGHT, BISHOP, ROOK, PAWN, QUEEN, KING, Color, Board)
 from .core.move import Move, gen_successor_from_move
 from .core.piece_movement_rules import (get_piece_valid_squares, _get_promotions,
@@ -168,7 +168,7 @@ def dls_minimax(board: Board, depth_remaining: int, turn: bool, last_move: Optio
     raise Exception("should never get here - missing return statement")
 
 
-def score_move(board, move):
+def score_move(board: Board, move: Move):
     """Score moves which give a check higher than those which do not."""
     moving_color = get_color(board, move.src)
     new_board = gen_successor_from_move(board, move)
@@ -178,7 +178,7 @@ def score_move(board, move):
         return 0
 
 
-def score_piece(piece, location):
+def score_piece(piece: PieceName, location):
     return piece_scores[get_raw_piece(piece)]
 
 

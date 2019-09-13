@@ -27,7 +27,7 @@ MIN = False
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 
-def gen_all_moves(board, color: Color) -> List[Move]:
+def gen_all_moves(board: Board, color: Color) -> List[Move]:
     """Generate all valid moves by given color. This is a list."""
     moves = []
 
@@ -46,7 +46,7 @@ def gen_all_moves(board, color: Color) -> List[Move]:
     return moves
 
 
-def find_mate_in_n(board, color: Color, n: int, stats_dict: Optional[dict] = None):
+def find_mate_in_n(board: Board, color: Color, n: int, stats_dict: Optional[dict] = None):
     """Find a mate in at most n moves. If no such mate exist, will return a
     non-CHECKMATE value in the first slot."""
     if stats_dict is None:

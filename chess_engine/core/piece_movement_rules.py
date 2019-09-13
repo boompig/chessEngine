@@ -308,7 +308,7 @@ def is_legal_move(board: Board, from_index: int, to_index: int) -> bool:
     return not has_check
 
 
-def is_in_check(board: Board, color: Color):
+def is_in_check(board: Board, color: Color) -> bool:
     """
     Note that this function is expensive to compute
     Avoid calling it too many times

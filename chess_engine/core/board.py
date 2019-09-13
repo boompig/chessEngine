@@ -194,7 +194,7 @@ def get_piece_of_color(piece_name: PieceName, color: Color) -> PieceName:
 
 
 def get_piece_color(piece: PieceName) -> Optional[Color]:
-    if piece in set([E, G]):
+    if piece == E or piece == G:
         return None
     else:
         return (WHITE if piece.isupper() else BLACK)

@@ -77,7 +77,7 @@ def slide_and_check(board: Board, index: int, piece: PieceName, dy: int, dx: int
         index = slide_index(index, dx, dy)
 
         if not is_valid_square(index):
-            break
+            return
         if is_empty_square(board, index):
             squares.append(index)
         else:
@@ -118,7 +118,6 @@ def get_queen_valid_squares(board: Board, index: int) -> List[int]:
 
 def get_king_valid_squares(board: Board, index: int) -> List[int]:
     """This is easily parallelisable. """
-    assert isinstance(index, int)
     piece = board[index]
     squares = [
         slide_index(index, 1, -1),
@@ -138,24 +137,26 @@ def get_king_valid_squares(board: Board, index: int) -> List[int]:
     ]
 
 
-def get_pawn_valid_squares(board: Board, from_index: int, capture_only: bool = False) -> list:
-    assert isinstance(from_index, int)
+def get_pawn_valid_squares(board: Board, from_index: int) -> List[int]:
     piece = board[from_index]
 
     dy = (1 if get_piece_color(piece) == WHITE else -1)
     row = index_to_row(from_index)
 
     squares = []  # type: List[int]
-    if not capture_only:
-        l1 = [slide_index(from_index, 0, dy)]
-        if (((row == 7 and get_piece_color(piece) == BLACK) or (row == 2 and get_piece_color(piece) == WHITE)) and
-                is_empty_square(board, l1[0])):
-            l1.append(slide_index(from_index, 0, 2 * dy))
 
-        # only add these candidate moves to squares array if target square is empty
-        for to_index in l1:
-            if is_valid_and_empty(board, to_index):
-                squares.append(to_index)
+    # regular moves
+    l1 = [slide_index(from_index, 0, dy)]
+    if (((row == 7 and get_piece_color(piece) == BLACK) or (row == 2 and get_piece_color(piece) == WHITE)) and
+            is_empty_square(board, l1[0])):
+        l1.append(slide_index(from_index, 0, 2 * dy))
+
+    # only add these candidate moves to squares array if target square is empty
+    for to_index in l1:
+        if is_valid_and_empty(board, to_index):
+            squares.append(to_index)
+
+    # capture moves
     l2 = [slide_index(from_index, 1, dy), slide_index(from_index, -1, dy)]
     for to_index in l2:
         if is_valid_and_empty(board, to_index) and is_valid_en_passant(board, from_index, to_index):
@@ -201,8 +202,6 @@ def get_piece_valid_squares(board: Board, from_index: int) -> List[int]:
 
 
 def is_castle_move(board: Board, from_index: int, to_index: int) -> bool:
-    assert isinstance(from_index, int)
-    assert isinstance(to_index, int)
     if (get_raw_piece(board[from_index]) != KING):
         return False
     potential_castle_squares = [
@@ -286,9 +285,6 @@ def can_castle(board: Board, from_index: int, to_index: int) -> bool:
 
 def is_legal_move(board: Board, from_index: int, to_index: int) -> bool:
     """No turn checking."""
-    assert isinstance(from_index, int)
-    assert isinstance(to_index, int)
-
     if is_empty_square(board, from_index):
         raise ValueError("There is no piece at square %s" % index_to_sq(from_index))
     if not is_valid_square(from_index):

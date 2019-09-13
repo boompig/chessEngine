@@ -1,5 +1,5 @@
 import sys
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Iterator
 
 PieceName = str
 Color = str
@@ -42,13 +42,14 @@ MIN_PIECE_INDEX = 21
 MAX_PIECE_INDEX = 98
 
 
-def get_piece_list(board: Board, color: Color) -> List[Tuple[int, PieceName]]:
+def get_piece_list(board: Board, color: Color) -> Iterator[Tuple[int, PieceName]]:
     """
     Return the list of pieces for this color
     :returns: (index, piece name)
     """
-    return [(index, piece) for index, piece in enumerate(board)
-            if get_piece_color(piece) == color]
+    for index, piece in enumerate(board):
+        if get_piece_color(piece) == color:
+            yield index, piece
 
 
 def index_to_sq(index: int) -> str:
@@ -108,9 +109,6 @@ def slide_index(index: int, dx: int, dy: int) -> int:
     So a oppositive dy will take you from row 2 to row 3
     Makes it easier to work with rows
     """
-    assert isinstance(index, int)
-    assert isinstance(dx, int)
-    assert isinstance(dy, int)
     return index + (-10 * dy) + dx
 
 

@@ -49,11 +49,11 @@ def interpret_move(notation: str, board) -> Tuple[str, str]:
     elif "-" in notation:
         move = notation.split("-")
         assert len(move) == 2
-        return tuple(move)
+        return (move[0], move[1])
     elif "x" in notation:
         move = notation.split("x")
         assert len(move) == 2
-        return tuple(move)
+        return (move[0], move[1])
     else:
         if len(notation) == 2:
             # pawn move

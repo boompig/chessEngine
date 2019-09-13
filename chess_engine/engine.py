@@ -1,12 +1,15 @@
 import logging
 
-from .core.board import (dump_board, get_color, get_piece_list, get_raw_piece, WHITE, BLACK,
-                    KNIGHT, BISHOP, ROOK, PAWN, QUEEN, KING, Color)
+from .core.board import (dump_board, get_color, get_piece_list, get_raw_piece, is_capture,
+                         WHITE, BLACK,
+                    KNIGHT, BISHOP, ROOK, PAWN, QUEEN, KING, Color, Board)
 from .core.move import Move, gen_successor_from_move
 from .core.piece_movement_rules import (get_piece_valid_squares, _get_promotions,
                                    _has_no_legal_moves, is_in_check,
                                    is_legal_move)
 from .core.utils import opposite_color
+
+from typing import List, Optional, Tuple
 
 piece_scores = {
     KNIGHT: 3,
@@ -24,7 +27,7 @@ MIN = False
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 
-def gen_all_moves(board, color: str) -> list:
+def gen_all_moves(board, color: Color) -> List[Move]:
     """Generate all valid moves by given color. This is a list."""
     moves = []
 
@@ -32,17 +35,18 @@ def gen_all_moves(board, color: str) -> list:
         for dest in get_piece_valid_squares(board, location):
             if is_legal_move(board, location, dest):
                 prs = _get_promotions(piece, location, dest)
+                is_capture_move = is_capture(board, dest, piece)
                 if prs != []:
-                    moves.extend([Move(piece, location, dest, promotion=p)
+                    moves.extend([Move(piece, location, dest, promotion=p, is_capture=is_capture_move)
                                   for p in prs])
                 else:
                     # the destination here is chess notation, rather than index
-                    moves.append(Move(piece, location, dest))
+                    moves.append(Move(piece, location, dest, is_capture=is_capture_move))
 
     return moves
 
 
-def find_mate_in_n(board, color: Color, n: int, stats_dict=None):
+def find_mate_in_n(board, color: Color, n: int, stats_dict: Optional[dict] = None):
     """Find a mate in at most n moves. If no such mate exist, will return a
     non-CHECKMATE value in the first slot."""
     if stats_dict is None:
@@ -53,8 +57,9 @@ def find_mate_in_n(board, color: Color, n: int, stats_dict=None):
     return results
 
 
-def dls_minimax(board, depth_remaining: int, turn: bool, last_move=None,
-                alpha=(-1 * CHECKMATE - 1), beta=(CHECKMATE + 1), stats_dict=None):
+def dls_minimax(board: Board, depth_remaining: int, turn: bool, last_move: Optional[Move] = None,
+                alpha: int =(-1 * CHECKMATE - 1), beta=(CHECKMATE + 1),
+                stats_dict: Optional[dict] = None) -> Tuple[int, list]:
     """Return whether or not there exists a winning combination of moves.
     Return this combination.
     TODO: alpha-beta this"""
@@ -66,8 +71,8 @@ def dls_minimax(board, depth_remaining: int, turn: bool, last_move=None,
 
     if _has_no_legal_moves(board, color):
         if is_in_check(board, color):
-            logging.info("Reached terminal condition: %s is in checkmate" % color)
-            logging.debug("Previous move is %s" % str(last_move))
+            logging.info("[%d depth remaining] Reached terminal condition: %s is in checkmate", depth_remaining, color)
+            logging.debug("Previous move is %s", str(last_move))
 
             for row in dump_board(board):
                 logging.info(row)
@@ -76,15 +81,15 @@ def dls_minimax(board, depth_remaining: int, turn: bool, last_move=None,
             else:
                 return (-1 * CHECKMATE, [last_move])
         else:
-            logging.debug("Reached terminal condition: %s is in stalemate" % color)
+            logging.debug("Reached terminal condition: %s is in stalemate", color)
             return (0, [last_move])
     elif depth_remaining == 0:
         # once we reach the max depth, just return 0 for the score
         logging.debug("Max depth reached, exit 0")
         return (0, [last_move])
     elif turn == MAX:
-        logging.debug("[%d] Finding best move for player %s" % (depth_remaining, color))
-        best_move = [None]
+        logging.debug("[%d] Finding best move for player %s", depth_remaining, color)
+        best_move = []  # type: List[Move]
         move_gen_flag = False
 
         def _score_move(move):
@@ -105,7 +110,7 @@ def dls_minimax(board, depth_remaining: int, turn: bool, last_move=None,
             # TODO there should be some sort of theory on why this is good
             # but for now, the idea seems solid
             if alpha >= CHECKMATE:
-                logging.info("Checkmate found as MAX, not checking any more nodes")
+                logging.info("[%d depth remaining] Checkmate found as MAX, not checking any more nodes", depth_remaining)
                 break
 
             if alpha >= beta:
@@ -115,17 +120,17 @@ def dls_minimax(board, depth_remaining: int, turn: bool, last_move=None,
                 break
 
         if not move_gen_flag:
-            logging.debug("No moves generated, returning empty set")
-            best_move = [None]
+            # this should be caught by first if statement
+            raise Exception("No moves generated, returning empty set")
 
         if last_move is not None:
             best_move.insert(0, last_move)
 
-        logging.debug("returning alpha=%d" % alpha)
+        logging.debug("returning alpha=%d", alpha)
         return (alpha, best_move)
     elif turn == MIN:
-        logging.debug("[%d] Finding best move for player %s", depth_remaining, color)
-        best_move = [None]
+        logging.debug("[%d depth remaining] Finding best move for player %s", depth_remaining, color)
+        best_move = []
         move_gen_flag = False
 
         def _score_move(move):
@@ -139,26 +144,28 @@ def dls_minimax(board, depth_remaining: int, turn: bool, last_move=None,
                           depth_remaining, g_move.show(board))
             b_new = gen_successor_from_move(board, g_move)
             b, move = dls_minimax(b_new, depth_remaining - 1, MAX, g_move, alpha, beta, stats_dict)
-            if b < beta:
+            if b < beta or (b == beta and len(move) > len(best_move)):
                 beta = b
                 best_move = move
 
-            if beta <= -CHECKMATE:
-                logging.info("Checkmate found as MIN, not checking any more nodes")
+            if beta <= -1 * CHECKMATE:
+                logging.info("[%d depth remaining] Checkmate found as MIN, not checking any more nodes", depth_remaining)
                 break
 
             if alpha >= beta:
                 logging.debug("alpha cutoff")
                 break
+
         if not move_gen_flag:
-            logging.debug("No moves generated, returning empty set")
-            best_move = [None]
+            # this should be caught by first if statement
+            raise Exception("No moves generated, returning empty set")
 
         if last_move is not None:
             best_move.insert(0, last_move)
 
         logging.debug("Returning beta=%d", beta)
         return (beta, best_move)
+    raise Exception("should never get here - missing return statement")
 
 
 def score_move(board, move):

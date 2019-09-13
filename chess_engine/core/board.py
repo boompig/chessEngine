@@ -273,8 +273,7 @@ def print_board(board: Board) -> None:
     print("*" * 18)
 
 
-def is_capture(board: Board, index, piece):
+def is_capture(board: Board, dest_index: int, piece: PieceName) -> bool:
     """Return True iff the move is a capture.
-    return squares
-    index is the index to which piece is going, and piece is the source piece"""
-    return get_color(board, index) is not None and get_color(board, index) != get_piece_color(piece)
+    :param piece: the piece that is moving"""
+    return get_color(board, dest_index) is not None and get_color(board, dest_index) != get_piece_color(piece)

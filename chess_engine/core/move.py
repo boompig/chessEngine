@@ -1,44 +1,50 @@
-from .board import move_piece
-from .board import index_to_sq
-from .board import is_capture
+from typing import Optional
+
+from .board import (PAWN, Board, PieceName, get_raw_piece, index_to_sq,
+                    move_piece)
 
 
 class Move(object):
-    def __init__(self, piece, src, dest, promotion=None, castle=None):
+    def __init__(self, piece: PieceName, src: int, dest: int,
+                 promotion: Optional[PieceName] = None,
+                 is_capture: bool = False,
+                 is_castle: bool = False):
+        """
+        Move is saved together with metadata (is_capture, is_castle).
+        This adds a little bit of overhead that is not entirely necessary
+        It's nice for reconstructing what happened"""
         self.piece = piece
         self.src = src
         self.dest = dest
         self.promotion = promotion
-        self.castle = castle
+        self.is_castle = is_castle
+        self.is_capture = is_capture
 
-    def show(self, board):
-        sym = ("x" if is_capture(board, self.dest, self.piece) else "-")
+    def show(self, board: Board) -> str:
+        sym = ("x" if self.is_capture else "-")
         if self.promotion:
-            return "%s %s%s%s=%s" % (
-                self.piece,
-                index_to_sq(self.src),
-                sym,
-                index_to_sq(self.dest),
-                self.promotion
+            return "{src}{move_or_capture}{dest}={promo}".format(
+                src=index_to_sq(self.src),
+                move_or_capture=sym,
+                dest=index_to_sq(self.dest),
+                promo=self.promotion
             )
         else:
-            return "%s %s%s%s" % (
-                self.piece,
-                index_to_sq(self.src),
-                sym,
-                index_to_sq(self.dest),
+            return "{piece}{src}{move_or_capture}{dest}".format(
+                piece=("" if get_raw_piece(self.piece) == PAWN else self.piece),
+                src=index_to_sq(self.src),
+                move_or_capture=sym,
+                dest=index_to_sq(self.dest),
             )
 
 
-def gen_successor(board_init: list, src: int, dest: int) -> list:
-    assert isinstance(src, int)
-    assert isinstance(dest, int)
+def gen_successor(board_init: Board, src: int, dest: int) -> Board:
     board = board_init[:]
     move_piece(board, src, dest)
     return board
 
 
-def gen_successor_from_move(board_init, move):
+def gen_successor_from_move(board_init: Board, move: Move) -> Board:
     board = gen_successor(board_init, move.src, move.dest)
     if move.promotion:
         # change the piece at dest into the correct piece

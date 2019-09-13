@@ -6,16 +6,21 @@ Some of the puzzles are fetched from here: http://wtharvey.com/m8n4.txt
 import sys
 import unittest as T
 
-from chess_engine.core.board import (fen_to_board, index_to_sq, load_board,
-                                     sq_to_index, WHITE, ROOK, BISHOP)
-from chess_engine.engine import (CHECKMATE, MIN, dls_minimax,
-                                 find_mate_in_n, gen_all_moves, score_move)
+from chess_engine.core.board import (BISHOP, ROOK, WHITE, fen_to_board,
+                                     index_to_sq, load_board, print_board,
+                                     sq_to_index, Board)
 from chess_engine.core.move import Move
+from chess_engine.engine import (CHECKMATE, MIN, dls_minimax, find_mate_in_n,
+                                 gen_all_moves, score_move)
 
 
-def write_mate_result(board, moves, fp):
-    for move in moves:
-        fp.write("%s\n" % (
+from typing import List
+
+
+def write_mate_result(board: Board, moves: List[Move], fp) -> None:
+    for i, move in enumerate(moves):
+        fp.write("%d. %s\n" % (
+            i,
             move.show(board)
         ))
 
@@ -191,8 +196,8 @@ class MateInTwoTest(T.TestCase):
 class MateInThreeTest(T.TestCase):
     def assert_find_mate(self, fen: str):
         board = fen_to_board(fen)
-        stats_dict = {}
-        result, mating_moves = find_mate_in_n(board, WHITE, 3, stats_dict)
+        stats_dict = {}  # type: dict
+        result, mating_moves = find_mate_in_n(board, WHITE, 3, stats_dict=stats_dict)
         with open("mate.txt", "w") as fp:
            write_mate_result(board, mating_moves, fp)
         print(stats_dict)
@@ -229,6 +234,26 @@ class MateInThreeTest(T.TestCase):
 
     def test_mate_in_3_p4(self):
         self.assert_find_mate("5B2/6P1/1p6/8/1N6/kP6/2K5/8 w")
+
+
+class MateInFourTest(T.TestCase):
+    def assert_find_mate_in_4(self, fen: str):
+        board = fen_to_board(fen)
+        stats_dict = {}  # type: dict
+        print_board(board)
+        result, mating_moves = find_mate_in_n(board, WHITE, 4, stats_dict=stats_dict)
+        with open("mate.txt", "w") as fp:
+           write_mate_result(board, mating_moves, fp)
+        print(stats_dict)
+        assert result == CHECKMATE
+        assert len(mating_moves) == 7
+
+    def test_mate_in_4_p1(self):
+        """Puzzles taken from here:
+        http://wtharvey.com/m8n4.txt
+        """
+        self.assert_find_mate_in_4("r5rk/2p1Nppp/3p3P/pp2p1P1/4P3/2qnPQK1/8/R6R w")
+
 
 
 # class MateInFiveTest(T.TestCase):

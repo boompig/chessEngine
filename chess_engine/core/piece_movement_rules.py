@@ -314,10 +314,9 @@ def is_in_check(board: Board, color: Color) -> bool:
     opp_color = get_opposite_color(color)
     # get everything for that color
     for index, _ in get_piece_list(board, opp_color):
-        vs = get_piece_valid_squares(board, index)
-        if king_pos in vs:
-            return True
-
+        for sq in get_piece_valid_squares(board, index):
+            if sq == king_pos:
+                return True
     return False
 
 

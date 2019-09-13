@@ -9,7 +9,7 @@ from .core.piece_movement_rules import (get_piece_valid_squares, _get_promotions
                                    is_legal_move)
 from .core.utils import get_opposite_color
 
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Iterator
 
 piece_scores = {
     KNIGHT: 3,
@@ -27,23 +27,19 @@ MIN = False
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 
-def gen_all_moves(board: Board, color: Color) -> List[Move]:
+def gen_all_moves(board: Board, color: Color) -> Iterator[Move]:
     """Generate all valid moves by given color. This is a list."""
-    moves = []
-
     for location, piece in get_piece_list(board, color):
         for dest in get_piece_valid_squares(board, location):
             if is_legal_move(board, location, dest):
                 prs = _get_promotions(piece, location, dest)
                 is_capture_move = is_capture(board, dest, piece)
                 if prs != []:
-                    moves.extend([Move(piece, location, dest, promotion=p, is_capture=is_capture_move)
-                                  for p in prs])
+                    for p in prs:
+                        yield Move(piece, location, dest, promotion=p, is_capture=is_capture_move)
                 else:
                     # the destination here is chess notation, rather than index
-                    moves.append(Move(piece, location, dest, is_capture=is_capture_move))
-
-    return moves
+                    yield Move(piece, location, dest, is_capture=is_capture_move)
 
 
 def find_mate_in_n(board: Board, color: Color, n: int, stats_dict: Optional[dict] = None):

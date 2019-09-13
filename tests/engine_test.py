@@ -1,3 +1,8 @@
+"""
+Some of the puzzles are fetched from here: http://wtharvey.com/m8n4.txt
+"""
+
+# import re
 import sys
 import unittest as T
 
@@ -222,12 +227,14 @@ class MateInThreeTest(T.TestCase):
 
     def test_mate_in_3_p4(self):
         board = fen_to_board("5B2/6P1/1p6/8/1N6/kP6/2K5/8 w")
-        result, mating_moves = find_mate_in_n(board, WHITE, 3)
+        stats_dict = {}
+        result, mating_moves = find_mate_in_n(board, WHITE, 3, stats_dict)
         with open("mate.txt", "w") as fp:
             write_mate_result(board, mating_moves, fp)
         print_board(board)
         assert result == CHECKMATE
         assert len(mating_moves) == 5
+        print(stats_dict)
 
 
 # class MateInFiveTest(T.TestCase):

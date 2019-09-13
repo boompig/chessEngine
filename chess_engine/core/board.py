@@ -37,10 +37,16 @@ starter_board = [
     G, G, G, G, G, G, G, G, G, G,
 ]
 
+BOARD_SIZE = len(starter_board)
+MIN_PIECE_INDEX = 21
+MAX_PIECE_INDEX = 98
 
-def get_piece_list(board: Board, color: Color) -> List[tuple]:
-    """Return the mapping."""
 
+def get_piece_list(board: Board, color: Color) -> List[Tuple[int, PieceName]]:
+    """
+    Return the list of pieces for this color
+    :returns: (index, piece name)
+    """
     return [(index, piece) for index, piece in enumerate(board)
             if get_piece_color(piece) == color]
 
@@ -116,6 +122,14 @@ def get_castle_rook_index(board: Board, from_index: int, to_index: int) -> Tuple
     else:
         # castle left (long)
         return slide_index(from_index, -4, 0), slide_index(from_index, -1, 0)
+
+
+def find_king_index(board: Board, color: Color) -> int:
+    target_piece = get_piece_of_color(KING, color)
+    for i in range(MIN_PIECE_INDEX, MAX_PIECE_INDEX + 1):
+        if board[i] == target_piece:
+            return i
+    raise Exception("King not found")
 
 
 def move_piece_castle(board: Board, from_index: int, to_index: int) -> None:

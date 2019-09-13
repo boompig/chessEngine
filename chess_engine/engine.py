@@ -42,24 +42,27 @@ def gen_all_moves(board, color: str) -> list:
     return moves
 
 
-def find_mate_in_n(board, color: Color, n: int):
+def find_mate_in_n(board, color: Color, n: int, stats_dict=None):
     """Find a mate in at most n moves. If no such mate exist, will return a
     non-CHECKMATE value in the first slot."""
-    d = {"nodes_explored": 0}
-    results = dls_minimax(board, (n - 1) * 2 + 1, MAX, stats_dict=d)
-    print("nodes explored=%d" % d['nodes_explored'])
+    if stats_dict is None:
+        stats_dict = {}
+    stats_dict.setdefault("nodes_explored", 0)
+    results = dls_minimax(board, (n - 1) * 2 + 1, MAX, stats_dict=stats_dict)
+    print("nodes explored=%d" % stats_dict['nodes_explored'])
     return results
 
 
 def dls_minimax(board, depth_remaining: int, turn: bool, last_move=None,
-                alpha=(-1 * CHECKMATE - 1), beta=(CHECKMATE + 1), stats_dict={"nodes_explored": 0}):
+                alpha=(-1 * CHECKMATE - 1), beta=(CHECKMATE + 1), stats_dict=None):
     """Return whether or not there exists a winning combination of moves.
     Return this combination.
     TODO: alpha-beta this"""
 
     # color is the color of the player being mated
     color = (BLACK if turn == MIN else WHITE)
-    stats_dict['nodes_explored'] += 1
+    if stats_dict:
+        stats_dict['nodes_explored'] += 1
 
     if _has_no_legal_moves(board, color):
         if is_in_check(board, color):

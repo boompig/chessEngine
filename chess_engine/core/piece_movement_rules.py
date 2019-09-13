@@ -1,9 +1,11 @@
 from typing import List
 
-from .board import (get_color, get_piece_color, get_piece_list, get_raw_piece,
-                    index_to_row, index_to_sq, index_to_col, is_capture, is_empty_square,
-                    is_valid_square, print_board, slide_index, sq_to_index, E, WHITE, BLACK,
-                    PieceName, Color, Board, KNIGHT, ROOK, QUEEN, KING, PAWN, BISHOP)
+from .board import (BISHOP, BLACK, KING, KNIGHT, PAWN, QUEEN, ROOK, WHITE,
+                    Board, Color, E, PieceName, find_king_index, get_color,
+                    get_piece_color, get_piece_list, get_raw_piece,
+                    index_to_col, index_to_row, index_to_sq, is_capture,
+                    is_empty_square, is_valid_square, slide_index,
+                    sq_to_index)
 from .move import gen_successor
 from .utils import opposite_color
 
@@ -195,7 +197,7 @@ def get_piece_valid_squares(board: Board, from_index: int) -> List[int]:
     elif piece == BISHOP:
         return get_bishop_valid_squares(board, from_index)
     else:
-        raise Exception("no such piece: %s" % piece)
+        raise Exception("bad piece at index %d: %s" % (from_index, piece))
 
 
 def is_castle_move(board: Board, from_index: int, to_index: int) -> bool:
@@ -307,16 +309,12 @@ def is_legal_move(board: Board, from_index: int, to_index: int) -> bool:
 
 
 def is_in_check(board: Board, color: Color):
+    """
+    Note that this function is expensive to compute
+    Avoid calling it too many times
+    """
     # find the king
-    king_index = [
-        index for index, piece in get_piece_list(board, color)
-        if get_raw_piece(piece) == KING
-    ]
-    if king_index == []:
-        print_board(board)
-        raise ValueError("King for color %s not present on board" % color)
-
-    king_pos = king_index[0]
+    king_pos = find_king_index(board, color)
 
     opp_color = opposite_color(color)
     # get everything for that color
@@ -329,6 +327,9 @@ def is_in_check(board: Board, color: Color):
 
 
 def _has_no_legal_moves(board: Board, color: Color):
+    """
+    NOTE: this method is slow
+    """
     # get all possible moves
     for pos, _ in get_piece_list(board, color):
         # if the king cannot move regularly then it also cannot castle

@@ -1,5 +1,5 @@
 import itertools
-from typing import Iterator, List
+from typing import Iterator, List, Any
 
 from .board import (BISHOP, BLACK, KING, KNIGHT, PAWN, QUEEN, ROOK, WHITE,
                     Board, Color, E, PieceName, find_king_index, get_color,
@@ -92,7 +92,7 @@ def slide_and_check(board: Board, index: int, piece_color: Color, dy: int, dx: i
 
 def get_rook_valid_squares(board: Board, index: int) -> Iterator[int]:
     piece = board[index]
-    color = get_piece_color(piece)  # type: Color
+    color: Any = get_piece_color(piece)
     return itertools.chain(
         slide_and_check(board, index, color, 0, 1),
         slide_and_check(board, index, color, 0, -1),
@@ -103,7 +103,7 @@ def get_rook_valid_squares(board: Board, index: int) -> Iterator[int]:
 
 def get_bishop_valid_squares(board: Board, index: int) -> Iterator[int]:
     piece = board[index]
-    color = get_piece_color(piece)  # type: Color
+    color: Any = get_piece_color(piece)
     return itertools.chain(
         slide_and_check(board, index, color, 1, 1),
         slide_and_check(board, index, color, 1, -1),

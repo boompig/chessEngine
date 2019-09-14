@@ -56,5 +56,5 @@ def gen_successor_from_move(board_init: Board, move: Move) -> Board:
     board.add_move(move)
     if move.promotion:
         # change the piece at dest into the correct piece
-        board[move.dest] = move.promotion
+        board._board[move.dest] = move.promotion
     return board

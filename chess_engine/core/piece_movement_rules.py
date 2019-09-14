@@ -53,7 +53,7 @@ def slide_and_check(board: Board, index: int, piece_color: Color, dy: int, dx: i
 
 
 def get_rook_valid_squares(board: Board, index: int) -> Iterator[int]:
-    piece = board[index]
+    piece = board._board[index]
     color: Any = get_piece_color(piece)
     return itertools.chain(
         slide_and_check(board, index, color, 0, 1),
@@ -64,7 +64,7 @@ def get_rook_valid_squares(board: Board, index: int) -> Iterator[int]:
 
 
 def get_bishop_valid_squares(board: Board, index: int) -> Iterator[int]:
-    piece = board[index]
+    piece = board._board[index]
     color: Any = get_piece_color(piece)
     return itertools.chain(
         slide_and_check(board, index, color, 1, 1),
@@ -83,7 +83,7 @@ def get_queen_valid_squares(board: Board, index: int) -> Iterator[int]:
 
 def get_king_valid_squares(board: Board, index: int) -> Iterator[int]:
     """This is easily parallelisable. """
-    piece = board[index]
+    piece = board._board[index]
     squares = [
         slide_index(index, 1, -1),
         slide_index(index, 1, 0),
@@ -103,7 +103,7 @@ def get_king_valid_squares(board: Board, index: int) -> Iterator[int]:
 
 
 def get_pawn_valid_squares(board: Board, from_index: int) -> Iterator[int]:
-    piece = board[from_index]
+    piece = board._board[from_index]
     dy = (1 if get_piece_color(piece) == WHITE else -1)
     row = index_to_row(from_index)
 
@@ -135,7 +135,7 @@ def get_pawn_valid_squares(board: Board, from_index: int) -> Iterator[int]:
 
 
 def get_knight_valid_squares(board: Board, index: int) -> Iterator[int]:
-    piece = board[index]
+    piece = board._board[index]
     squares = [
         slide_index(index, 1, 2),
         slide_index(index, 1, -2),
@@ -151,7 +151,7 @@ def get_knight_valid_squares(board: Board, index: int) -> Iterator[int]:
 
 
 def get_piece_valid_squares(board: Board, from_index: int) -> Iterator[int]:
-    piece = get_raw_piece(board[from_index])
+    piece = get_raw_piece(board._board[from_index])
     if piece == KNIGHT:
         return get_knight_valid_squares(board, from_index)
     elif piece == ROOK:
@@ -169,7 +169,7 @@ def get_piece_valid_squares(board: Board, from_index: int) -> Iterator[int]:
 
 
 def is_castle_move(board: Board, from_index: int, to_index: int) -> bool:
-    if (get_raw_piece(board[from_index]) != KING):
+    if (get_raw_piece(board._board[from_index]) != KING):
         return False
     potential_castle_squares = [
         slide_index(from_index, -2, 0),
@@ -222,7 +222,7 @@ def can_castle(board: Board, from_index: int, to_index: int) -> bool:
     for square in check_squares:
         if not is_empty_square(board, square):
             return False
-    if get_raw_piece(board[rook_square]) != ROOK:
+    if get_raw_piece(board._board[rook_square]) != ROOK:
         return False
     color = get_color(board, from_index)
     assert color is not None
@@ -242,9 +242,9 @@ def can_castle(board: Board, from_index: int, to_index: int) -> bool:
 
     for idx in king_passes_squares:
         b2 = Board(board._board)
-        piece = b2[from_index]
-        b2[from_index] = E
-        b2[idx] = piece
+        piece = b2._board[from_index]
+        b2._board[from_index] = E
+        b2._board[idx] = piece
         if is_in_check(b2, color):
             return False
     return True
@@ -323,7 +323,7 @@ def get_promotions(board: Board, src: int, dest: int) -> List[PieceName]:
     if not is_legal_move(board, src, dest):
         return []
     else:
-        return _get_promotions(board[src], src, dest)
+        return _get_promotions(board._board[src], src, dest)
 
 
 def _get_promotions(piece: PieceName, src: int, dest: int) -> List[PieceName]:

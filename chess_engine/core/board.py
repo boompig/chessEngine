@@ -152,7 +152,7 @@ def get_piece_list(board: Board, color: Color) -> Iterator[Tuple[int, PieceName]
     :returns: (index, piece name)
     """
     for index in range(MIN_PIECE_INDEX, MAX_PIECE_INDEX + 1):
-        piece = board[index]
+        piece = board._board[index]
         if get_piece_color(piece) == color:
             yield index, piece
 
@@ -201,11 +201,11 @@ def is_valid_square(index: int) -> bool:
 
 
 def is_empty_square(board: Board, index: int) -> bool:
-    return board[index] == E
+    return board._board[index] == E
 
 
 def get_color(board: Board, index: int) -> Optional[Color]:
-    return get_piece_color(board[index])
+    return get_piece_color(board._board[index])
 
 
 def slide_index(index: int, dx: int, dy: int) -> int:
@@ -230,40 +230,40 @@ def get_castle_rook_index(board: Board, from_index: int, to_index: int) -> Tuple
 def find_king_index(board: Board, color: Color) -> int:
     target_piece = get_piece_of_color(KING, color)
     for i in range(MIN_PIECE_INDEX, MAX_PIECE_INDEX + 1):
-        if board[i] == target_piece:
+        if board._board[i] == target_piece:
             return i
     raise Exception("King not found")
 
 
 def move_piece_castle(board: Board, from_index: int, to_index: int) -> None:
     # this should refer to the king only
-    piece = board[from_index]
+    piece = board._board[from_index]
     assert get_raw_piece(piece) == KING
-    board[from_index] = E
-    board[to_index] = piece
+    board._board[from_index] = E
+    board._board[to_index] = piece
     # find the rook and move it
     rook_from_index, rook_to_index = get_castle_rook_index(board, from_index, to_index)
-    piece = board[rook_from_index]
-    board[rook_from_index] = E
-    board[rook_to_index] = piece
+    piece = board._board[rook_from_index]
+    board._board[rook_from_index] = E
+    board._board[rook_to_index] = piece
 
 
 def move_piece_en_passant(board: Board, from_index: int, to_index: int) -> None:
     """
     Must be called with a pawn move
     """
-    piece = board[from_index]
+    piece = board._board[from_index]
     color = get_piece_color(piece)
     assert get_raw_piece(piece) == PAWN
-    board[from_index] = E
+    board._board[from_index] = E
 
     # location of the target pawn
     if color == WHITE:
         en_passant_capture_index = slide_index(to_index, 0, -1)
     else:
         en_passant_capture_index = slide_index(to_index, 0, 1)
-    board[en_passant_capture_index] = E
-    board[to_index] = piece
+    board._board[en_passant_capture_index] = E
+    board._board[to_index] = piece
 
 
 def move_piece(board: Board, from_index: int, to_index: int,
@@ -279,17 +279,17 @@ def move_piece(board: Board, from_index: int, to_index: int,
     elif promotion_piece:
         promotion_piece = promotion_piece.upper()
         assert promotion_piece in PIECES
-        piece = board[from_index]
+        piece = board._board[from_index]
         color = get_piece_color(piece)
         assert get_raw_piece(piece) == PAWN
         assert color is not None
         assert index_to_row(to_index) in [1, 8]
-        board[from_index] = E
-        board[to_index] = get_piece_of_color(promotion_piece, color)
+        board._board[from_index] = E
+        board._board[to_index] = get_piece_of_color(promotion_piece, color)
     else:
-        piece = board[from_index]
-        board[from_index] = E
-        board[to_index] = piece
+        piece = board._board[from_index]
+        board._board[from_index] = E
+        board._board[to_index] = piece
 
 
 def get_piece_of_color(piece_name: PieceName, color: Color) -> PieceName:

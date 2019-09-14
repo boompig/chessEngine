@@ -37,8 +37,8 @@ class Game:
                 return "O-O-O"
 
         else:
-            is_ep = get_raw_piece(self._board[from_index]) == PAWN and is_valid_en_passant(self._board, from_index, to_index)
-            piece = get_raw_piece(self._board[from_index])
+            is_ep = get_raw_piece(self._board._board[from_index]) == PAWN and is_valid_en_passant(self._board, from_index, to_index)
+            piece = get_raw_piece(self._board._board[from_index])
             s = ("-" if is_empty_square(self._board, to_index) and not is_ep else "x")
             if promotion:
                 # promotion always pawn
@@ -71,7 +71,7 @@ class Game:
 
         if not is_legal_move(self._board, from_index, to_index):
             print_board(self._board)
-            piece = self._board[from_index]
+            piece = self._board._board[from_index]
             color = utils.full_color_name(get_piece_color(piece))
             raise MoveError("{} cannot move piece {} from {} to {}".format(
                 color, piece, from_square, to_square

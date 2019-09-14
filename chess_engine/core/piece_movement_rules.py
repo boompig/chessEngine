@@ -28,13 +28,12 @@ def is_valid_en_passant(board: Board, from_index: int, to_index: int) -> bool:
 
     Assume:
     1. piece is pawn
-    2. this is a valid pawn capture move (diagonal motion)
-    """
-    if not is_valid_square(to_index):
-        return False
+    2. from_index and to_index are valid squares
 
-    if get_raw_piece(board[from_index]) != PAWN:
-        return False
+    Avoiding these checks saves significant time in the engine
+    """
+    # assert is_valid_square(to_index)
+    # assert get_raw_piece(board[from_index]) == PAWN
 
     if index_to_col(from_index) == index_to_col(to_index):
         # not a capture move
@@ -70,7 +69,7 @@ def is_valid_capture(board: Board, to_index: int, piece: PieceName) -> bool:
     return is_valid_square(to_index) and is_capture(board, to_index, piece)
 
 
-def slide_and_check(board: Board, index: int, piece: PieceName, dy: int, dx: int) -> Iterator[int]:
+def slide_and_check(board: Board, index: int, piece_color: Color, dy: int, dx: int) -> Iterator[int]:
     """Slide the given piece in the direction (dx, dy) from index.
     Return a generator over all the squares that the piece could visit, including captures, in that direction
     Extend squares array with valid squares.
@@ -85,7 +84,7 @@ def slide_and_check(board: Board, index: int, piece: PieceName, dy: int, dx: int
         else:
             # logging.debug("square occupied by %s" % board[index])
             # logging.debug("attacking piece is %s" % piece)
-            if get_piece_color(piece) != get_color(board, index):
+            if piece_color != get_color(board, index):
                 # this is a capture
                 yield index
             return
@@ -93,21 +92,23 @@ def slide_and_check(board: Board, index: int, piece: PieceName, dy: int, dx: int
 
 def get_rook_valid_squares(board: Board, index: int) -> Iterator[int]:
     piece = board[index]
+    color = get_piece_color(piece)  # type: Color
     return itertools.chain(
-        slide_and_check(board, index, piece, 0, 1),
-        slide_and_check(board, index, piece, 0, -1),
-        slide_and_check(board, index, piece, 1, 0),
-        slide_and_check(board, index, piece, -1, 0)
+        slide_and_check(board, index, color, 0, 1),
+        slide_and_check(board, index, color, 0, -1),
+        slide_and_check(board, index, color, 1, 0),
+        slide_and_check(board, index, color, -1, 0)
     )
 
 
 def get_bishop_valid_squares(board: Board, index: int) -> Iterator[int]:
     piece = board[index]
+    color = get_piece_color(piece)  # type: Color
     return itertools.chain(
-        slide_and_check(board, index, piece, 1, 1),
-        slide_and_check(board, index, piece, 1, -1),
-        slide_and_check(board, index, piece, -1, 1),
-        slide_and_check(board, index, piece, -1, -1)
+        slide_and_check(board, index, color, 1, 1),
+        slide_and_check(board, index, color, 1, -1),
+        slide_and_check(board, index, color, -1, 1),
+        slide_and_check(board, index, color, -1, -1)
     )
 
 
@@ -141,20 +142,24 @@ def get_king_valid_squares(board: Board, index: int) -> Iterator[int]:
 
 def get_pawn_valid_squares(board: Board, from_index: int) -> Iterator[int]:
     piece = board[from_index]
-
     dy = (1 if get_piece_color(piece) == WHITE else -1)
     row = index_to_row(from_index)
 
     # regular moves
-    l1 = [slide_index(from_index, 0, dy)]
-    if (((row == 7 and get_piece_color(piece) == BLACK) or (row == 2 and get_piece_color(piece) == WHITE)) and
-            is_empty_square(board, l1[0])):
-        l1.append(slide_index(from_index, 0, 2 * dy))
+    one_up_move = slide_index(from_index, 0, dy)
+    if not is_valid_square(one_up_move):
+        # if moving one up takes you off the board, then there's really no point checking the other squares
+        return
 
-    # only add these candidate moves to squares array if target square is empty
-    for to_index in l1:
-        if is_valid_and_empty(board, to_index):
-            yield to_index
+    if is_empty_square(board, one_up_move):
+        yield one_up_move
+
+        color = get_piece_color(piece)
+        if (row == 7 and color == BLACK) or (row == 2 and color == WHITE):
+            two_up_move = slide_index(from_index, 0, 2 * dy)
+            # always on the board, based on this check
+            if is_empty_square(board, two_up_move):
+                yield two_up_move
 
     # capture moves
     l2 = [slide_index(from_index, 1, dy), slide_index(from_index, -1, dy)]

@@ -1,12 +1,11 @@
 import itertools
-from typing import List, Iterator
+from typing import Iterator, List
 
 from .board import (BISHOP, BLACK, KING, KNIGHT, PAWN, QUEEN, ROOK, WHITE,
                     Board, Color, E, PieceName, find_king_index, get_color,
                     get_piece_color, get_piece_list, get_raw_piece,
-                    index_to_col, index_to_row, index_to_sq, is_capture,
-                    is_empty_square, is_valid_square, slide_index,
-                    sq_to_index)
+                    index_to_col, index_to_row, is_capture, is_empty_square,
+                    is_valid_square, slide_index, sq_to_index)
 from .move import gen_successor
 from .utils import get_opposite_color
 
@@ -283,11 +282,14 @@ def can_castle(board: Board, from_index: int, to_index: int) -> bool:
 
 
 def is_legal_move(board: Board, from_index: int, to_index: int) -> bool:
-    """No turn checking."""
-    if is_empty_square(board, from_index):
-        raise ValueError("There is no piece at square %s" % index_to_sq(from_index))
-    if not is_valid_square(from_index):
-        raise ValueError("Invalid source index: %d" % from_index)
+    """
+    This method checks whether the move is legal
+    This includes checking whether the mover will be in check after making the move
+    This function does not check whose turn it is"""
+    assert not is_empty_square(board, from_index), \
+        f"There is no piece at square {from_index}"
+    assert is_valid_square(from_index), \
+        f"Invalid source index: {from_index}"
 
     # piece = board[src]
     color = get_color(board, from_index)
@@ -299,8 +301,7 @@ def is_legal_move(board: Board, from_index: int, to_index: int) -> bool:
         if to_index not in get_piece_valid_squares(board, from_index):
             return False
 
-    has_check = is_in_check(gen_successor(board, from_index, to_index), color)
-    return not has_check
+    return not is_in_check(gen_successor(board, from_index, to_index), color)
 
 
 def is_in_check(board: Board, color: Color) -> bool:
@@ -347,6 +348,7 @@ def is_in_stalemate(board: Board, color: Color):
 
 
 def get_promotions(board: Board, src: int, dest: int) -> List[PieceName]:
+    """Checks that the move is valid"""
     if not is_legal_move(board, src, dest):
         return []
     else:

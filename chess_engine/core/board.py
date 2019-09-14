@@ -48,7 +48,8 @@ def get_piece_list(board: Board, color: Color) -> Iterator[Tuple[int, PieceName]
     Return the list of pieces for this color
     :returns: (index, piece name)
     """
-    for index, piece in enumerate(board):
+    for index in range(MIN_PIECE_INDEX, MAX_PIECE_INDEX + 1):
+        piece = board[index]
         if get_piece_color(piece) == color:
             yield index, piece
 

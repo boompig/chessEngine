@@ -1,15 +1,13 @@
 import logging
+from typing import Iterator, List, Optional, Tuple
 
-from .core.board import (dump_board, get_color, get_piece_list, get_raw_piece, is_capture,
-                         WHITE, BLACK, PieceName,
-                    KNIGHT, BISHOP, ROOK, PAWN, QUEEN, KING, Color, Board)
-from .core.move import Move, gen_successor_from_move
-from .core.piece_movement_rules import (get_piece_valid_squares, _get_promotions,
-                                   _has_no_legal_moves, is_in_check,
-                                   is_legal_move)
+from .core.board import (BISHOP, BLACK, KING, KNIGHT, PAWN, QUEEN, ROOK, WHITE,
+                         Board, Color, PieceName, dump_board, get_color,
+                         get_piece_list, get_raw_piece, is_capture)
+from .core.move import Move, gen_successor, gen_successor_from_move
+from .core.piece_movement_rules import (_get_promotions, _has_no_legal_moves,
+                                        get_piece_valid_squares, is_in_check)
 from .core.utils import get_opposite_color
-
-from typing import List, Optional, Tuple, Iterator
 
 piece_scores = {
     KNIGHT: 3,
@@ -31,7 +29,8 @@ def gen_all_moves(board: Board, color: Color) -> Iterator[Move]:
     """Generate all valid moves by given color. This is a list."""
     for location, piece in get_piece_list(board, color):
         for dest in get_piece_valid_squares(board, location):
-            if is_legal_move(board, location, dest):
+            next_board = gen_successor(board, location, dest)
+            if not is_in_check(next_board, color):
                 prs = _get_promotions(piece, location, dest)
                 is_capture_move = is_capture(board, dest, piece)
                 if prs != []:

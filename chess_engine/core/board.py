@@ -44,13 +44,16 @@ MAX_PIECE_INDEX = 98
 
 
 class Board:
-    def __init__(self, board: list):
-        if starter_board:
-            self._board = board
+    def __init__(self, board: Optional[list] = None):
+        """
+        Make a copy of the given board array
+        """
+        if board:
+            self._board = board[:]
         else:
             self._board = starter_board[:]
         # Move (but no typing for circular imports)
-        self._moves = []
+        # self._moves = []
 
     def __getitem__(self, index: int) -> PieceName:
         return self._board[index]
@@ -61,8 +64,8 @@ class Board:
     def __iter__(self) -> Iterator[PieceName]:
         return iter(self._board)
 
-    def add_move(self, move):
-        self._moves.append(move)
+    # def add_move(self, move):
+    #     self._moves.append(move)
 
 
 def get_piece_list(board: Board, color: Color) -> Iterator[Tuple[int, PieceName]]:

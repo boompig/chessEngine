@@ -1,26 +1,29 @@
 from typing import Optional
 
-from .core.board import (get_raw_piece, is_empty_square, move_piece, print_board,
-                    sq_to_index, starter_board, get_piece_color, PAWN, Color, PieceName)
+from .core.board import (get_raw_piece, is_empty_square, print_board,
+                    sq_to_index, get_piece_color, PAWN, Color, PieceName,
+                    Board)
 from .core.piece_movement_rules import (is_castle_move, is_in_check, is_in_checkmate,
                                    is_in_stalemate, is_legal_move, is_valid_en_passant)
 from .core import utils
+from .core.move import Move
 
 
 class MoveError(Exception):
     pass
 
 
-class Board:
+class Game:
 
-    def __init__(self, board=None):
+    def __init__(self, board: Optional[list] = None):
         """
         Create a new board. By default, create board from starter
         """
         if board:
-            self._board = board
+            assert isinstance(board, list)
+            self._board = Board(board)
         else:
-            self._board = starter_board[:]
+            self._board = Board()
 
     def get_normal_person_move(self, from_square: str, to_square: str,
                                promotion: Optional[PieceName]) -> str:
@@ -74,13 +77,20 @@ class Board:
                 color, piece, from_square, to_square
             ))
 
-        is_ep = (get_raw_piece(self._board[from_index]) == PAWN and
-                 is_valid_en_passant(self._board, from_index, to_index))
+        # is_ep = (get_raw_piece(self._board[from_index]) == PAWN and
+        #          is_valid_en_passant(self._board, from_index, to_index))
         is_castle = is_castle_move(self._board, from_index, to_index)
-        move_piece(self._board, from_index, to_index,
-                   promotion_piece=promotion,
-                   is_castle=is_castle,
-                   is_en_passant=is_ep)
+        is_ep = is_valid_en_passant(self._board, from_index, to_index)
+
+        move = Move(
+            piece=self._board._board[from_index],
+            src=from_index,
+            dest=to_index,
+            promotion=promotion,
+            is_castle=is_castle,
+            is_en_passant=is_ep
+        )
+        self._board.move_piece(move)
 
     def is_in_checkmate(self, color: Color) -> bool:
         return is_in_checkmate(self._board, color)

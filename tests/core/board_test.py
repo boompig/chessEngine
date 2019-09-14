@@ -1,11 +1,6 @@
-from chess_engine.core.board import WHITE
-from chess_engine.core.board import sq_to_index
-from chess_engine.core.board import index_to_sq
-from chess_engine.core.board import is_valid_square
-from chess_engine.core.board import starter_board
-from chess_engine.core.board import load_board
-from chess_engine.core.board import dump_board
-from chess_engine.core.board import get_piece_list
+from chess_engine.core.board import (WHITE, Board, dump_board, get_piece_list,
+                                     index_to_sq, is_valid_square, load_board,
+                                     sq_to_index, starter_board)
 
 
 def test_sq_to_index():
@@ -55,7 +50,7 @@ def test_load_board():
         ["R", "N", "B", "Q", "K", "B", "N", "R"],
     ]
     # comparison by value
-    assert load_board(sample_board) == starter_board
+    assert dump_board(load_board(sample_board)) == dump_board(starter_board)
 
 
 def test_dump_board():
@@ -74,7 +69,7 @@ def test_dump_board():
 
 
 def test_piece_list():
-    board = starter_board[:]
+    board = Board()
     starter_piece_list = [
         ("a1", "R"),
         ("a2", "P"),

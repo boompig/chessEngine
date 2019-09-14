@@ -2,7 +2,7 @@ import unittest as T
 
 from chess_engine.core.board import (dump_board, fen_to_board,
                                 load_board, print_board, sq_to_index,
-                                starter_board, BLACK, WHITE)
+                                BLACK, WHITE, Board)
 from chess_engine.core.move import gen_successor
 from chess_engine.core.piece_movement_rules import (_has_no_legal_moves,
                                                get_bishop_valid_squares,
@@ -19,7 +19,7 @@ from chess_engine.core.piece_movement_rules import (_has_no_legal_moves,
 
 class PieceMovementTest(T.TestCase):
     def test_rook_starter_board_valid_squares(self):
-        board = starter_board[:]
+        board = Board()
         index = sq_to_index("a1")
         assert [sq for sq in get_rook_valid_squares(board, index)] == []
 
@@ -82,35 +82,35 @@ class PieceMovementTest(T.TestCase):
         assert sorted(get_rook_valid_squares(board, sq_to_index("a8"))) == rook_squares
 
     def test_bishop_valid_squares(self):
-        board = starter_board[:]
+        board = Board()
         index = sq_to_index("c1")
         assert [sq for sq in get_bishop_valid_squares(board, index)] == []
 
     def test_queen_valid_squares(self):
-        board = starter_board[:]
+        board = Board()
         index = sq_to_index("d1")
         assert [sq for sq in get_queen_valid_squares(board, index)] == []
 
     def test_king_valid_squares(self):
-        board = starter_board[:]
+        board = Board()
         index = sq_to_index("e1")
         assert [sq for sq in get_king_valid_squares(board, index)] == []
         assert [sq for sq in get_king_valid_squares(board, index)] == []
 
     def test_pawn_valid_squares(self):
-        board = starter_board[:]
+        board = Board()
         index = sq_to_index("e2")
         pawn_sq = sorted([sq_to_index(sq) for sq in ["e3", "e4"]])
         assert sorted(get_pawn_valid_squares(board, index)) == pawn_sq
 
     def test_knight_valid_squares(self):
-        board = starter_board[:]
+        board = Board()
         index = sq_to_index("b1")
         knight_sq = sorted([sq_to_index(sq) for sq in ["a3", "c3"]])
         assert sorted(get_knight_valid_squares(board, index)) == knight_sq
 
     def test_piece_valid_squares(self):
-        board = starter_board[:]
+        board = Board()
         assert [sq for sq in get_piece_valid_squares(board, sq_to_index("e1"))] == []
         assert [sq for sq in get_piece_valid_squares(board, sq_to_index("d1"))] == []
         assert [sq for sq in get_piece_valid_squares(board, sq_to_index("c1"))] == []
@@ -121,7 +121,7 @@ class PieceMovementTest(T.TestCase):
             sorted([sq_to_index(idx) for idx in ["e3", "e4"]])
 
     def test_is_legal_pawn_move(self):
-        board = starter_board[:]
+        board = Board()
         assert is_legal_move(board, sq_to_index("e2"), sq_to_index("e3"))
         assert is_legal_move(board, sq_to_index("e2"), sq_to_index("e4"))
         assert not is_legal_move(board, sq_to_index("e2"), sq_to_index("e5"))
@@ -141,7 +141,7 @@ class PieceMovementTest(T.TestCase):
             [" ", "", "", "", "", " ", "", " "],
             [" ", "", "", "", "", " ", "", " "]
         ])
-        board = starter_board[:]
+        board = Board()
         assert get_promotions(board, sq_to_index("a7"), sq_to_index("a8")) == []
 
     def test_promotions_pawn_backwards(self):
@@ -239,7 +239,7 @@ class CheckTest(T.TestCase):
         board = fen_to_board("7k/5p2/8/4B3/8/8/8/K7 w")
         print_board(board)
         assert is_in_check(board, BLACK)
-        new_board = gen_successor(board, sq_to_index("f7"), sq_to_index("f6"))
+        new_board = gen_successor(Board(board), sq_to_index("f7"), sq_to_index("f6"))
         print_board(new_board)
         assert not is_in_check(new_board, BLACK)
         # it follows that black is not in checkmate
@@ -274,7 +274,7 @@ class CheckTest(T.TestCase):
         assert not is_in_check(board, WHITE)
 
     def test_is_in_check_starter_board(self):
-        board = starter_board[:]
+        board = Board()
         assert not is_in_check(board, WHITE)
         assert not is_in_check(board, BLACK)
 
@@ -387,7 +387,7 @@ class CheckTest(T.TestCase):
             [' ', ' ', ' ', ' ', ' ', ' ', 'K', ' ']
         ])
 
-        b2 = gen_successor(board, sq_to_index("h8"), sq_to_index("g8"))
+        b2 = gen_successor(Board(board), sq_to_index("h8"), sq_to_index("g8"))
         for row in dump_board(b2):
             print(row)
         assert not is_in_check(b2, BLACK)

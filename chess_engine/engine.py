@@ -24,7 +24,8 @@ MIN = False
 
 
 def gen_all_moves(board: Board, color: Color) -> Iterator[Move]:
-    """Generate all valid moves by given color. This is a list."""
+    """Generate all valid moves by given color.
+    Do not generate moves where that color will be in check after the move"""
     for location, piece in get_piece_list(board, color):
         for dest in get_piece_valid_squares(board, location):
             next_board = gen_successor(board, location, dest)

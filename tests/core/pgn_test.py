@@ -4,7 +4,7 @@ This file makes sure that full chess games can be played
 import os
 
 import chess.pgn
-from chess_engine import Board
+from chess_engine import Game
 from chess_engine.core.board import WHITE, BLACK
 
 
@@ -16,7 +16,7 @@ def read_pgn_moves(fname: str):
 
 def run_pgn(fname: str):
     result, moves = read_pgn_moves(fname)
-    board = Board()
+    board = Game()
 
     for i, move in enumerate(moves):
         uci = move.uci()

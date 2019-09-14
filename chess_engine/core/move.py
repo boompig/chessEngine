@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import Optional
 
 from .board import (PAWN, Board, PieceName, get_raw_piece, index_to_sq,
@@ -39,7 +40,10 @@ class Move(object):
 
 
 def gen_successor(board_init: Board, src: int, dest: int) -> Board:
-    board = board_init[:]
+    """Called by core-internal functions
+    Don't bother updating other data structures in board_init
+    """
+    board = deepcopy(board_init)
     move_piece(board, src, dest)
     return board
 

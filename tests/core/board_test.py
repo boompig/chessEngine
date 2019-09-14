@@ -55,7 +55,7 @@ def test_load_board():
         ["R", "N", "B", "Q", "K", "B", "N", "R"],
     ]
     # comparison by value
-    assert load_board(sample_board) == starter_board
+    assert dump_board(load_board(sample_board)) == dump_board(starter_board)
 
 
 def test_dump_board():

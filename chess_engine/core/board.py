@@ -3,7 +3,7 @@ from typing import List, Tuple, Optional, Iterator
 
 PieceName = str
 Color = bool
-Board = List[str]
+# Board = List[str]
 
 E = "E"
 G = "G"
@@ -41,6 +41,28 @@ starter_board = [
 BOARD_SIZE = len(starter_board)
 MIN_PIECE_INDEX = 21
 MAX_PIECE_INDEX = 98
+
+
+class Board:
+    def __init__(self, board: list):
+        if starter_board:
+            self._board = board
+        else:
+            self._board = starter_board[:]
+        # Move (but no typing for circular imports)
+        self._moves = []
+
+    def __getitem__(self, index: int) -> PieceName:
+        return self._board[index]
+
+    def __setitem__(self, index: int, piece: PieceName) -> None:
+        self._board[index] = piece
+
+    def __iter__(self) -> Iterator[PieceName]:
+        return iter(self._board)
+
+    def add_move(self, move):
+        self._moves.append(move)
 
 
 def get_piece_list(board: Board, color: Color) -> Iterator[Tuple[int, PieceName]]:
@@ -222,7 +244,7 @@ def fen_to_board(fen: str) -> Board:
 
     flat_arr.append(G)
     assert len(flat_arr) == 80
-    return ([G] * 20) + flat_arr + ([G] * 20)
+    return Board(([G] * 20) + flat_arr + ([G] * 20))
 
 
 def load_board(arr) -> Board:
@@ -236,10 +258,10 @@ def load_board(arr) -> Board:
     for row in arr:
         board.extend([G] + [(E if sq.rstrip() == "" else sq) for sq in row] + [G])
     board.extend([G] * 20)
-    return board
+    return Board(board)
 
 
-def dump_board(board: Board):
+def dump_board(board: Board) -> List[List[str]]:
     """dump the board to a relatively simple array-based format"""
     simple_arr = [
         (" " if sq == E else sq) for sq in board

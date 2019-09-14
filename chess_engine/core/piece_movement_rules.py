@@ -1,3 +1,4 @@
+from copy import deepcopy
 import itertools
 from typing import Iterator, List, Any
 
@@ -277,7 +278,7 @@ def can_castle(board: Board, from_index: int, to_index: int) -> bool:
         return False
 
     for idx in king_passes_squares:
-        b2 = board[:]
+        b2 = deepcopy(board)
         piece = b2[from_index]
         b2[from_index] = E
         b2[idx] = piece
@@ -326,17 +327,25 @@ def is_in_check(board: Board, color: Color) -> bool:
     return False
 
 
+from typing import Tuple
+def gen_all_legal_moves(board: Board, color: Color) -> Tuple[int, int]:
+    """
+    :returns: (src_index, dest_index) tuple
+    NOTE: this method is slow
+    """
+    for src_index, _ in get_piece_list(board, color):
+        for dest_index in get_piece_valid_squares(board, src_index):
+            next_board = gen_successor(board, src_index, dest_index)
+            if not is_in_check(next_board, color):
+                yield (src_index, dest_index)
+
+
 def _has_no_legal_moves(board: Board, color: Color):
     """
     NOTE: this method is slow
     """
-    # get all possible moves
-    for pos, _ in get_piece_list(board, color):
-        # if the king cannot move regularly then it also cannot castle
-        for dest in get_piece_valid_squares(board, pos):
-            b_new = gen_successor(board, pos, dest)
-            if not is_in_check(b_new, color):
-                return False
+    for _ in gen_all_legal_moves(board, color):
+        return False
     return True
 
 

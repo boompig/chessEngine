@@ -8,7 +8,8 @@ class Move(object):
     def __init__(self, piece: PieceName, src: int, dest: int,
                  promotion: Optional[PieceName] = None,
                  is_capture: bool = False,
-                 is_castle: bool = False):
+                 is_castle: bool = False,
+                 is_en_passant: bool = False):
         """
         Move is saved together with metadata (is_capture, is_castle).
         This adds a little bit of overhead that is not entirely necessary
@@ -19,6 +20,7 @@ class Move(object):
         self.promotion = promotion
         self.is_castle = is_castle
         self.is_capture = is_capture
+        self.is_en_passant = is_en_passant
 
     def show(self, board: Board) -> str:
         sym = ("x" if self.is_capture else "-")
@@ -50,6 +52,8 @@ def gen_successor(board_init: Board, src: int, dest: int) -> Board:
 
 def gen_successor_from_move(board_init: Board, move: Move) -> Board:
     board = gen_successor(board_init, move.src, move.dest)
+    board._moves = board_init._moves
+    board.add_move(move)
     if move.promotion:
         # change the piece at dest into the correct piece
         board[move.dest] = move.promotion

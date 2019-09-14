@@ -2,7 +2,7 @@ import unittest as T
 
 from chess_engine.core.board import (dump_board, fen_to_board,
                                 load_board, print_board, sq_to_index,
-                                starter_board, BLACK, WHITE, Board)
+                                BLACK, WHITE, Board)
 from chess_engine.core.move import gen_successor
 from chess_engine.core.piece_movement_rules import (_has_no_legal_moves,
                                                get_bishop_valid_squares,
@@ -19,7 +19,7 @@ from chess_engine.core.piece_movement_rules import (_has_no_legal_moves,
 
 class PieceMovementTest(T.TestCase):
     def test_rook_starter_board_valid_squares(self):
-        board = starter_board[:]
+        board = Board()
         index = sq_to_index("a1")
         assert [sq for sq in get_rook_valid_squares(board, index)] == []
 
@@ -141,7 +141,7 @@ class PieceMovementTest(T.TestCase):
             [" ", "", "", "", "", " ", "", " "],
             [" ", "", "", "", "", " ", "", " "]
         ])
-        board = starter_board[:]
+        board = Board()
         assert get_promotions(board, sq_to_index("a7"), sq_to_index("a8")) == []
 
     def test_promotions_pawn_backwards(self):
@@ -274,7 +274,7 @@ class CheckTest(T.TestCase):
         assert not is_in_check(board, WHITE)
 
     def test_is_in_check_starter_board(self):
-        board = starter_board[:]
+        board = Board()
         assert not is_in_check(board, WHITE)
         assert not is_in_check(board, BLACK)
 

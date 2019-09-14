@@ -53,7 +53,24 @@ class Board:
         else:
             self._board = starter_board[:]
         # Move (but no typing for circular imports)
-        # self._moves = []
+        self._moves = []  # type: list
+
+        # computed properties
+        self._ep_possible = False
+        # index of the pawn that just moved, the one that will be captured
+        self._ep_pawn_index = -1
+        # index of the place where the capturing pawn will move to
+        self._ep_capture_index = -1
+        self._ep_computed = False
+
+        self._check_computed = {
+            WHITE: False,
+            BLACK: False,
+        }
+        self._is_in_check = {
+            WHITE: False,
+            BLACK: False
+        }
 
     def __getitem__(self, index: int) -> PieceName:
         return self._board[index]
@@ -64,8 +81,69 @@ class Board:
     def __iter__(self) -> Iterator[PieceName]:
         return iter(self._board)
 
-    # def add_move(self, move):
-    #     self._moves.append(move)
+    def add_move(self, move):
+        self._moves.append(move)
+
+    def set_check(self, color: Color, in_check: bool):
+        self._is_in_check[color] = in_check
+        self._check_computed[color] = True
+
+    def get_check(self, color: Color) -> bool:
+        assert self._check_computed[color]
+        return self._is_in_check[color]
+
+    def compute_ep_index(self) -> None:
+        """if en-passant is valid, there is precisely one index where capture is possible
+        Fill up the self._ep* variables
+        Additionally set self._ep_computed to true regardless
+        """
+        if self._moves == []:
+            # no previous moves
+            self._ep_possible = False
+            self._ep_computed = True
+            return
+        last_move = self._moves[-1]
+        if (get_raw_piece(last_move.piece) != PAWN or \
+                abs(index_to_row(last_move.src) - index_to_row(last_move.dest)) != 2):
+            # last move was not a 2-space pawn move
+            self._ep_possible = False
+            self._ep_computed = True
+            return
+        self._ep_possible = True
+        self._ep_computed = True
+        color = get_piece_color(last_move.piece)
+        dy = (1 if color == WHITE else -1)
+        self._ep_pawn_index = last_move.dest
+        self._ep_capture_index = slide_index(last_move.src, 0, dy)
+
+    def is_en_passant_possible(self) -> bool:
+        if not self._ep_computed:
+            self.compute_ep_index()
+        return self._ep_possible
+
+    def get_ep_capture_index(self) -> int:
+        if not self._ep_computed:
+            self.compute_ep_index()
+        return self._ep_capture_index
+
+    def get_ep_pawn_index(self) -> int:
+        if not self._ep_computed:
+            self.compute_ep_index()
+        return self._ep_capture_index
+
+    def move_piece(self, move) -> None:
+        """Convenient way to add the given move"""
+        move_piece(self, move.src, move.dest,
+                   promotion_piece=move.promotion,
+                   is_castle=move.is_castle,
+                   is_en_passant=move.is_en_passant)
+        self.add_move(move)
+        # after a move has been registered, reset ep calculation
+        self._ep_computed = False
+        self._check_computed = {
+            WHITE: False,
+            BLACK: False,
+        }
 
 
 def get_piece_list(board: Board, color: Color) -> Iterator[Tuple[int, PieceName]]:

@@ -11,5 +11,5 @@ def full_color_name(col):
 
 
 def setup_logging(verbose: bool):
-    level = (logging.DEBUG if verbose else logging.INFO)
+    level = (logging.DEBUG if verbose else logging.WARNING)
     logging.basicConfig(level=level)

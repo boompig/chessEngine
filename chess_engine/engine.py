@@ -22,8 +22,6 @@ CHECK = 5
 MAX = True
 MIN = False
 
-logging.basicConfig(level=logging.INFO, format="%(message)s")
-
 
 def gen_all_moves(board: Board, color: Color) -> Iterator[Move]:
     """Generate all valid moves by given color. This is a list."""
